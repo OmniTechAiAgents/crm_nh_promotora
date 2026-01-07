@@ -38,6 +38,12 @@ O Nodemon já cuida do hot reload automaticamente.
 
 ---
 
+### Após subir o container, se precisar de instalar uma nova biblioteca no nodeJS, rode esse comando:
+```bash
+docker exec -it node_app sh
+```
+Ele vai abrir o terminal do container, dentro dele é possível executar `npm i [biblioteca]` e outros comandos relacionados ao npm do container.
+
 ### 🛑 Interromper a execução dos containers
 
 Para parar os containers sem perder dados:
