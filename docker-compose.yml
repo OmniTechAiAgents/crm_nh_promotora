@@ -25,6 +25,8 @@ services:
       - /app/node_modules
     depends_on:
       - mysql
+    networks:
+      - app_network
 
 volumes:
   mysql_data:
