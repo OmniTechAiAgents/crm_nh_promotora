@@ -10,7 +10,8 @@
     "express": "^4.22.1",
     "express-oauth2-jwt-bearer": "^1.7.2",
     "jsonwebtoken": "^9.0.3",
-    "mysql2": "^3.16.0"
+    "mysql2": "^3.16.0",
+    "sequelize": "^6.37.7"
   },
   "devDependencies": {
     "dotenv": "^17.2.3",
