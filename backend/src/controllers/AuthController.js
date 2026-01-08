@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import AuthModel from '../models/AuthModel.js';
+import AuthRepository from '../repositories/AuthRepository.js';
+import HttpException from '../exceptions/HttpException.js';
 
 class AuthController {
     async Registro (req, res) {
@@ -8,14 +9,58 @@ class AuthController {
             const { username, password, role } = req.body;
             const passwordHashed = await bcrypt.hash(password, 10);
 
+            // verifica se ja nao existe um usuario com o mesmo nome
+            const userExistente = await AuthRepository.findOneByUsername(username);
+            if (userExistente) {
+                throw new HttpException("Ja existe um usuario esse username", 409)
+            };
+
             // adiciona usuario no DB
+            await AuthRepository.create({
+                username: username,
+                password: passwordHashed,
+                role: role
+            });
 
-            // gera o token e retorna no msg
-
-            return res.status(200).json({ msg: "funfou" })
+            return res.status(201).json({ msg: "O usuario foi criado com sucesso, e a conta já pode ser acessada." });
         } catch (err) {
+            if (err instanceof HttpException) {
+                return res.status(err.status).json({ erro: err.message });
+            }
+
             console.error(`Erro ao registrar o usuario: ${err}`);
-            return res.status(500).json({ erro: "Erro ao registrar." })
+            return res.status(500).json({ erro: err.message });
+        }
+    }
+
+    async Login (req, res) {
+        try {
+            const { username, password } = req.body;
+
+            const user = await AuthRepository.findOneByUsername(username);
+            if (!user) {
+                throw new HttpException("Credenciais invalidas", 401);
+            }
+
+            const valid = await bcrypt.compare(password, user.password);
+            if (!valid) {
+                throw new HttpException("Credenciais invalidas", 401);
+            }
+
+            const token = jwt.sign(
+                { id: user.id, role: user.role },
+                process.env.JWT_SECRET,
+                { expiresIn: process.env.JWT_EXPIRES_IN }
+            );
+
+            return res.status(200).json({ token: token });
+        } catch (err) {
+            if (err instanceof HttpException) {
+                return res.status(err.status).json({ erro: err.message });
+            }
+
+            console.error(`Erro ao realizar o login do usuario ${err.message}`);
+            return res.status(500).json({ erro: "Erro ao realizar o login" });
         }
     }
 }
