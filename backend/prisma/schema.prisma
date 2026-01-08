@@ -19,8 +19,8 @@ enum UserRole {
 }
 
 model usuarios {
-  id Int     @id @default(autoincrement())
-  username   String
+  id Int     @id         @default(autoincrement())
+  username   String      @unique
   password   String
-  role       UserRole @default(promotor)
+  role       UserRole    @default(promotor)
 }

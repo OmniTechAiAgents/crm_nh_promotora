@@ -1,10 +1,10 @@
-const express = require("express");
+import express from "express";
+import AuthRouters from "./routes/AuthRoutes.js";
+
 const app = express();
 app.use(express.json());
 
-const authRoutes = require("./routes/AuthRoutes");
-
-app.use('/auth', authRoutes);
+app.use('/auth', AuthRouters);
 
 app.listen(3000, () => {
     console.log("rodando....")
