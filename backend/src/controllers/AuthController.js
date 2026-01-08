@@ -1,15 +1,16 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
+import AuthModel from '../models/AuthModel.js';
 
 class AuthController {
     async Registro (req, res) {
         try {
-            // precisa adicionar a role tbm
             const { username, password, role } = req.body;
-
             const passwordHashed = await bcrypt.hash(password, 10);
 
-            console.warn(`Adicionando as credenciais no DB: ${username}, ${passwordHashed}, ${role}`)
+            // adiciona usuario no DB
+
+            // gera o token e retorna no msg
 
             return res.status(200).json({ msg: "funfou" })
         } catch (err) {
