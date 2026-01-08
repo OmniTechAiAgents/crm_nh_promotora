@@ -13,6 +13,14 @@ datasource db {
   provider = "mysql"
 }
 
-model Test {
-  id Int @id @default(autoincrement())
+enum UserRole {
+  admin
+  promotor
+}
+
+model usuarios {
+  id Int     @id @default(autoincrement())
+  username   String
+  password   String
+  role       UserRole @default(promotor)
 }
