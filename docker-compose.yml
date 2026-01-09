@@ -14,6 +14,12 @@ services:
       - mysql_data:/var/lib/mysql
     networks:
       - app_network
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
 
   node:
     build: ./backend
@@ -24,7 +30,8 @@ services:
       - ./backend:/app
       - /app/node_modules
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     networks:
       - app_network
 

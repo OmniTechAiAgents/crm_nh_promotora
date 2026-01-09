@@ -10,4 +10,4 @@ class AuthRepository {
     }
 }
 
-export default new AuthRepository ();
+export default new AuthRepository();
