@@ -3,8 +3,6 @@ import AuthRouters from "./routes/AuthRoutes.js";
 import ConsultasRoutes from "./routes/ConsultasRoutes.js";
 import db from "./config/db.js";
 
-import './models/Usuario.js';
-
 const app = express();
 app.use(express.json());
 
