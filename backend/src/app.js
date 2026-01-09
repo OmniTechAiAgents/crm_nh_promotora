@@ -1,5 +1,6 @@
 import express from "express";
 import AuthRouters from "./routes/AuthRoutes.js";
+import ConsultasRoutes from "./routes/ConsultasRoutes.js";
 import db from "./config/db.js";
 
 import './models/Usuario.js';
@@ -8,6 +9,7 @@ const app = express();
 app.use(express.json());
 
 app.use('/auth', AuthRouters);
+app.use('/consultas', ConsultasRoutes);
 
 (async () => {
   try {
