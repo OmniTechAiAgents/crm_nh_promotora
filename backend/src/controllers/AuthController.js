@@ -9,6 +9,10 @@ class AuthController {
             const { username, password, role } = req.body;
             const passwordHashed = await bcrypt.hash(password, 10);
 
+            if (role !== undefined && role !== "admin" && role !== "promotor") {
+                throw new HttpException("Essa role não existe.", 400);
+            }
+
             // verifica se ja nao existe um usuario com o mesmo nome
             const userExistente = await AuthRepository.findOneByUsername(username);
             if (userExistente) {

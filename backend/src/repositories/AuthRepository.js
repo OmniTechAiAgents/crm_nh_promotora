@@ -2,7 +2,7 @@ import Usuario from "../models/Usuario.js";
 
 class AuthRepository {
     async create(data) {
-        Usuario.create(data);
+        return Usuario.create(data);
     }
 
     async findOneByUsername(username) {
