@@ -1,4 +1,4 @@
-
+import ConsultasFGTSService from "../services/ConsultasFGTSService.js";
 
 class ConsultasFGTSController {
     async FazerConsulta (req, res) {
@@ -6,7 +6,7 @@ class ConsultasFGTSController {
             const { instituicao, cpf, anuidades, saldo, tabela, usuario, chave, banco } = req.body;
             // instituicao = VCtex, Nossa Fintech....
 
-            const objTeste = {
+            const objConsulta = {
                 instituicao, 
                 cpf, 
                 anuidades, 
@@ -17,8 +17,9 @@ class ConsultasFGTSController {
                 banco
             }
             
-            console.table(objTeste);
-
+            // service recebe o obj da consulta e fica responsavel por toda a logica dela
+            ConsultasFGTSService.FazerConsulta(objConsulta);
+ 
             return res.status(200).json({ msg: "dados recebidos com sucesso" });
         } catch (err) {
             return res.status(500).json({ erro: err.message });
