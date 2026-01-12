@@ -1,6 +1,7 @@
 // importando as variaveis de ambiente
 import 'dotenv/config';
 
+import './config/cron.js';
 import express from "express";
 import AuthRouters from "./routes/AuthRoutes.js";
 import ConsultasRoutes from "./routes/ConsultasRoutes.js";
