@@ -17,8 +17,7 @@ class VCTexServices {
                 
                 Código de resposta: ${err.response.status};
                 Mensagem: ${err.response.data.message};
-            `)
-            // console.error(err)
+            `);
         }
     }
 }
