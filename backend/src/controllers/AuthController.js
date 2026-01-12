@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import AuthRepository from '../repositories/AuthRepository.js';
-import HttpException from '../exceptions/HttpException.js';
+import HttpException from '../utils/HttpException.js';
 
 class AuthController {
     async Registro (req, res) {
