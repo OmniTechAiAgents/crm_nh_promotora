@@ -1,14 +1,12 @@
 
 
-class ConsultasController {
+class ConsultasFGTSController {
     async FazerConsulta (req, res) {
         try {
-            const { tipo, instituicao, cpf, anuidades, saldo, tabela, usuario, chave, banco } = req.body;
-            // tipo = FGTS ou CLT
+            const { instituicao, cpf, anuidades, saldo, tabela, usuario, chave, banco } = req.body;
             // instituicao = VCtex, Nossa Fintech....
 
             const objTeste = {
-                tipo, 
                 instituicao, 
                 cpf, 
                 anuidades, 
@@ -28,4 +26,4 @@ class ConsultasController {
     }
 }
 
-export default new ConsultasController();
+export default new ConsultasFGTSController();
