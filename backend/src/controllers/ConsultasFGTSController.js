@@ -4,22 +4,16 @@ import VCTexServices from "../services/integrations/VCTexServices.js";
 class ConsultasFGTSController {
     async FazerConsulta (req, res) {
         try {
-            const { instituicao, cpf, anuidades, saldo, tabela, usuario, chave, banco } = req.body;
+            const { instituicao, cpf } = req.body;
             // instituicao = VCtex, Nossa Fintech....
 
             const objConsulta = {
-                instituicao, 
-                cpf, 
-                anuidades, 
-                saldo, 
-                tabela, 
-                usuario, 
-                chave, 
-                banco
+                instituicao,
+                cpf
             }
             
             // service recebe o obj da consulta e fica responsavel por toda a logica dela
-            ConsultasFGTSService.FazerConsulta(objConsulta);
+            await ConsultasFGTSService.FazerConsulta(objConsulta, req.user);
  
             return res.status(200).json({ msg: "dados recebidos com sucesso" });
         } catch (err) {

@@ -2,6 +2,8 @@ import axios from 'axios';
 import TokenAPIsRepository from '../../repositories/TokenAPIsRepository.js';
 import IsTokenExpired from '../../utils/IsTokenExpired.js';
 import TaskScheduler from '../../utils/TaskScheduler.js';
+import HttpException from '../../utils/HttpException.js';
+import { response } from 'express';
 
 class VCTexServices {
     constructor() {
@@ -38,9 +40,7 @@ class VCTexServices {
                 nome_api: "vctex",
                 tipo_api: "fgtS",
                 access_token: response.data.token.accessToken,
-                // expires: response.data.token.expires
-
-                expires: 80
+                expires: response.data.token.expires
             }
 
             if (retorno) {
@@ -59,6 +59,49 @@ class VCTexServices {
             return this.accessToken;
         } catch(err) {
             console.error(`Não foi possivel recuperar o token de acesso da VCTex: ${err}`);
+        }
+    }
+
+    async Simulacao(cpf, userUsername) {
+        try {
+            const rawResponse = await axios.post(`${process.env.VCTex_baseURL}/service/simulation`, {
+                clientCpf: cpf,
+                feeScheduleId: 0,
+                player: "QITECH"
+            },
+            {
+                headers: {
+                    'Authorization': `Bearer ${this.accessToken}`,
+                    'Content-Type': 'application/json'
+                }
+            }
+        )
+            
+            const response = {
+                cpf: cpf,
+                anuidades: rawResponse.data.data.simulationData.installments,
+                saldo: rawResponse.data.data.simulationData.totalReleasedAmount,
+                valor_bruto: rawResponse.data.data.simulationData.totalAmount,
+                valor_liquido: rawResponse.data.data.simulationData.totalReleasedAmount,
+                valor_tac: rawResponse.data.data.simulationData.contractTacAmount,
+                valor_seguro: rawResponse.data.data.simulationData.contractInsuranceAmount,
+                tabela: "Tabela Exponencial",
+                usuario: userUsername,
+                chave: rawResponse.data.data.financialId,
+                banco: "QITECH"
+            }
+
+            return console.log(response);
+        } catch (err) {
+            // se for erro do axios, usa a exception personalizada q criei
+            if(axios.isAxiosError(err)) {
+                const status = err.response?.status || 500;
+                const message = err.response?.data?.message || "Erro inesperado ao realizar a simulação";
+
+                throw new HttpException(message, status);
+            }
+
+            throw new HttpException(err.message, 500);
         }
     }
 
