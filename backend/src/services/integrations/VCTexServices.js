@@ -4,6 +4,10 @@ import IsTokenExpired from '../../utils/IsTokenExpired.js';
 import TaskScheduler from '../../utils/TaskScheduler.js';
 
 class VCTexServices {
+    constructor() {
+        this.accessTokenVCTex = null;
+    }
+
     async Autenticar() {
         try {
             const retorno = await TokenAPIsRepository.findOneByNameAndType("vctex", "fgts");
@@ -49,6 +53,10 @@ class VCTexServices {
         } catch(err) {
             console.error(`Não foi possivel recuperar o token de acesso da VCTex: ${err}`);
         }
+    }
+
+    getToken() {
+        return this.accessTokenVCTex;
     }
 }
 
