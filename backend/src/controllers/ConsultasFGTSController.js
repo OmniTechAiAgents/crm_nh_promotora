@@ -1,4 +1,5 @@
 import ConsultasFGTSService from "../services/ConsultasFGTSService.js";
+import VCTexServices from "../services/integrations/VCTexServices.js";
 
 class ConsultasFGTSController {
     async FazerConsulta (req, res) {
