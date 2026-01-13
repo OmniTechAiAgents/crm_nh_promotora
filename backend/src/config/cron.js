@@ -1,10 +1,10 @@
 import cron from 'node-cron';
-import VCTexServices from '../services/VCTexServices.js';
+import VCTexServices from '../services/integrations/VCTexServices.js';
 
 async function autenticarVCtex() {
-    VCTexServices.Autenticar();
+    const tokenVCTex = await VCTexServices.Autenticar();
 
-    console.log("Cron de auth executado.");
+    console.log(`Cron de auth executado, token: ${tokenVCTex}`);
 }
 
 // roda o autenticador ja na subida da API

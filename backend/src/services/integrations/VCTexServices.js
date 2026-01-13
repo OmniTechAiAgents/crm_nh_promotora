@@ -1,5 +1,5 @@
 import axios from 'axios';
-import TokenAPIsRepository from '../repositories/TokenAPIsRepository.js';
+import TokenAPIsRepository from '../../repositories/TokenAPIsRepository.js';
 
 class VCTexServices {
     async Autenticar() {
@@ -7,7 +7,7 @@ class VCTexServices {
             const retorno = await TokenAPIsRepository.findOneByNameAndType("vctex", "fgts");
             
             // LEMBRAR: tirar o ! de !retorno para funcionar direito
-            if (!retorno) {
+            if (retorno) {
                 // 1 - Verifica o tempo de vida do token;
 
                 // 2 - Agenda a tarefa para refazer a autenticacao com base no tempo restante;
@@ -21,10 +21,8 @@ class VCTexServices {
                 password: process.env.VCTEX_password
             });
 
-            console.log(response);
-
             console.log("API da VCTex conectada.")
-            return response.token.access-token;
+            return response.data.token.accessToken;
         } catch(err) {
             console.error(`
                 Não foi possivel recuperar o token de acesso da VCTex:

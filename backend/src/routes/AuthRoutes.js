@@ -5,7 +5,7 @@ import { AuthorizeRoles } from "../middleware/authorizedRoles.js";
 
 const AuthRouters = express.Router();
 
-AuthRouters.post("/registro", AuthenticationToken, AuthorizeRoles('admin', 'promotor'), AuthController.Registro);
+AuthRouters.post("/registro", AuthenticationToken, AuthorizeRoles('admin'), AuthController.Registro);
 
 AuthRouters.post("/login" , AuthController.Login);
 
