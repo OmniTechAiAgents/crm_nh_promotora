@@ -12,7 +12,7 @@ const TokenAPIs = db.define(
         nome_api: {
             type: DataTypes.STRING,
             allowNull: false,
-            unique: false,
+            unique: true,
         },
         tipo_api: {
             type: DataTypes.ENUM("fgts", "clt"),
@@ -20,7 +20,7 @@ const TokenAPIs = db.define(
             unique: false,
         },
         access_token: {
-            type: DataTypes.STRING(255),
+            type: DataTypes.TEXT,
             allowNull: false,
             unique: false,
         },

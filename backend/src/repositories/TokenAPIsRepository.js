@@ -13,6 +13,12 @@ class TokenAPIsRepository {
     async create(data) {
         return TokenAPIs.create(data);
     }
+
+    async update(id, data) {
+        return TokenAPIs.update(data, {
+            where: { id: id }
+        })
+    };
 }
 
 export default new TokenAPIsRepository();
