@@ -29,8 +29,8 @@ class VCTexServices {
             });
 
             const TokenData = {
-                nome_api: "VCTex",
-                tipo_api: "FGTS",
+                nome_api: "vctex",
+                tipo_api: "fgtS",
                 access_token: response.data.token.accessToken,
                 expires: response.data.token.expires
             }
@@ -40,6 +40,10 @@ class VCTexServices {
             } else {
                 await TokenAPIsRepository.create(TokenData);
             }
+            
+            // reagendar a tarefa com o schreduler
+            const delay = IsTokenExpired((new Date).getTime(), TokenData.expires);
+            TaskScheduler.schedule("VCTexFGTS", () => this.Autenticar(), delay.delay);
 
             return response.data.token.accessToken;
         } catch(err) {
