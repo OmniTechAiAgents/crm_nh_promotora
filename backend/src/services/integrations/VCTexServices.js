@@ -13,11 +13,9 @@ class VCTexServices {
     async Autenticar() {
         try {
             const retorno = await TokenAPIsRepository.findOneByNameAndType("vctex", "fgts");
-            // console.log(retorno)
 
             if (retorno) {
                 const status = IsTokenExpired(retorno.dataValues.updatedAt, retorno.dataValues.expires);
-                console.log(status)
 
                 // 1 - Verifica se o token está expirado
                 if (!status.isExpired) {
