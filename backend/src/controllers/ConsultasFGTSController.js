@@ -17,9 +17,7 @@ class ConsultasFGTSController {
  
             return res.status(200).json({ msg: "dados recebidos com sucesso" });
         } catch (err) {
-            console.log("Erro no FGTS controller disparado")
             if (err instanceof HttpException) {
-                console.log("Erro no catch erro no instance of de HttpException disparado.");
                 return res.status(err.status).json({ erro: err.message });
             }
 

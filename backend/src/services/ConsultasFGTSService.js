@@ -15,7 +15,6 @@ class ConsultasFGTSService {
             }
 
         } catch (err) {
-            console.log("erro no FGTS service disparado")
             throw err;
         }
     }

@@ -29,7 +29,7 @@ class VCTexServices {
                 }
             }
 
-            console.log("Recuperando um novo token VCTex")
+            console.log("Recuperando um novo token VCTex.")
 
             const response = await axios.post(`${process.env.VCTex_baseURL}/authentication/login`, {
                 cpf: process.env.VCTEX_user,
@@ -98,7 +98,6 @@ class VCTexServices {
                 const status = err.response?.data?.statusCode || 500;
                 const message = err.response?.data?.message || "Erro inesperado ao realizar a simulação";
 
-                console.log("erro VCtex disparado.")
                 throw new HttpException(message, status);
             }
 
