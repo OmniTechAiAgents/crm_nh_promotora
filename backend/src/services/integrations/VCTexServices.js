@@ -3,7 +3,7 @@ import TokenAPIsRepository from '../../repositories/TokenAPIsRepository.js';
 import IsTokenExpired from '../../utils/IsTokenExpired.js';
 import TaskScheduler from '../../utils/TaskScheduler.js';
 import HttpException from '../../utils/HttpException.js';
-import { raw, response } from 'express';
+import ConsultasFGTSRepository from '../../repositories/ConsultasFGTSRepository.js';
 
 class VCTexServices {
     constructor() {
@@ -126,7 +126,7 @@ class VCTexServices {
                 banco: usedPlayer
             }
 
-            return console.log(response);
+            await ConsultasFGTSRepository.Create(response);
         } catch (err) {
             if(axios.isAxiosError(err)) {
                 const status = err.response?.data?.statusCode || 500;

@@ -20,18 +20,15 @@ const Cpfs_individuais = db.define(
         },
         saldo: {
             type: DataTypes.DECIMAL(10, 2),
-            allowNull: false,
-            defaultValue: null
+            allowNull: false
         },
         valor_bruto: {
             type: DataTypes.DECIMAL(10, 2),
-            allowNull: false,
-            defaultValue: null
+            allowNull: false
         },
         valor_liquido: {
             type: DataTypes.DECIMAL(10, 2),
-            allowNull: false,
-            defaultValue: null
+            allowNull: false
         },
         valor_tac: {
             type: DataTypes.DECIMAL(10, 2),

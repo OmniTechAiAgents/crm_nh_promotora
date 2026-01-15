@@ -15,7 +15,7 @@ class ConsultasFGTSController {
             
             await ConsultasFGTSService.FazerConsulta(objConsulta, req.user);
  
-            return res.status(200).json({ msg: "dados recebidos com sucesso" });
+            return res.status(200).json({ msg: "Consulta realizada com sucesso." });
         } catch (err) {
             if (err instanceof HttpException) {
                 return res.status(err.status).json({ erro: err.message });
