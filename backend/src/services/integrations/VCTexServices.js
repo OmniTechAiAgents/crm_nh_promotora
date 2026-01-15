@@ -13,9 +13,11 @@ class VCTexServices {
     async Autenticar() {
         try {
             const retorno = await TokenAPIsRepository.findOneByNameAndType("vctex", "fgts");
+            // console.log(retorno)
 
             if (retorno) {
-                const status = IsTokenExpired(retorno.dataValues.createdAt, retorno.dataValues.expires);
+                const status = IsTokenExpired(retorno.dataValues.updatedAt, retorno.dataValues.expires);
+                console.log(status)
 
                 // 1 - Verifica se o token está expirado
                 if (!status.isExpired) {
@@ -29,7 +31,7 @@ class VCTexServices {
                 }
             }
 
-            console.log(`Rodando a logica de gerar um novo token.`);
+            console.log("Recuperando um novo token VCTex")
 
             const response = await axios.post(`${process.env.VCTex_baseURL}/authentication/login`, {
                 cpf: process.env.VCTEX_user,
@@ -65,17 +67,17 @@ class VCTexServices {
     async Simulacao(cpf, userUsername) {
         try {
             const rawResponse = await axios.post(`${process.env.VCTex_baseURL}/service/simulation`, {
-                clientCpf: cpf,
-                feeScheduleId: 0,
-                player: "QITECH"
-            },
-            {
-                headers: {
-                    'Authorization': `Bearer ${this.accessToken}`,
-                    'Content-Type': 'application/json'
+                    clientCpf: cpf,
+                    feeScheduleId: 0,
+                    player: "QITECH"
+                },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                        'Content-Type': 'application/json'
+                    }
                 }
-            }
-        )
+            )
             
             const response = {
                 cpf: cpf,
@@ -95,9 +97,10 @@ class VCTexServices {
         } catch (err) {
             // se for erro do axios, usa a exception personalizada q criei
             if(axios.isAxiosError(err)) {
-                const status = err.response?.status || 500;
+                const status = err.response?.data?.statusCode || 500;
                 const message = err.response?.data?.message || "Erro inesperado ao realizar a simulação";
 
+                console.log("erro VCtex disparado.")
                 throw new HttpException(message, status);
             }
 
