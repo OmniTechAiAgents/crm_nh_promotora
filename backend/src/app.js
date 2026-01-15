@@ -5,6 +5,7 @@ import AuthRouters from "./routes/AuthRoutes.js";
 import ConsultasRoutes from "./routes/ConsultasRoutes.js";
 import db from "./config/db.js";
 import VCTexServices from './services/integrations/VCTexServices.js';
+import NovaVidaService from './services/integrations/NovaVidaService.js';
 
 const app = express();
 app.use(express.json());
@@ -21,6 +22,8 @@ async function bootstrap() {
         console.log("🔄 Inicializando tokens de APIs parceiras...");
         await VCTexServices.Autenticar();
         console.log("✅ Token VCTex carregado e agendamento ativo");
+        await NovaVidaService.Autenticar();
+        console.log("✅ Token NovaVida carregado e agendamento ativo");
 
         const PORT = process.env.PORT || 3000;
         app.listen(PORT, () => {

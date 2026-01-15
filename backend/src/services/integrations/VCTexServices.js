@@ -38,7 +38,7 @@ class VCTexServices {
 
             const TokenData = {
                 nome_api: "vctex",
-                tipo_api: "fgtS",
+                tipo_api: "fgts",
                 access_token: response.data.token.accessToken,
                 expires: response.data.token.expires
             }
