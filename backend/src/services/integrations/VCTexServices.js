@@ -64,17 +64,22 @@ class VCTexServices {
 
     async Simulacao(cpf, userUsername) {
         try {
+            // desativar algum se a API for chata com requisicoes enviadas rapidamente
             const players = [
-                { code: "CDC", enabled: false },
+                { code: "CDC", enabled: true },
                 { code: "QITECH", enabled: true },
-                { code: "QITECH_DTVM", enabled: false }
+                { code: "QITECH_DTVM", enabled: true }
             ];
 
+            // setando as flags que vao ser usadas dentro do foreach
             let rawResponse = null;
             let usedPlayer = null;
             let lastError = null;
 
             for (const { code, enabled } of players) {
+                // timeout para impedir erro das APIs parceiras'
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
                 if (!enabled) continue;
 
                 try {
@@ -102,11 +107,11 @@ class VCTexServices {
                 }
             }
 
+            // captura falha direto do axios
             if (!rawResponse) {
                 throw lastError || new Error("Falha ao realizar simulação");
             }
             
-
             const response = {
                 cpf: cpf,
                 anuidades: rawResponse.data.data.simulationData.installments,
@@ -123,7 +128,6 @@ class VCTexServices {
 
             return console.log(response);
         } catch (err) {
-            // se for erro do axios, usa a exception personalizada q criei
             if(axios.isAxiosError(err)) {
                 const status = err.response?.data?.statusCode || 500;
                 const message = err.response?.data?.message || "Erro inesperado ao realizar a simulação";
