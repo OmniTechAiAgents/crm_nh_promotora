@@ -3,7 +3,7 @@ import TokenAPIsRepository from '../../repositories/TokenAPIsRepository.js';
 import IsTokenExpired from '../../utils/IsTokenExpired.js';
 import TaskScheduler from '../../utils/TaskScheduler.js';
 import HttpException from '../../utils/HttpException.js';
-import { response } from 'express';
+import { raw, response } from 'express';
 
 class VCTexServices {
     constructor() {
@@ -64,19 +64,49 @@ class VCTexServices {
 
     async Simulacao(cpf, userUsername) {
         try {
-            const rawResponse = await axios.post(`${process.env.VCTex_baseURL}/service/simulation`, {
-                    clientCpf: cpf,
-                    feeScheduleId: 0,
-                    player: "QITECH"
-                },
-                {
-                    headers: {
-                        'Authorization': `Bearer ${this.accessToken}`,
-                        'Content-Type': 'application/json'
-                    }
+            const players = [
+                { code: "CDC", enabled: false },
+                { code: "QITECH", enabled: true },
+                { code: "QITECH_DTVM", enabled: false }
+            ];
+
+            let rawResponse = null;
+            let usedPlayer = null;
+            let lastError = null;
+
+            for (const { code, enabled } of players) {
+                if (!enabled) continue;
+
+                try {
+                    console.log(`Simulando VCTex com o player: ${code}...`)
+
+                    rawResponse = await axios.post(`${process.env.VCTex_baseURL}/service/simulation`, {
+                            clientCpf: cpf,
+                            feeScheduleId: 0,
+                            player: code.trim()
+                        },
+                        {
+                            timeout: 30_000,
+                            headers: {
+                                'Authorization': `Bearer ${this.accessToken}`,
+                                'Content-Type': 'application/json'
+                            }
+                        }
+                    );
+
+                    usedPlayer = code;
+                    break;
+                } catch(err) {
+                    console.error(`O player ${code} falhou em concluir a simulacao`);
+                    lastError = err;
                 }
-            )
+            }
+
+            if (!rawResponse) {
+                throw lastError || new Error("Falha ao realizar simulação");
+            }
             
+
             const response = {
                 cpf: cpf,
                 anuidades: rawResponse.data.data.simulationData.installments,
@@ -88,7 +118,7 @@ class VCTexServices {
                 tabela: "Tabela Exponencial",
                 usuario: userUsername,
                 chave: rawResponse.data.data.financialId,
-                banco: "QITECH"
+                banco: usedPlayer
             }
 
             return console.log(response);
