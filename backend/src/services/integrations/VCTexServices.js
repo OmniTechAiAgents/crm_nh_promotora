@@ -4,6 +4,7 @@ import IsTokenExpired from '../../utils/IsTokenExpired.js';
 import TaskScheduler from '../../utils/TaskScheduler.js';
 import HttpException from '../../utils/HttpException.js';
 import ConsultasFGTSRepository from '../../repositories/ConsultasFGTSRepository.js';
+import SimulateFGTS from '../../utils/SimulateFGTS.js';
 
 class VCTexServices {
     constructor() {
@@ -71,10 +72,19 @@ class VCTexServices {
                 { code: "QITECH_DTVM", enabled: true }
             ];
 
+            const tables = [
+                { code: 0, name: "Tabela exponencial" },
+                { code: 4, name: "Vendex" },
+                { code: 26, name: "Tabela vamo com tudo" },
+                { code: 27, name: "Tabela Relax" },
+                { code: 31, name: "Tabela vamo com tudo com seguro" }
+            ]
+
             // setando as flags que vao ser usadas dentro do foreach
             let rawResponse = null;
             let usedPlayer = null;
             let lastError = null;
+            let newPossibleTable = null;
 
             for (const { code, enabled } of players) {
                 // timeout para impedir erro das APIs parceiras'
@@ -85,21 +95,24 @@ class VCTexServices {
                 try {
                     console.log(`Simulando VCTex com o player: ${code}...`)
 
-                    rawResponse = await axios.post(`${process.env.VCTex_baseURL}/service/simulation`, {
-                            clientCpf: cpf,
-                            feeScheduleId: 0,
-                            player: code.trim()
-                        },
-                        {
-                            timeout: 30_000,
-                            headers: {
-                                'Authorization': `Bearer ${this.accessToken}`,
-                                'Content-Type': 'application/json'
-                            }
-                        }
-                    );
+                    rawResponse = await SimulateFGTS({
+                        url: `${process.env.VCTex_baseURL}/service/simulation`,
+                        cpf: cpf,
+                        feeScheduleId: 0,
+                        player: code.trim(),
+                        accessToken: this.accessToken,
+                        timeout: 30_000
+                    })
 
                     usedPlayer = code;
+
+                    // 1 - verifica se no body de retorno veio true para alguma tabela elegivel
+                    if (rawResponse.data.data.isExponentialFeeScheduleAvailable) {
+                        newPossibleTable = 0;
+                    } else if (rawResponse.data.data.isVendexFeeScheduleAvailable) {
+                        newPossibleTable = 4;
+                    }
+
                     break;
                 } catch(err) {
                     console.error(`O player ${code} falhou em concluir a simulacao`);
@@ -107,7 +120,24 @@ class VCTexServices {
                 }
             }
 
-            // captura falha direto do axios
+            // refaz a query usando uma tabela melhor se for elegivel
+            if (newPossibleTable != null) {
+                try {
+                    rawResponse = await SimulateFGTS({
+                        url: `${process.env.VCTex_baseURL}/service/simulation`,
+                        cpf: cpf,
+                        feeScheduleId: newPossibleTable,
+                        player: usedPlayer,
+                        accessToken: this.accessToken,
+                        timeout: 30_000
+                    })
+                } catch(err) {
+                    console.error(`Erro ao concluir simulação com a nova tabela.`);
+                    lastError = err;
+                }
+            }
+
+            // captura falha direta do axios
             if (!rawResponse) {
                 throw lastError || new Error("Falha ao realizar simulação");
             }
