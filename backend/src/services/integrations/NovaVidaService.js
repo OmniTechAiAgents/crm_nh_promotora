@@ -2,6 +2,7 @@ import axios from 'axios';
 import TokenAPIsRepository from '../../repositories/TokenAPIsRepository.js';
 import IsTokenExpired from '../../utils/IsTokenExpired.js';
 import TaskScheduler from '../../utils/TaskScheduler.js';
+import { XMLParser } from 'fast-xml-parser';
 
 class NovaVidaService {
     constructor () {
@@ -70,7 +71,12 @@ class NovaVidaService {
                 token: this.accessToken
             });
 
-            return response.data.d;
+            const responseXml = response.data.d;
+
+            const parser = new XMLParser();
+            const responseJson = parser.parse(responseXml);
+
+            return responseJson;
         } catch (err) {
             if(axios.isAxiosError(err)) {
                 const status = err.response?.data?.statusCode || 500;
