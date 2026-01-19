@@ -1,12 +1,19 @@
 import ConsultasFGTSService from "../services/ConsultasFGTSService.js";
 import VCTexServices from "../services/integrations/VCTexServices.js";
 import HttpException from "../utils/HttpException.js";
+import VerifyCpfMask from "../utils/VerifyCpfMask.js";
 
 class ConsultasFGTSController {
     async FazerConsulta (req, res) {
         try {
             const { instituicao, cpf } = req.body;
             // instituicao = VCtex, Nossa Fintech....
+
+            if (!cpf || VerifyCpfMask(cpf)) {
+                return res.status(400).json({
+                    erro: "CPF inválido. Envie apenas números."
+                });
+            }
 
             const objConsulta = {
                 instituicao,

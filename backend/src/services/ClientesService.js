@@ -6,14 +6,11 @@ class ClientesService {
     async procurarCpf(cpf) {
         try {
             const consultaDB = await ClientesRepository.findOneByCpf(cpf);
-            console.log(`${consultaDB}, ${cpf}`)
             
             if (consultaDB) {
-                console.log("CLIENTE JA EXISTE.")
                 return consultaDB;
             }
 
-            console.log("CLIENTE NAO EXISTE")
 
             // busca os dados com a API da NovaVida
             const dadosCliente = await NovaVidaService.BuscarDados(cpf);
@@ -34,7 +31,6 @@ class ClientesService {
         try {
             // tratamento do campo DATA_NASC
             const DataFormatada = ParseNascNV(data.CONSULTA.CADASTRO.NASC);
-            console.log(`Data formatada: ${DataFormatada}.`)
 
             const clienteObj = ({
                 // parte cadastro
