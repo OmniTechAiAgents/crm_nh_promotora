@@ -1,3 +1,4 @@
+import { DataTypes, Sequelize } from 'sequelize';
 import db from '../config/db.js';
 
 const Clientes = db.define(
@@ -12,6 +13,7 @@ const Clientes = db.define(
         cpf: {
             type: DataTypes.STRING(11),
             allowNull: false,
+            unique: true
         },
         nome: {
             type: DataTypes.STRING(75),
