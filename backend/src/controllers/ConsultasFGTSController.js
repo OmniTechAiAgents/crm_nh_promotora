@@ -1,5 +1,4 @@
 import ConsultasFGTSService from "../services/ConsultasFGTSService.js";
-import VCTexServices from "../services/integrations/VCTexServices.js";
 import HttpException from "../utils/HttpException.js";
 import VerifyCpfMask from "../utils/VerifyCpfMask.js";
 
