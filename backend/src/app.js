@@ -6,6 +6,7 @@ import ConsultasRoutes from "./routes/ConsultasRoutes.js";
 import db from "./config/db.js";
 import VCTexServices from './services/integrations/VCTexServices.js';
 import NovaVidaService from './services/integrations/NovaVidaService.js';
+import C6Service from './services/integrations/C6Service.js';
 
 const app = express();
 app.use(express.json());
@@ -24,6 +25,8 @@ async function bootstrap() {
         console.log("✅ Token VCTex carregado e agendamento ativo");
         await NovaVidaService.Autenticar();
         console.log("✅ Token NovaVida carregado e agendamento ativo");
+        await C6Service.Autenticar();
+        console.log("✅ Token C6 carregado e agendamento ativo");
 
         const PORT = process.env.PORT || 3000;
         app.listen(PORT, () => {

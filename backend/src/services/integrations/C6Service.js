@@ -1,0 +1,76 @@
+import axios from 'axios';
+import TokenAPIsRepository from '../../repositories/TokenAPIsRepository.js';
+import IsTokenExpired from '../../utils/IsTokenExpired.js';
+import TaskScheduler from '../../utils/TaskScheduler.js';
+
+
+class C6Service {
+    constructor() {
+        this.accessToken = null;
+    }
+
+    async Autenticar() {
+        try {
+            const retorno = await TokenAPIsRepository.findOneByNameAndType("c6", "clt");
+
+            if (retorno) {
+                const status = IsTokenExpired(retorno.dataValues.updatedAt, retorno.dataValues.expires);
+
+                // 1 - Verifica se o token está expirado
+                if (!status.isExpired) {
+                    this.accessToken = retorno.dataValues.access_token;
+
+                    // 2 - Agenda a tarefa para refazer a autenticacao com base no tempo restante;
+                    TaskScheduler.schedule("C6", () => this.Autenticar(), status.delay);
+
+                    // 3 - Retorna o token que ainda é valido
+                    return this.accessToken;
+                }
+            }
+
+            console.log("Recuperando um novo token C6.")
+
+            const reqData = new URLSearchParams();
+            reqData.append("username", process.env.C6_username);
+            reqData.append("password", process.env.C6_password);
+
+            const response = await axios.post(`${process.env.C6_baseURL}/auth/token`, reqData,
+                {
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                    },
+                }
+            );
+
+            const TokenData = {
+                nome_api: "c6",
+                tipo_api: "clt",
+                access_token: response.data.access_token,
+                expires: response.data.expires_in_seconds
+            }
+
+            if (retorno) {
+                await TokenAPIsRepository.update(retorno.dataValues.id, TokenData);
+            } else {
+                await TokenAPIsRepository.create(TokenData);
+            }
+
+            // atualiza o accessToken q ta na memoria
+            this.accessToken = response.data.access_token;
+
+            // reagendar a tarefa com o schreduler
+            const delay = IsTokenExpired((new Date).getTime(), TokenData.expires);
+            TaskScheduler.schedule("C6", () => this.Autenticar(), delay.delay);
+
+            return this.accessToken;
+        } catch(err) {
+            console.error(`Não foi possivel recuperar o token de acesso da C6: ${err}`);
+        }
+    }
+
+    getToken() {
+        return this.accessToken;
+    }
+}
+
+export default new C6Service();
