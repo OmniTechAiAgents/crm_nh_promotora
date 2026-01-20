@@ -11,7 +11,6 @@ class ClientesService {
                 return consultaDB;
             }
 
-
             // busca os dados com a API da NovaVida
             const dadosCliente = await NovaVidaService.BuscarDados(cpf);
 
