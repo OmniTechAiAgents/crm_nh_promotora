@@ -20,15 +20,18 @@ const Cpfs_individuais = db.define(
         },
         saldo: {
             type: DataTypes.DECIMAL(10, 2),
-            allowNull: false
+            allowNull: true,
+            defaultValue: null
         },
         valor_bruto: {
             type: DataTypes.DECIMAL(10, 2),
-            allowNull: false
+            allowNull: true,
+            defaultValue: null
         },
         valor_liquido: {
             type: DataTypes.DECIMAL(10, 2),
-            allowNull: false
+            allowNull: true,
+            defaultValue: null
         },
         valor_tac: {
             type: DataTypes.DECIMAL(10, 2),
@@ -47,7 +50,7 @@ const Cpfs_individuais = db.define(
         },
         usuario: {
             type: DataTypes.STRING(255),
-            allowNull: true,
+            allowNull: false,
         },
         chave: {
             type: DataTypes.STRING(50),
@@ -58,6 +61,10 @@ const Cpfs_individuais = db.define(
             type: DataTypes.STRING(50),
             allowNull: true,
             defaultValue: null
+        },
+        mensagem: {
+            type: DataTypes.STRING(100),
+            allowNull: false
         }
     },
     {
