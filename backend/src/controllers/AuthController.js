@@ -1,12 +1,18 @@
 import HttpException from '../utils/HttpException.js';
 import AuthService from '../services/AuthService.js';
+import { ValidarBodyRegistro } from '../middleware/ValidarBodyRegistro.js';
 
 class AuthController {
     async Registro (req, res) {
         try {
             const { username, password, role } = req.body;
+            const dados = ValidarBodyRegistro.parse(req.body);
 
-            await AuthService.Registro({ username, password, role });
+            await AuthService.Registro({ 
+                username: dados.username, 
+                password: dados.password, 
+                role: dados.role
+            });
 
             return res.status(201).json({ msg: "O usuario foi criado com sucesso, e a conta já pode ser acessada." });
         } catch (err) {
