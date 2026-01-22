@@ -1,11 +1,11 @@
 import HttpException from '../utils/HttpException.js';
 import AuthService from '../services/AuthService.js';
 import { ValidarBodyRegistro } from '../middleware/ValidarBodyRegistro.js';
+import { ZodError } from "zod";
 
 class AuthController {
     async Registro (req, res) {
         try {
-            const { username, password, role } = req.body;
             const dados = ValidarBodyRegistro.parse(req.body);
 
             await AuthService.Registro({ 
@@ -16,6 +16,12 @@ class AuthController {
 
             return res.status(201).json({ msg: "O usuario foi criado com sucesso, e a conta já pode ser acessada." });
         } catch (err) {
+            if (err instanceof ZodError) {
+                return res.status(400).json({
+                    erro: err.issues[0].message
+                });
+            }
+
             if (err instanceof HttpException) {
                 return res.status(err.status).json({ erro: err.message });
             }

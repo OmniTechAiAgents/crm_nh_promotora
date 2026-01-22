@@ -5,6 +5,7 @@ export const ValidarBodyProposta = z
   .object({
     cpf: z.string(),
 
+    instituicao: z.enum(["VCTex", "Parana"]),
     bankCode: z.string().optional(),
     accountType: z.string().optional(),
     accountNumber: z.string().optional(),

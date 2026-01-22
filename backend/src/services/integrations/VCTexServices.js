@@ -5,6 +5,8 @@ import TaskScheduler from '../../utils/TaskScheduler.js';
 import HttpException from '../../utils/HttpException.js';
 import ConsultasFGTSRepository from '../../repositories/ConsultasFGTSRepository.js';
 import SimulateFGTS from '../../utils/SimulateFGTS.js';
+import ClientesService from '../ClientesService.js';
+import SearchByCEP from '../../utils/SearchByCEP.js';
 
 class VCTexServices {
     constructor() {
@@ -189,6 +191,56 @@ class VCTexServices {
             await ConsultasFGTSRepository.Create(response);
 
             throw new HttpException(message, status);
+        }
+    }
+
+    async Proposta(data, userUsername) {
+        try {
+            // VERIFICAR ANTES PARA VER SE O FINANCIALID EXISTE
+
+            const cliente = await ClientesService.procurarCpf(data.cpf);
+
+            const enderecoInfos = await SearchByCEP(cliente.dataValues.cep)
+
+            const reqBody = ({
+                feeScheduleId: 0,
+                financialId: data.financialId,
+                borrower: {
+                    name: cliente.dataValues.nome,
+                    cpf: cliente.dataValues.cpf,
+                    birthdate: cliente.dataValues.data_nasc,
+                    gender: cliente.dataValues.sexo == "M" ? "male" : cliente.dataValues.sexo == "F" ? "female" : "other",
+                    phoneNumber: "11999999999",
+                    email: "exemple@gmail.com",
+                    maritalStatus: "single",
+                    nationality: "brazilian",
+                    naturalness: "brazilian",
+                    motherName: cliente.dataValues.nome_mae,
+                    fatherName: "Jose Santos do Nascimento",
+                    pep: false
+                },
+                document: {
+                    type: "rg",
+                    number: "999999999",
+                    issuingState: "SP",
+                    issuingAuthority: "SSP", 
+                    issueDate: "2023-01-01"
+                },
+                address: {
+                    zipCode: cliente.dataValues.cep,
+                    street: enderecoInfos.data.logradouro,
+                    number: 1,
+                    complement: null,
+                    neighborhood: enderecoInfos.data.bairro,
+                    city: enderecoInfos.data.localidade,
+                    state: enderecoInfos.data.uf
+                }
+            })
+            console.log(reqBody);
+
+            return true;
+        } catch (err) {
+            throw err;
         }
     }
 
