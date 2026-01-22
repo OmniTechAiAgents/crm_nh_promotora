@@ -76,6 +76,8 @@ class NovaVidaService {
 
             const parser = new XMLParser({
                 ignoreAttributes: false,
+                parseTagValue: false,
+                parseAttributeValue: false,
                 isArray: (name, jpath, isLeafNode, isAttribute) => {
                     return [
                         "ENDERECO",
