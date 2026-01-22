@@ -33,7 +33,7 @@ const Clientes = db.define(
             allowNull: false
         },
 
-        // parte de enredeco
+        // parte de endereco
         cep: {
             type: DataTypes.STRING(8),
             allowNull: false
@@ -44,43 +44,43 @@ const Clientes = db.define(
         // celular_whatsapp: celular cadastrado no whatsapp?
         celular_ddd: {
             type: DataTypes.STRING(3),
-            allowNull: false
+            allowNull: true
         },
         celular_numero: {
             type: DataTypes.STRING(9),
-            allowNull: false
+            allowNull: true
         },
         celular_procon: {
             type: DataTypes.ENUM("S", "N"),
-            allowNull: false
+            allowNull: true
         },
         celular_whatsapp: {
             type: DataTypes.ENUM("S", "N"),
-            allowNull: false
+            allowNull: true
         },
 
         // parte de telefone
         telefone_ddd: {
             type: DataTypes.STRING(3),
-            allowNull: false
+            allowNull: true
         },
         telefone_numero: {
             type: DataTypes.STRING(8),
-            allowNull: false
+            allowNull: true
         },
         telefone_procon: {
             type: DataTypes.ENUM("S", "N"),
-            allowNull: false
+            allowNull: true
         },
 
         // parte credito
         score_digital: {
             type: DataTypes.STRING(50),
-            allowNull:false
+            allowNull: true
         },
         propencao_pagamento: {
             type: DataTypes.INTEGER,
-            allowNull: false
+            allowNull: true
         },
 
         // parte empresa
@@ -89,7 +89,7 @@ const Clientes = db.define(
             allowNull: true
         },
         empresa_valor_presumido: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.STRING(20),
             allowNull: true
         },
         empresa_probabilidade_saque: {
