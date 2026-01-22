@@ -3,6 +3,7 @@ import TokenAPIsRepository from '../../repositories/TokenAPIsRepository.js';
 import IsTokenExpired from '../../utils/IsTokenExpired.js';
 import TaskScheduler from '../../utils/TaskScheduler.js';
 import { XMLParser } from 'fast-xml-parser';
+import HttpException from '../../utils/HttpException.js';
 
 class NovaVidaService {
     constructor () {
@@ -73,7 +74,17 @@ class NovaVidaService {
 
             const responseXml = response.data.d;
 
-            const parser = new XMLParser();
+            const parser = new XMLParser({
+                ignoreAttributes: false,
+                isArray: (name, jpath, isLeafNode, isAttribute) => {
+                    return [
+                        "ENDERECO",
+                        "CELULAR",
+                        "TELEFONE",
+                        "EMPRESA"
+                    ].includes(name);
+                }
+            });
             const responseJson = parser.parse(responseXml);
 
             return responseJson;
