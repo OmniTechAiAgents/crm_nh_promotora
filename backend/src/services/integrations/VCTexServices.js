@@ -153,19 +153,42 @@ class VCTexServices {
                 tabela: "Tabela Exponencial",
                 usuario: userUsername,
                 chave: rawResponse.data.data.financialId,
-                banco: usedPlayer
+                banco: usedPlayer,
+                mensagem: "Consulta realizada com sucesso!",
+                elegivelProposta: true
             }
 
             await ConsultasFGTSRepository.Create(response);
         } catch (err) {
-            if(axios.isAxiosError(err)) {
-                const status = err.response?.data?.statusCode || 500;
-                const message = err.response?.data?.message || "Erro inesperado ao realizar a simulação";
+            let status = 500;
+            let message = "Erro inesperado ao realizar a simulação";
 
-                throw new HttpException(message, status);
+            if (axios.isAxiosError(err)) {
+                status = err.response?.data?.statusCode ?? 500;
+                message = err.response?.data?.message ?? message;
+            } else if (err instanceof Error) {
+                message = err.message;
             }
 
-            throw new HttpException(err.message, 500);
+            const response = {
+                cpf,
+                anuidades: null,
+                saldo: null,
+                valor_bruto: null,
+                valor_liquido: null,
+                valor_tac: null,
+                valor_seguro: null,
+                tabela: "Tabela Exponencial",
+                usuario: userUsername,
+                chave: null,
+                banco: null,
+                mensagem: message,
+                elegivelProposta: false
+            };
+
+            await ConsultasFGTSRepository.Create(response);
+
+            throw new HttpException(message, status);
         }
     }
 

@@ -65,6 +65,10 @@ const Cpfs_individuais = db.define(
         mensagem: {
             type: DataTypes.STRING(100),
             allowNull: false
+        },
+        elegivelProposta: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false
         }
     },
     {
