@@ -1,28 +1,28 @@
 import ConsultasFGTSService from "../services/ConsultasFGTSService.js";
 import HttpException from "../utils/HttpException.js";
-import VerifyCpfMask from "../utils/VerifyCpfMask.js";
+import { ValidarBodyConsulta } from "../middleware/ValidarBodyConsulta.js";
+import { ZodError } from "zod";
 
 class ConsultasFGTSController {
     async FazerConsulta (req, res) {
         try {
-            const { instituicao, cpf } = req.body;
-            // instituicao = VCtex, Nossa Fintech....
-
-            if (!cpf || VerifyCpfMask(cpf)) {
-                return res.status(400).json({
-                    erro: "CPF inválido. Envie apenas números."
-                });
-            }
+            const dados = ValidarBodyConsulta.parse(req.body)
 
             const objConsulta = {
-                instituicao,
-                cpf
+                instituicao: dados.instituicao,
+                cpf: dados.cpf
             }
             
             await ConsultasFGTSService.FazerConsulta(objConsulta, req.user);
  
             return res.status(200).json({ msg: "Consulta realizada com sucesso." });
         } catch (err) {
+            if (err instanceof ZodError) {
+                return res.status(400).json({
+                    erro: err.issues[0].message
+                });
+            }
+
             if (err instanceof HttpException) {
                 return res.status(err.status).json({ erro: err.message });
             }
