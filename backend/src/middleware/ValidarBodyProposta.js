@@ -7,13 +7,13 @@ export const ValidarBodyProposta = z
 
     instituicao: z.enum(["VCTex", "Parana"]),
     bankCode: z.string().optional(),
-    accountType: z.string().optional(),
+    accountType: z.enum(["corrente", ["poupanca"]]).optional(),
     accountNumber: z.string().optional(),
     accountDigit: z.string().optional(),
     branchNumber: z.string().optional(),
 
     pixKey: z.string().optional(),
-    pixKeyType: z.string().optional()
+    pixKeyType: z.enum(["CHAVE_ALEATORIA", "EMAIL", "TELEFONE", "CPF"]).optional()
   })
   .superRefine((data, ctx) => {
     const recebeBanco = data.bankCode || data.accountType || data.accountNumber || data.accountDigit || data.branchNumber;

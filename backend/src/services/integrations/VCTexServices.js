@@ -196,7 +196,10 @@ class VCTexServices {
 
     async Proposta(data, userUsername) {
         try {
-            // VERIFICAR ANTES PARA VER SE O FINANCIALID EXISTE
+            const verifica = await ConsultasFGTSRepository.SearchByFinancialId(data.financialId);
+            if (!verifica) {
+                throw new HttpException("Nenhuma proposta encontrada com esse financialId", 404);
+            }
 
             const cliente = await ClientesService.procurarCpf(data.cpf);
 
@@ -216,7 +219,7 @@ class VCTexServices {
                     nationality: "brazilian",
                     naturalness: "brazilian",
                     motherName: cliente.dataValues.nome_mae,
-                    fatherName: "Jose Santos do Nascimento",
+                    fatherName: "Josué Santos do Nascimento",
                     pep: false
                 },
                 document: {
@@ -234,13 +237,45 @@ class VCTexServices {
                     neighborhood: enderecoInfos.data.bairro,
                     city: enderecoInfos.data.localidade,
                     state: enderecoInfos.data.uf
+                },
+                disbursementBankAccount: {
+                    bankCode: data.bankCode,
+                    accountType: data.accountType,
+                    accountNumber: data.accountNumber,
+                    accountDigit: data.accountDigit,
+                    branchNumber: data.branchNumber,
+                    pixKey: data.pixKey,
+                    pixKeyType: data.pixKeyType
                 }
             })
-            console.log(reqBody);
 
+            console.log("Tentando enviar body de proposta para VCTex...");
+            const response = await axios.post(`${process.env.VCTex_baseURL}/service/proposal`, 
+                reqBody,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            // rodar logica para armazenar o body de retorno da proposta no banco de dados
+            console.log(response.data);
             return true;
         } catch (err) {
-            throw err;
+            if(axios.isAxiosError(err)) {
+                const status = err.response?.data?.statusCode || 500;
+                const message = err.response?.data?.message || "Erro desconhecido.";
+
+                throw new HttpException(message, status);
+            }
+
+            if(err instanceof HttpException) {
+                throw new HttpException(err.message, err.status);
+            }
+
+            throw new HttpException(err.message, 500);
         }
     }
 
