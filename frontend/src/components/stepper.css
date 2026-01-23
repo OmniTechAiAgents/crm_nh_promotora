@@ -1,0 +1,18 @@
+.stepper {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  font-weight: 500;
+}
+
+.stepper div {
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: #e5e7eb;
+  color: #555;
+}
+
+.stepper .active {
+  background: #2563eb;
+  color: white;
+}

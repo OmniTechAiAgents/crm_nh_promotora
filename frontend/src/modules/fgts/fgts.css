@@ -1,0 +1,65 @@
+.card {
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  max-width: 420px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.08);
+}
+
+.card input {
+  width: 100%;
+  padding: 8px;
+  margin: 12px 0;
+}
+
+.card button {
+  padding: 8px 16px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.warning {
+  margin-top: 12px;
+  color: #b45309;
+}
+
+.success {
+  margin-top: 12px;
+}
+
+.offer-box {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.offer-item {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+}
+
+.offer-item span {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.offer-item strong {
+  font-size: 16px;
+  color: #111827;
+}
+
+.offer-item .value {
+  font-size: 20px;
+  color: #16a34a;
+}
+
+button.primary {
+  width: 100%;
+  margin-top: 12px;
+}
