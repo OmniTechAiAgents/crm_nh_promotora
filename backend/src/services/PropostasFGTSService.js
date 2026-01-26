@@ -17,6 +17,14 @@ class PropostasFGTSService {
             throw err;
         }
     }
+
+    async CancelarProposta(proposalId, userData) {
+        try {
+            await VCTexServices.CancelarProposta(proposalId, userData);
+        } catch(err) {
+            throw err;
+        }
+    }
 }
 
 export default new PropostasFGTSService();

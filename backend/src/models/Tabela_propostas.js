@@ -69,6 +69,11 @@ const Tabela_propostas = db.define(
             type: DataTypes.STRING(100),
             allowNull: true
         },
+        verificar: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true,
+        },
         data_status: {
             type: DataTypes.DATE,
             allowNull: true
