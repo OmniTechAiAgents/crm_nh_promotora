@@ -232,7 +232,7 @@ class VCTexServices {
                 address: {
                     zipCode: cliente.dataValues.cep,
                     street: enderecoInfos.data.logradouro,
-                    number: 1,
+                    number: "1",
                     complement: null,
                     neighborhood: enderecoInfos.data.bairro,
                     city: enderecoInfos.data.localidade,
