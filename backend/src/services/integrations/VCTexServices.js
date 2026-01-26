@@ -7,6 +7,7 @@ import ConsultasFGTSRepository from '../../repositories/ConsultasFGTSRepository.
 import SimulateFGTS from '../../utils/SimulateFGTS.js';
 import ClientesService from '../ClientesService.js';
 import SearchByCEP from '../../utils/SearchByCEP.js';
+import PropostasRepository from '../../repositories/PropostasRepository.js';
 
 class VCTexServices {
     constructor() {
@@ -196,13 +197,13 @@ class VCTexServices {
 
     async Proposta(data, userUsername) {
         try {
+            // logica completa para mandar a proposta para a VCTex
             const verifica = await ConsultasFGTSRepository.SearchByFinancialId(data.financialId);
             if (!verifica) {
                 throw new HttpException("Nenhuma proposta encontrada com esse financialId", 404);
             }
 
             const cliente = await ClientesService.procurarCpf(data.cpf);
-
             const enderecoInfos = await SearchByCEP(cliente.dataValues.cep)
 
             const reqBody = ({
@@ -213,7 +214,7 @@ class VCTexServices {
                     cpf: cliente.dataValues.cpf,
                     birthdate: cliente.dataValues.data_nasc,
                     gender: cliente.dataValues.sexo == "M" ? "male" : cliente.dataValues.sexo == "F" ? "female" : "other",
-                    phoneNumber: "11999999999",
+                    phoneNumber: cliente.dataValues.celular_numero ? (cliente.dataValues.celular_ddd + cliente.dataValues.celular_numero) : "11999999999",
                     email: "exemple@gmail.com",
                     maritalStatus: "single",
                     nationality: "brazilian",
@@ -249,7 +250,6 @@ class VCTexServices {
                 }
             })
 
-            console.log("Tentando enviar body de proposta para VCTex...");
             const response = await axios.post(`${process.env.VCTex_baseURL}/service/proposal`, 
                 reqBody,
                 {
@@ -259,9 +259,64 @@ class VCTexServices {
                     }
                 }
             );
+            const contractNumberFormatado = response.data.data.proposalcontractNumber.replace(/\//g, '-')
 
-            // rodar logica para armazenar o body de retorno da proposta no banco de dados
-            console.log(response.data);
+
+            // tenta verificar se o status id da proposta é 60 em 3 tentativas
+            for(let i = 0; i < 3; i++) {
+                console.log(`Tentativa ${i} de verificar o status da proposta`)
+
+                // timeout de 10s
+                await new Promise(resolve => setTimeout(resolve, 10000));
+
+                // verifica se o status id da proposta ja ta em 60
+                const statusIdProposta = await axios.get(`${process.env.VCTex_baseURL}/service/proposal/status/${response.data.data.proposalId}`,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${this.accessToken}`,
+                        }
+                    }
+                )
+
+                if (statusIdProposta.data.proposalStatusId == 60) {
+                    break;
+                }
+            }
+
+            
+            // apos verificar o status, passa para recuperar as informacoes com o link de formalizacao
+            const responseVerificaProposta = await axios.get(`${process.env.VCTex_baseURL}/service/proposal/contract-number`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                        'contract-number': `${contractNumberFormatado}`
+                    }
+                }
+            )
+
+            const propostalBodyDB = ({
+                nome: responseVerificaProposta.data.data.borrower.name,
+                cpf: responseVerificaProposta.data.data.borrower.cpf,
+                cel: responseVerificaProposta.data.data.borrower.phoneNumber,
+                data_nascimento: responseVerificaProposta.data.data.borrower.birthdate,
+                proposal_id: response.data.data.proposalId,
+                link_form: responseVerificaProposta.data.data.proposalStatusId == 60 ? responseVerificaProposta.data.data.contractFormalizationLink : null,
+                valor_liquido: responseVerificaProposta.data.data.financial.totalReleasedAmount,
+                valor_seguro: responseVerificaProposta.data.data.financial.contractInsuranceAmount,
+                valor_emissao: responseVerificaProposta.data.data.financial.totalAmount,
+                contrato: "null",
+                numero_contrato: responseVerificaProposta.data.data.proposalContractNumber,
+                usuario: userUsername,
+                banco: "VCTex",
+                status_proposta: responseVerificaProposta.data.data.proposalStatusDisplayTitle,
+                msg_status: responseVerificaProposta.data.data.proposalStatusReserveDisplayTitle,
+                data_status: new Date()
+            })
+
+            await PropostasRepository.create(propostalBodyDB);
+
+            console.log(propostalBodyDB);
+
             return true;
         } catch (err) {
             if(axios.isAxiosError(err)) {
