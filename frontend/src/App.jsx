@@ -4,29 +4,34 @@ import PermissionRoute from "./routes/PermissionRoute";
 import { routesConfig } from "./config/routesConfig";
 import NotFound from "./pages/NotFound";
 import AccessDenied from "./pages/AccessDenied";
+import Layout from "./layout/Layout"; // 🔥 IMPORTANTE
 
 export default function App() {
   return (
     <Routes>
 
-      {/* 🔁 rota raiz */}
+      {/* 🔁 raiz */}
       <Route path="/" element={<Navigate to="/fgts" replace />} />
 
       {/* 🔓 pública */}
       <Route path="/login" element={<Login />} />
 
-      {/* 🔐 rotas protegidas */}
-      {routesConfig.map(route => (
-        <Route
-          key={route.path}
-          path={route.path}
-          element={
-            <PermissionRoute permission={route.permission}>
-              {route.element}
-            </PermissionRoute>
-          }
-        />
-      ))}
+      {/* 🔐 BLOCO COM LAYOUT */}
+      <Route element={<Layout />}>
+
+        {routesConfig.map(route => (
+          <Route
+            key={route.path}
+            path={route.path}
+            element={
+              <PermissionRoute permission={route.permission}>
+                {route.element}
+              </PermissionRoute>
+            }
+          />
+        ))}
+
+      </Route>
 
       {/* 🚫 acesso negado */}
       <Route path="/access-denied" element={<AccessDenied />} />

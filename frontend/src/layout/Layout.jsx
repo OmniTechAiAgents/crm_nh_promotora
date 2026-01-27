@@ -1,19 +1,18 @@
-import Header from './Header'
-import Sidebar from './Sidebar'
-import Content from './Content'
-import './layout.css'
+import { Outlet } from "react-router-dom";
+import Header from "./Header";
+import Sidebar from "./Sidebar";
+import "./layout.css";
 
-export default function Layout({ children }) {
+export default function Layout() {
   return (
     <div className="app-layout">
       <Header />
-
       <div className="app-body">
         <Sidebar />
-        <Content>
-          {children}
-        </Content>
+        <main className="content">
+          <Outlet />
+        </main>
       </div>
     </div>
-  )
+  );
 }
