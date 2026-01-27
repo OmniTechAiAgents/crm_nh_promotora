@@ -333,8 +333,27 @@ class VCTexServices {
         }
     }
 
+    async VerificarTodasAsPropostas() {
+        try {
+            return true
+        } catch (err) {
+            throw err
+        }
+    }
+
+
+    // funcao interna (só usa aqui dentro desse service)
     async AtualizarRegistroPropostaDB(contractNumber, proposalId, username) {
         try {
+            const STATUS_FINALIZADOS = new Set([
+                70, 80, 130,
+                1001, 1002, 1003, 1004, 1005, 1006,
+                1007, 1008, 1009, 1010, 1011, 1012,
+                1013, 1014, 1015, 1016, 1017, 1018,
+                1019, 1020, 1022, 1023, 1024, 1025,
+                1026, 1030
+            ]);
+
             const contractNumberFormatado = contractNumber.replace(/\//g, '-');
 
             const { data } = await axios.get(
@@ -347,11 +366,20 @@ class VCTexServices {
                 }
             );
 
-            const propostaAPI = data.data;
+            // tento recuperar apenas o proposalStatusId para lidar melhor com a coluna "Verificar"
+            const responseProposalStatus = await axios.get(`${process.env.VCTex_baseURL}/service/proposal/status/${proposalId}`, 
+                {
+                    headers: {
+                        Authorization: `Bearer ${this.accessToken}`,
+                    }
+                }
+            )
+            const verificar = !STATUS_FINALIZADOS.has(responseProposalStatus.data.proposalStatusId);
 
+            const propostaAPI = data.data;
             const propostaDB = await PropostasRepository.findOne(proposalId);
 
-            // 🔹 Mapeia somente dados vindos da API
+            // mapeia so os dados vindos da API
             const dadosAtualizados = {
                 nome: propostaAPI.borrower.name,
                 cpf: propostaAPI.borrower.cpf,
@@ -367,10 +395,11 @@ class VCTexServices {
                 numero_contrato: propostaAPI.proposalContractNumber,
                 status_proposta: propostaAPI.proposalStatusDisplayTitle,
                 msg_status: propostaAPI.proposalStatusReserveDisplayTitle,
-                data_status: new Date()
+                data_status: new Date(),
+                verificar
             };
 
-            // 🔸 NÃO EXISTE → CREATE
+            // se nao existe, cria
             if (!propostaDB) {
                 await PropostasRepository.create({
                     ...dadosAtualizados,
@@ -383,7 +412,7 @@ class VCTexServices {
                 return;
             }
 
-            // 🔸 EXISTE → UPDATE SEGURO (instância)
+            // se existe, atualiza
             await propostaDB.update(dadosAtualizados);
 
         } catch (err) {
@@ -391,7 +420,6 @@ class VCTexServices {
             throw err;
         }
     }
-
     getToken() {
         return this.accessToken;
     }
