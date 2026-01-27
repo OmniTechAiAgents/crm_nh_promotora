@@ -4,19 +4,19 @@ import PermissionRoute from "./routes/PermissionRoute";
 import { routesConfig } from "./config/routesConfig";
 import NotFound from "./pages/NotFound";
 import AccessDenied from "./pages/AccessDenied";
-import Layout from "./layout/Layout"; // 🔥 IMPORTANTE
+import Layout from "./layout/Layout";
 
 export default function App() {
   return (
     <Routes>
 
-      {/* 🔁 raiz */}
+      {/* raiz */}
       <Route path="/" element={<Navigate to="/fgts" replace />} />
 
-      {/* 🔓 pública */}
+      {/* pública */}
       <Route path="/login" element={<Login />} />
 
-      {/* 🔐 BLOCO COM LAYOUT */}
+      {/* BLOCO COM LAYOUT */}
       <Route element={<Layout />}>
 
         {routesConfig.map(route => (
@@ -33,10 +33,10 @@ export default function App() {
 
       </Route>
 
-      {/* 🚫 acesso negado */}
+      {/* acesso negado */}
       <Route path="/access-denied" element={<AccessDenied />} />
 
-      {/* ❌ 404 */}
+      {/* 404 */}
       <Route path="*" element={<NotFound />} />
 
     </Routes>
