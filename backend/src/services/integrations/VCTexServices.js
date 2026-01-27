@@ -316,6 +316,8 @@ class VCTexServices {
             const proposalDB = await PropostasRepository.findOne(proposalId);
             const numContract = proposalDB.dataValues.numero_contrato;
 
+            // precisa desse timeout por causa da latência do servidor deles
+            await new Promise(resolve => setTimeout(resolve, 3000));
             await this.AtualizarRegistroPropostaDB(numContract, proposalId, userUsername);
         } catch (err) {
             if(axios.isAxiosError(err)) {
@@ -333,63 +335,59 @@ class VCTexServices {
 
     async AtualizarRegistroPropostaDB(contractNumber, proposalId, username) {
         try {
-            const propostaDB = await PropostasRepository.findOne(proposalId);
+            const contractNumberFormatado = contractNumber.replace(/\//g, '-');
 
-            const contractNumberFormatado = contractNumber.replace(/\//g, '-')
-            const responseVerificaProposta = await axios.get(`${process.env.VCTex_baseURL}/service/proposal/contract-number`,
+            const { data } = await axios.get(
+                `${process.env.VCTex_baseURL}/service/proposal/contract-number`,
                 {
                     headers: {
-                        'Authorization': `Bearer ${this.accessToken}`,
-                        'contract-number': `${contractNumberFormatado}`
+                        Authorization: `Bearer ${this.accessToken}`,
+                        'contract-number': contractNumberFormatado
                     }
                 }
-            )
+            );
 
-            if(!propostaDB) {
-                const propostalBodyDB = ({
-                    nome: responseVerificaProposta.data.data.borrower.name,
-                    cpf: responseVerificaProposta.data.data.borrower.cpf,
-                    cel: responseVerificaProposta.data.data.borrower.phoneNumber,
-                    data_nascimento: responseVerificaProposta.data.data.borrower.birthdate,
+            const propostaAPI = data.data;
+
+            const propostaDB = await PropostasRepository.findOne(proposalId);
+
+            // 🔹 Mapeia somente dados vindos da API
+            const dadosAtualizados = {
+                nome: propostaAPI.borrower.name,
+                cpf: propostaAPI.borrower.cpf,
+                cel: propostaAPI.borrower.phoneNumber,
+                data_nascimento: propostaAPI.borrower.birthdate,
+                link_form:
+                    propostaAPI.proposalStatusId === 60
+                        ? propostaAPI.contractFormalizationLink
+                        : null,
+                valor_liquido: propostaAPI.financial.totalReleasedAmount,
+                valor_seguro: propostaAPI.financial.contractInsuranceAmount,
+                valor_emissao: propostaAPI.financial.totalAmount,
+                numero_contrato: propostaAPI.proposalContractNumber,
+                status_proposta: propostaAPI.proposalStatusDisplayTitle,
+                msg_status: propostaAPI.proposalStatusReserveDisplayTitle,
+                data_status: new Date()
+            };
+
+            // 🔸 NÃO EXISTE → CREATE
+            if (!propostaDB) {
+                await PropostasRepository.create({
+                    ...dadosAtualizados,
                     proposal_id: proposalId,
-                    link_form: responseVerificaProposta.data.data.proposalStatusId == 60 ? responseVerificaProposta.data.data.contractFormalizationLink : null,
-                    valor_liquido: responseVerificaProposta.data.data.financial.totalReleasedAmount,
-                    valor_seguro: responseVerificaProposta.data.data.financial.contractInsuranceAmount,
-                    valor_emissao: responseVerificaProposta.data.data.financial.totalAmount,
-                    contrato: "null",
-                    numero_contrato: responseVerificaProposta.data.data.proposalContractNumber,
+                    contrato: 'null',
                     usuario: username,
-                    banco: "VCTex",
-                    status_proposta: responseVerificaProposta.data.data.proposalStatusDisplayTitle,
-                    msg_status: responseVerificaProposta.data.data.proposalStatusReserveDisplayTitle,
-                    data_status: new Date()
-                })
+                    banco: 'VCTex'
+                });
 
-                await PropostasRepository.create(propostalBodyDB);
-            } else {
-                // valores que puxam do "propostaDB" mantém valores do banco, portanto não são alterados
-                const propostalBodyDB = ({
-                    nome: responseVerificaProposta.data.data.borrower.name,
-                    cpf: responseVerificaProposta.data.data.borrower.cpf,
-                    cel: responseVerificaProposta.data.data.borrower.phoneNumber,
-                    data_nascimento: responseVerificaProposta.data.data.borrower.birthdate,
-                    proposal_id: proposalId,
-                    link_form: responseVerificaProposta.data.data.proposalStatusId == 60 ? responseVerificaProposta.data.data.contractFormalizationLink : null,
-                    valor_liquido: responseVerificaProposta.data.data.financial.totalReleasedAmount,
-                    valor_seguro: responseVerificaProposta.data.data.financial.contractInsuranceAmount,
-                    valor_emissao: responseVerificaProposta.data.data.financial.totalAmount,
-                    contrato: "null",
-                    numero_contrato: responseVerificaProposta.data.data.proposalContractNumber,
-                    usuario: propostaDB.dataValues.usuario,
-                    banco: propostaDB.dataValues.banco,
-                    status_proposta: responseVerificaProposta.data.data.proposalStatusDisplayTitle,
-                    msg_status: responseVerificaProposta.data.data.proposalStatusReserveDisplayTitle,
-                    data_status: propostaDB.dataValues.data_status
-                })
-
-                await PropostasRepository.update(proposalId, propostalBodyDB);
+                return;
             }
+
+            // 🔸 EXISTE → UPDATE SEGURO (instância)
+            await propostaDB.update(dadosAtualizados);
+
         } catch (err) {
+            console.error('Erro ao atualizar proposta:', err);
             throw err;
         }
     }

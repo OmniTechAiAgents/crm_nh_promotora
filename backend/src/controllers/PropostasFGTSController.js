@@ -49,6 +49,7 @@ class PropostasFGTSController {
 
             return res.status(200).json({ msg: "Proposta cancelada com sucesso." });
         } catch (err) {
+            console.log(err);
             if (err instanceof ZodError) {
                 return res.status(400).json({
                     erro: err.issues[0].message

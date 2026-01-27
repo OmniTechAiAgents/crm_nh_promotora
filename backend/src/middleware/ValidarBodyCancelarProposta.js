@@ -5,7 +5,7 @@ export const ValidarBodyCancelarProposta = z
         proposalId: z.string()
     })
     .superRefine((data, ctx) => {
-        if (!proposalId) {
+        if (!data.proposalId) {
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
                 message: 'O campo "proposalId" é necessário.'

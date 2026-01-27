@@ -31,7 +31,7 @@ const Tabela_propostas = db.define(
         },
         link_form: {
             type: DataTypes.STRING(1024),
-            allowNull: false
+            allowNull: true
         },
         valor_liquido: {
             type: DataTypes.DECIMAL(10, 2),

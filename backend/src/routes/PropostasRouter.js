@@ -6,6 +6,6 @@ import PropostasFGTSController from "../controllers/PropostasFGTSController.js";
 const PropostasRoutes = express.Router();
 
 PropostasRoutes.post("/FGTS", AuthenticationToken, PropostasFGTSController.FazerProposta);
-PropostasRoutes.patch("/FGTS", AuthenticationToken, PropostasFGTSController.CancelarProposta);
+PropostasRoutes.patch("/FGTS/cancelar", AuthenticationToken, PropostasFGTSController.CancelarProposta);
 
 export default PropostasRoutes;
