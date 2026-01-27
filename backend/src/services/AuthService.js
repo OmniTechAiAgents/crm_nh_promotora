@@ -36,6 +36,18 @@ class AuthService {
             throw new HttpException("Credenciais invalidas", 401);
         }
 
+        // facilitar para o front
+        const adminPermissions = [
+            "FGTS_VIEW",
+            "FGTS_EXPORT",
+            "USER_MANAGE"
+        ]
+
+        const promotorPermissions = [
+            "FGTS_VIEW",
+            "FGTS_EXPORT",
+        ]
+
         const token = jwt.sign(
             { 
                 id: user.id, 
@@ -48,7 +60,15 @@ class AuthService {
             }
         );
 
-        return token;
+        return {
+            token,
+            user: {
+                id: user.id,
+                name: user.username,
+                roles: [user.role],
+                permissions: user.role == "admin" ? adminPermissions : promotorPermissions
+            }
+        };
     }
 }
 

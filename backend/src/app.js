@@ -8,8 +8,15 @@ import db from "./config/db.js";
 import VCTexServices from './services/integrations/VCTexServices.js';
 import NovaVidaService from './services/integrations/NovaVidaService.js';
 import C6Service from './services/integrations/C6Service.js';
+import cors from "cors";
 
 const app = express();
+app.use(cors({
+    origin: [
+        "http://localhost:5173"
+    ],
+    credentials: true
+}));
 app.use(express.json());
 
 // rotas

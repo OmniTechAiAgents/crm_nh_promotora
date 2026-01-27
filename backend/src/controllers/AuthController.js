@@ -35,9 +35,9 @@ class AuthController {
         try {
             const { username, password } = req.body;
 
-            const token = await AuthService.Login({ username, password });
+            const response = await AuthService.Login({ username, password });
 
-            return res.status(200).json({ token: token });
+            return res.status(200).json(response);
         } catch (err) {
             if (err instanceof HttpException) {
                 return res.status(err.status).json({ erro: err.message });
