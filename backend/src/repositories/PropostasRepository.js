@@ -23,6 +23,16 @@ class PropostasRepository {
             }
         );
     }
+
+    async findAllParaVerificar() {
+        return Tabela_propostas.findAll({
+            where: {
+                verificar: true
+            },
+            attributes: ['proposal_id', 'numero_contrato'],
+            raw: true
+        });
+    }
 }
 
 export default new PropostasRepository();

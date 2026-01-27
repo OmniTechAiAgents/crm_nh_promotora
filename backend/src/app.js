@@ -35,6 +35,9 @@ async function bootstrap() {
             console.log(`🚀 Servidor rodando na porta ${PORT}`);
         });
 
+        // verificacao de propostas
+        await VCTexServices.VerificarTodasAsPropostas();
+        console.log("✅ Todas as propostas pendentes do VCTex foram verificadas");
     } catch (err) {
         console.error("❌ Falha Crítica na inicialização:");
         console.error(err);

@@ -335,8 +335,20 @@ class VCTexServices {
 
     async VerificarTodasAsPropostas() {
         try {
-            return true
+            const propostas = await PropostasRepository.findAllParaVerificar();
+
+            // for diferente para funcionar o await da funcao
+            for (const { proposal_id, numero_contrato } of propostas) {
+                await this.AtualizarRegistroPropostaDB(numero_contrato, proposal_id);
+
+                // timeout para n explodir a API dos manos
+                await new Promise(resolve => setTimeout(resolve, 5000));
+            };
+
+            // reagenda a task
+            TaskScheduler.schedule("Verificar propostas do VCTex", () => this.VerificarTodasAsPropostas(), 1800000);
         } catch (err) {
+            console.log(err);
             throw err
         }
     }
