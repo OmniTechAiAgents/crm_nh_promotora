@@ -13,7 +13,7 @@ export default function Header() {
   return (
     <header className="app-header">
       <div className="header-left">
-        <h1>CRM NH</h1>
+        <h1>CRM OMNI TECH AI</h1>
       </div>
 
       <div className="header-right">
