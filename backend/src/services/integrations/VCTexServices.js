@@ -353,6 +353,18 @@ class VCTexServices {
         }
     }
 
+    async VerificarApenasUmaProposta(proposalId) {
+        try {
+            const proposal = await PropostasRepository.findOne(proposalId);
+            const numero_contrato = proposal.dataValues.numero_contrato
+
+            await this.AtualizarRegistroPropostaDB(numero_contrato, proposalId);
+        } catch (err) {
+            console.log(err);
+            throw err;
+        }
+    }
+
 
     // funcao interna (só usa aqui dentro desse service)
     async AtualizarRegistroPropostaDB(contractNumber, proposalId, username) {

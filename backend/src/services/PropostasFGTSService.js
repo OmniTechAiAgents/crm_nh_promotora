@@ -25,6 +25,14 @@ class PropostasFGTSService {
             throw err;
         }
     }
+
+    async VerificarProposta(proposalId) {
+        try {
+            await VCTexServices.VerificarApenasUmaProposta(proposalId);
+        } catch(err) {
+            throw err;
+        }
+    }
 }
 
 export default new PropostasFGTSService();
