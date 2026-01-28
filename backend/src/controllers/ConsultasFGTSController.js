@@ -13,9 +13,9 @@ class ConsultasFGTSController {
                 cpf: dados.cpf
             }
             
-            await ConsultasFGTSService.FazerConsulta(objConsulta, req.user);
+            const resultado = await ConsultasFGTSService.FazerConsulta(objConsulta, req.user);
  
-            return res.status(200).json({ msg: "Consulta realizada com sucesso." });
+            return res.status(200).json(resultado);
         } catch (err) {
             if (err instanceof ZodError) {
                 return res.status(400).json({

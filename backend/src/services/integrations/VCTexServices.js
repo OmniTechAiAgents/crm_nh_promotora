@@ -161,7 +161,9 @@ class VCTexServices {
                 elegivelProposta: true
             }
 
-            await ConsultasFGTSRepository.Create(response);
+            const retorno = await ConsultasFGTSRepository.Create(response);
+
+            return retorno;
         } catch (err) {
             let status = 500;
             let message = "Erro inesperado ao realizar a simulação";
