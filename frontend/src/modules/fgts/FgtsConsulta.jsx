@@ -1,74 +1,97 @@
-import { useState } from 'react'
-import api from '../../api/client'
-import Stepper from '../../components/Stepper'
-import './fgts.css'
+import { useState } from "react";
+import "./fgts.css";
 
-export function FgtsConsulta({ onOfertaEncontrada }) {
-  const [cpf, setCpf] = useState('')
-  const [status, setStatus] = useState('idle') 
-  const [result, setResult] = useState(null)
-  const [error, setError] = useState(null)
+export default function FgtsConsulta() {
+  const [instituicao, setInstituicao] = useState("VTEX"); // default
+  const [cpf, setCpf] = useState("");
+  const [resultado, setResultado] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  async function consultar() {
-    if (!cpf || cpf.length < 11) {
-      setError('Informe um CPF válido')
-      return
+  const token = localStorage.getItem("token");
+
+  async function consultarFGTS() {
+    if (cpf.length !== 11) {
+      alert("CPF deve conter 11 números.");
+      return;
     }
 
-    setStatus('loading')
-    setError(null)
+    setLoading(true);
+    setResultado(null);
 
     try {
-      const response = await api.post('/fgts/consulta', { cpf })
-      setResult(response.data)
+      const response = await fetch("http://localhost:3000/consulta-fgts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ instituicao, cpf }),
+      });
 
-      if (response.data.status === 'OFFER_AVAILABLE') {
-        setStatus('has_offer')
-
-        // 🔑 ponto mais importante:
-        onOfertaEncontrada({
-          cpf,
-          ...response.data
-        })
-      } else {
-        setStatus('no_offer')
-      }
-
-    } catch (err) {
-      setStatus('error')
-      setError('Erro ao consultar o FGTS. Tente novamente.')
+      const data = await response.json();
+      setResultado(data);
+    } catch (error) {
+      setResultado({ erro: "Erro ao conectar ao servidor." });
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
-    <div className="card">
-      <Stepper step={1} />
+    <div className="fgts-container">
+      <h2>Consulta FGTS Manual</h2>
 
-      <h2>Consulta FGTS</h2>
-      <p>Informe o CPF do cliente para verificar se há oferta disponível.</p>
+      <div className="fgts-form">
 
-      <input
-        value={cpf}
-        onChange={e => setCpf(e.target.value.replace(/\D/g, ''))}
-        placeholder="CPF (somente números)"
-        maxLength={11}
-      />
+        {/* 🔘 Seleção de Instituição */}
+        <div className="form-group">
+          <label>Instituição para Consulta</label>
 
-      <button onClick={consultar} disabled={status === 'loading'}>
-        {status === 'loading' ? 'Consultando...' : 'Consultar'}
-      </button>
+          <div className="radio-group">
+            <label>
+              <input
+                type="radio"
+                name="instituicao"
+                value="VTEX"
+                checked={instituicao === "VTEX"}
+                onChange={(e) => setInstituicao(e.target.value)}
+              />
+              VCTeX
+            </label>
 
-      {status === 'no_offer' && (
-        <p className="warning">
-          No momento não há oferta disponível. A consulta foi registrada.
-        </p>
-      )}
+          </div>
+        </div>
 
-      {status === 'error' && (
-        <p className="error">
-          {error}
-        </p>
+        {/* CPF + Botão lado a lado */}
+        <div className="form-row">
+          <div className="form-group cpf-group">
+            <label>CPF</label>
+            <input
+              value={cpf}
+              onChange={(e) =>
+                setCpf(e.target.value.replace(/\D/g, ""))
+              }
+              placeholder="Somente números"
+              maxLength={11}
+            />
+          </div>
+
+          <button
+            className="btn-consultar"
+            onClick={consultarFGTS}
+            disabled={loading}
+          >
+            {loading ? "Consultando..." : "Consultar"}
+          </button>
+        </div>
+      </div>
+
+      {resultado && (
+        <div className="resultado-box">
+          <h3>Resultado da Consulta</h3>
+          <pre>{JSON.stringify(resultado, null, 2)}</pre>
+        </div>
       )}
     </div>
-  )
+  );
 }

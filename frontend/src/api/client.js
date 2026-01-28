@@ -1,36 +1,27 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:3000", // ajuste se necessário
+  baseURL: "http://localhost:3000", // ajuste da porta
 });
 
-// 🔹 Request interceptor → injeta token
-api.interceptors.request.use(
-  (config) => {
-    const storedAuth = localStorage.getItem("auth_data");
+api.interceptors.request.use(config => {
+  const authData = JSON.parse(localStorage.getItem("auth_data"));
 
-    if (storedAuth) {
-      const { token } = JSON.parse(storedAuth);
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    }
+  if (authData?.token) {
+    config.headers.Authorization = `Bearer ${authData.token}`;
+  }
 
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+  return config;
+});
 
-// 🔹 Response interceptor → trata 401
 api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
+  res => res,
+  err => {
+    if (err.response?.status === 401) {
       localStorage.removeItem("auth_data");
       window.location.href = "/login";
     }
-
-    return Promise.reject(error);
+    return Promise.reject(err);
   }
 );
 
