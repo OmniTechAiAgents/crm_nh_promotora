@@ -1,0 +1,58 @@
+.sidebar {
+  width: 240px;
+  background: #0f172a;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* EMPURRA FOOTER PRA BAIXO */
+  height: calc(100vh - 64px); /* desconta header */
+  padding: 16px 12px;
+}
+
+.sidebar-top h2 {
+  font-size: 18px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.sidebar-menu ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar-menu li {
+  margin-bottom: 12px;
+}
+
+.sidebar-menu a {
+  color: #cbd5e1;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.sidebar-menu a.active {
+  color: #38bdf8;
+  font-weight: bold;
+}
+
+.sidebar-footer {
+  border-top: 1px solid #1e293b;
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebar-user {
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.logout-btn {
+  background: #ef4444;
+  border: none;
+  color: white;
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}

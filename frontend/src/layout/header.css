@@ -1,0 +1,11 @@
+.app-header {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* CENTRALIZA */
+  background: #0f172a;
+  color: white;
+  font-weight: 600;
+  font-size: 20px;
+  border-bottom: 1px solid #1e293b;
+}

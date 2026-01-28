@@ -1,19 +1,32 @@
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 import { routesConfig } from "../config/routesConfig";
+import "./sidebar.css";
 
 export default function Sidebar() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   if (!user) return null;
 
   const permissions = user.permissions || [];
 
+  function handleLogout() {
+    logout();
+    navigate("/login");
+  }
+
   return (
     <aside className="sidebar">
-      <h2>Omni Tech AI</h2>
+      
+      {/* TOPO */}
+      <div className="sidebar-top">
+        <h2>Omni Tech AI</h2>
+      </div>
 
-      <nav>
+      {/* MENU */}
+      <nav className="sidebar-menu">
         <ul>
           {routesConfig
             .filter(
@@ -31,6 +44,14 @@ export default function Sidebar() {
             ))}
         </ul>
       </nav>
+
+      {/* RODAPÉ */}
+      <div className="sidebar-footer">
+        <span className="sidebar-user">{user.name}</span>
+        <button onClick={handleLogout} className="logout-btn">
+          Sair
+        </button>
+      </div>
     </aside>
   );
 }
