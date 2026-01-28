@@ -30,7 +30,7 @@ const Clientes = db.define(
     },
     {
         tableName: "clientes",
-        timestamp: false
+        timestamps: false
     }
 )
 
