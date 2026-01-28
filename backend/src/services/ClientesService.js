@@ -32,43 +32,13 @@ class ClientesService {
             const DataFormatada = ParseNascNV(data.CONSULTA.CADASTRO.NASC);
 
             const clienteObj = ({
-                // parte cadastro
-                // obs: usando o CPF da funcao pq as vezes a API manda errado e sem o 0 a esquerda (o retorno é integer)
                 cpf: cpf,
                 nome: data.CONSULTA.CADASTRO.NOME,
-                nome_mae: data.CONSULTA.CADASTRO.NOME_MAE,
-                sexo: data.CONSULTA.CADASTRO.SEXO,
                 data_nasc: DataFormatada,
-
-                // parte endereco
-                cep: data.CONSULTA.ENDERECOS.ENDERECO[0].CEP,
-
-                // parte celular
-                celular_ddd: data.CONSULTA.CELULARES.CELULAR[0].DDDCEL,
-                celular_numero: data.CONSULTA.CELULARES.CELULAR[0].CEL,
-                celular_procon: data.CONSULTA.CELULARES.CELULAR[0].PROCON,
-                celular_whatsapp: data.CONSULTA.CELULARES.CELULAR[0].FLWHATSAPP,
-
-                // parte telefone
-                telefone_ddd: data.CONSULTA.TELEFONES.TELEFONE[0].DDD,
-                telefone_numero: data.CONSULTA.TELEFONES.TELEFONE[0].TELEFONE[0],
-                telefone_procon: data.CONSULTA.TELEFONES.TELEFONE[0].PROCON,
-
-                // parte credito
-                score_digital: data.CONSULTA.CREDITO.SCORE_DIGITAL,
-                propencao_pagamento: data.CONSULTA.CREDITO.PROPENSAO_PAGAMENTO,
-
-                // parte empresa
-                empresa_flfgts: data.CONSULTA.EMPRESAS.EMPRESA[0].FLFGTS,
-                empresa_valor_presumido: data.CONSULTA.EMPRESAS.EMPRESA[0].VALOR_PRESUMIDO,
-                empresa_probabilidade_saque: data.CONSULTA.EMPRESAS.EMPRESA[0].PROBABILIDADE_SAQUE,
-                empresa_cnpj: data.CONSULTA.EMPRESAS.EMPRESA[0].CNPJ,
-                empresa_razao: data.CONSULTA.EMPRESAS.EMPRESA[0].RAZAO
+                celular: (`${data.CONSULTA.CELULARES.CELULAR[0].DDDCEL}${data.CONSULTA.CELULARES.CELULAR[0].CEL}`),
             });
 
-            // console.table(clienteObj);
             const retorno = await ClientesRepository.create(clienteObj);
-            // const retorno = "";
 
             return retorno;
         } catch(err) {

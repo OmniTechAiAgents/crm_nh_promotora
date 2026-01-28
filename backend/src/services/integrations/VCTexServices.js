@@ -6,7 +6,7 @@ import HttpException from '../../utils/HttpException.js';
 import ConsultasFGTSRepository from '../../repositories/ConsultasFGTSRepository.js';
 import SimulateFGTS from '../../utils/SimulateFGTS.js';
 import ClientesService from '../ClientesService.js';
-import SearchByCEP from '../../utils/SearchByCEP.js';
+
 import PropostasRepository from '../../repositories/PropostasRepository.js';
 
 class VCTexServices {
@@ -206,7 +206,6 @@ class VCTexServices {
             }
 
             const cliente = await ClientesService.procurarCpf(data.cpf);
-            const enderecoInfos = await SearchByCEP(cliente.dataValues.cep)
 
             const reqBody = ({
                 feeScheduleId: 0,
@@ -215,13 +214,13 @@ class VCTexServices {
                     name: cliente.dataValues.nome,
                     cpf: cliente.dataValues.cpf,
                     birthdate: cliente.dataValues.data_nasc,
-                    gender: cliente.dataValues.sexo == "M" ? "male" : cliente.dataValues.sexo == "F" ? "female" : "other",
-                    phoneNumber: cliente.dataValues.celular_numero ? (cliente.dataValues.celular_ddd + cliente.dataValues.celular_numero) : "11999999999",
+                    gender: "male",
+                    phoneNumber: cliente.dataValues.celular,
                     email: "exemple@gmail.com",
                     maritalStatus: "single",
                     nationality: "brazilian",
                     naturalness: "brazilian",
-                    motherName: cliente.dataValues.nome_mae,
+                    motherName: "Maria da Silva",
                     fatherName: "Josué Santos do Nascimento",
                     pep: false
                 },
@@ -233,13 +232,13 @@ class VCTexServices {
                     issueDate: "2023-01-01"
                 },
                 address: {
-                    zipCode: cliente.dataValues.cep,
-                    street: enderecoInfos.data.logradouro,
+                    zipCode: "99999999",
+                    street: "Rua exemplo",
                     number: "1",
                     complement: null,
-                    neighborhood: enderecoInfos.data.bairro,
-                    city: enderecoInfos.data.localidade,
-                    state: enderecoInfos.data.uf
+                    neighborhood: "Bairro top",
+                    city: "Santo Andre",
+                    state: "SP"
                 },
                 disbursementBankAccount: {
                     bankCode: data.bankCode,
