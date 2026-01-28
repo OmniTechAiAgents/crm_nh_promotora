@@ -11,12 +11,10 @@ import C6Service from './services/integrations/C6Service.js';
 import cors from "cors";
 
 const app = express();
-app.use(cors({
-    origin: [
-        "http://localhost:5173"
-    ],
-    credentials: true
-}));
+
+// SÓ PARA AMBIENTE DE DEV (sem cors)
+app.use(cors());
+
 app.use(express.json());
 
 // rotas
