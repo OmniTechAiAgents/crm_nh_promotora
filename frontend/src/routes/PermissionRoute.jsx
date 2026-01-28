@@ -1,25 +1,22 @@
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function PermissionRoute({ children, permission }) {
-  const { user } = useAuth();
-  const location = useLocation();
+  const { user, authLoading } = useAuth();
 
-  if (!user) {
-    return (
-      <Navigate
-        to="/login"
-        replace
-        state={{ from: location.pathname }}
-      />
-    );
+  // ⏳ ainda validando sessão
+  if (authLoading) {
+    return <div>Carregando sessão...</div>;
   }
 
-  if (permission) {
-    const permissions = user.permissions || [];
-    if (!permissions.includes(permission)) {
-      return <Navigate to="/access-denied" replace />;
-    }
+  // 🔒 não logado
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // 🚫 sem permissão
+  if (permission && !user.permissions?.includes(permission)) {
+    return <Navigate to="/access-denied" replace />;
   }
 
   return children;
