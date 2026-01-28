@@ -1,4 +1,4 @@
-import { FgtsConsulta } from "../modules/fgts/FgtsConsulta";
+import FgtsConsulta from "../modules/fgts/FgtsConsulta";
 
 export const routesConfig = [
   {
