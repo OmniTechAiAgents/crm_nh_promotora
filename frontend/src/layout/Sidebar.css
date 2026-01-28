@@ -4,8 +4,8 @@
   color: white;
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* EMPURRA FOOTER PRA BAIXO */
-  height: calc(100vh - 64px); /* desconta header */
+  justify-content: space-between;
+  height: calc(100vh - 64px); 
   padding: 16px 12px;
 }
 
