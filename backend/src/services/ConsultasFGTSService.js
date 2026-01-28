@@ -1,3 +1,4 @@
+import ConsultasFGTSRepository from "../repositories/ConsultasFGTSRepository.js";
 import VCTexServices from "./integrations/VCTexServices.js";
 
 class ConsultasFGTSService {
@@ -15,6 +16,18 @@ class ConsultasFGTSService {
             }
 
         } catch (err) {
+            throw err;
+        }
+    }
+
+    async RecuperarConsultas(pesquisa, page, limit) {
+        try {
+            const offset = (page - 1) * limit;
+
+            const result = await ConsultasFGTSRepository.SearchPagination(pesquisa, limit, offset);
+
+            return result;
+        } catch {
             throw err;
         }
     }
