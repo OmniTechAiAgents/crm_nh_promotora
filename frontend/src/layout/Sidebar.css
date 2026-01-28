@@ -1,3 +1,4 @@
+/* Sidebar.css */
 .sidebar {
   width: 240px;
   background: #0f172a;
@@ -10,13 +11,14 @@
 }
 
 .sidebar-top h2 {
-  font-size: 18px;
+  font-size: 30px;
   text-align: center;
   margin-bottom: 20px;
 }
 
 .sidebar-menu ul {
   list-style: none;
+  text-align: center;
   padding: 0;
 }
 
@@ -31,7 +33,7 @@
 }
 
 .sidebar-menu a.active {
-  color: #38bdf8;
+  color: #ffffff;
   font-weight: bold;
 }
 
@@ -45,11 +47,11 @@
 
 .sidebar-user {
   font-size: 13px;
-  color: #94a3b8;
+  color: #ffffff;
 }
 
 .logout-btn {
-  background: #ef4444;
+  background: #ffffff;
   border: none;
   color: white;
   padding: 8px;
