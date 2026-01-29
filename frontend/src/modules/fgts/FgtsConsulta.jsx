@@ -1,5 +1,6 @@
 import { useState } from "react";
 import FgtsResultadoCard from "./FgtsResultadoCard";
+import api from "../../api/client";
 import "./fgts.css";
 
 export default function FgtsConsulta() {
@@ -23,19 +24,19 @@ export default function FgtsConsulta() {
 
     try { 
       console.log(JSON.stringify({ instituicao, cpf }));
-      const response = await fetch(
-        "http://localhost:3000/consultas/FGTS/manual",
+
+      const response = await api.post("/consultas/FGTS/manual", 
         {
-          method: "POST",
+          cpf,
+          instituicao,
+        },
+        {
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ instituicao, cpf }),
         }
       );
-
-      const data = await response.json();
+      const data = await response.data;
       setResultado(data);
     } catch (error) {
       setResultado({ erro: "Erro ao conectar ao servidor." });
