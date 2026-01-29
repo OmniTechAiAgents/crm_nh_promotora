@@ -37,7 +37,7 @@ export default function FgtsResultadoCard({ data, cpf, instituicao, onDigitarPro
         className="link-btn"
         onClick={() => setShowParcelas(!showParcelas)}
       >
-        {showParcelas ? "Ocultar parcelas" : "Ver parcelas FGTS   "}
+        {showParcelas ? "Ocultar parcelas   " : "Ver parcelas FGTS   "}
       </button>
 
       {showParcelas && (
