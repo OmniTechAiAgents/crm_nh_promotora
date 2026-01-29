@@ -21,7 +21,8 @@ export default function FgtsConsulta() {
     setLoading(true);
     setResultado(null);
 
-    try {
+    try { 
+      console.log(JSON.stringify({ instituicao, cpf }));
       const response = await fetch(
         "http://localhost:3000/consultas/FGTS/manual",
         {
@@ -76,8 +77,8 @@ export default function FgtsConsulta() {
           <input
             type="radio"
             name="instituicao"
-            value="VCTEX"
-            checked={instituicao === "VCTEX"}
+            value="VCTex"
+            checked={instituicao === "VCTex"}
             onChange={(e) => setInstituicao(e.target.value)}
           />
           <span>VCTEX</span>
