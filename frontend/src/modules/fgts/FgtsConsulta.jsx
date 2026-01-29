@@ -1,4 +1,5 @@
 import { useState } from "react";
+import FgtsResultadoCard from "./FgtsResultadoCard";
 import "./fgts.css";
 
 export default function FgtsConsulta() {
@@ -7,7 +8,7 @@ export default function FgtsConsulta() {
   const [resultado, setResultado] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // 🔐 pega token corretamente
+  // 🔐 pega token salvo no login
   const authData = JSON.parse(localStorage.getItem("auth_data"));
   const token = authData?.token;
 
@@ -21,14 +22,17 @@ export default function FgtsConsulta() {
     setResultado(null);
 
     try {
-      const response = await fetch("http://localhost:3000/consulta-fgts", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ instituicao, cpf }),
-      });
+      const response = await fetch(
+        "http://localhost:3000/consultas/FGTS/manual",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ instituicao, cpf }),
+        }
+      );
 
       const data = await response.json();
       setResultado(data);
@@ -76,7 +80,7 @@ export default function FgtsConsulta() {
             checked={instituicao === "VCTEX"}
             onChange={(e) => setInstituicao(e.target.value)}
           />
-          <span>    VCTEX</span>
+          <span>VCTEX</span>
         </label>
 
         <label className="radio-option">
@@ -87,15 +91,26 @@ export default function FgtsConsulta() {
             checked={instituicao === "Nossa Fintech"}
             onChange={(e) => setInstituicao(e.target.value)}
           />
-          <span>   Nossa Fintech</span>
+          <span>Nossa Fintech</span>
         </label>
       </div>
 
-      {/* 🔹 RESULTADO */}
-      {resultado && (
-        <div className="resultado-box">
-          <h3>Resultado da Consulta</h3>
-          <pre>{JSON.stringify(resultado, null, 2)}</pre>
+      {/* 🔹 RESULTADO COMERCIAL (não JSON cru) */}
+      {resultado && !resultado.erro && (
+        <FgtsResultadoCard
+          data={resultado}
+          cpf={cpf}
+          instituicao={instituicao}
+          onDigitarProposta={(data, cpf) => {
+            console.log("Abrir modal proposta", data, cpf);
+          }}
+        />
+      )}
+
+      {/* 🔹 ERRO */}
+      {resultado?.erro && (
+        <div className="resultado-box erro">
+          {resultado.erro}
         </div>
       )}
     </div>
