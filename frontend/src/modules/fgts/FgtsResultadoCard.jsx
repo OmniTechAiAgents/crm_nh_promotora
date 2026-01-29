@@ -1,70 +1,79 @@
 import { useState } from "react";
 import "./fgts.css";
 
-export default function FgtsResultadoCard({ data, cpf, instituicao, onDigitarProposta }) {
+export default function FgtsResultadoCard({ resultado, instituicao }) {
   const [showParcelas, setShowParcelas] = useState(false);
 
-  const elegivel = data.elegivelProposta;
+  const {
+    elegivelProposta,
+    valor_liquido,
+    valor_bruto,
+    anuidades,
+    mensagem,
+  } = resultado;
+
+  // 🧾 Formatação moeda
+  const formatMoney = (v) =>
+    Number(v).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    });
+
+  if (!elegivelProposta) {
+    return (
+      <div className="fgts-card error">
+        <h3>Cliente não elegível</h3>
+        <p>{mensagem || "Sem oferta disponível para este CPF."}</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="resultado-card">
+    <div className="fgts-card success">
 
-      {/* 🧾 Cabeçalho */}
-      <div className="resultado-header">
-        <h3>Resultado da Consulta</h3>
-        <span className={`status ${elegivel ? "ok" : "erro"}`}>
-          {elegivel ? "Elegível para proposta" : "Não elegível"}
-        </span>
+      {/* CABEÇALHO */}
+      <div className="fgts-card-header">
+        <h3>Oferta Disponível</h3>
+        <span className="badge">{instituicao}</span>
       </div>
 
-      {/* 💰 Informações principais */}
-      <div className="resultado-main">
-        <div>
-          <span>Instituição: </span>
-          <strong>{instituicao}</strong>
-        </div>
+      {/* VALOR PRINCIPAL */}
+      <div className="fgts-main-value">
+        <span>Cliente recebe</span>
+        <strong>{formatMoney(valor_liquido)}</strong>
+      </div>
 
+      {/* INFO SECUNDÁRIA */}
+      <div className="fgts-secondary">
         <div>
-          <span>Valor líquido: </span>
-          <strong className="valor">
-            R$ {data.valor_liquido?.toFixed(2)}
-          </strong>
+          <span>Valor Bruto</span>
+          <strong>{formatMoney(valor_bruto)}</strong>
         </div>
       </div>
 
-      {/* 📆 Parcelas (somente se o usuário quiser ver) */}
-      <button
-        className="link-btn"
-        onClick={() => setShowParcelas(!showParcelas)}
-      >
-        {showParcelas ? "Ocultar parcelas   " : "Ver parcelas FGTS   "}
-      </button>
+      {/* AÇÕES */}
+      <div className="fgts-actions">
+        <button
+          className="btn-detalhes"
+          onClick={() => setShowParcelas(!showParcelas)}
+        >
+          {showParcelas ? "Ocultar parcelas" : "Ver parcelas FGTS"}
+        </button>
 
+        <button className="btn-proposta">
+          Digitar proposta
+        </button>
+      </div>
+
+      {/* PARCELAS */}
       {showParcelas && (
         <div className="parcelas-box">
-          {data.anuidades.map((p, index) => (
-            <div key={index} className="parcela-item">
-              <span>{p.dueDate}</span>
-              <strong>R$ {p.amount.toFixed(2)}</strong>
+          {anuidades.map((a, i) => (
+            <div key={i} className="parcela-item">
+              <span>{new Date(a.dueDate).toLocaleDateString("pt-BR")}</span>
+              <strong>{formatMoney(a.amount)}</strong>
             </div>
           ))}
-        </div>
-      )}
-
-      {/* 🚀 Botão proposta */}
-      {elegivel && (
-        <button
-          className="btn-proposta"
-          onClick={() => onDigitarProposta(data, cpf)}
-        >
-             Digitar proposta
-        </button>
-      )}
-
-      {/* ❌ Não elegível */}
-      {!elegivel && (
-        <div className="nao-elegivel">
-          {data.mensagem || "Cliente não elegível para este produto."}
         </div>
       )}
     </div>

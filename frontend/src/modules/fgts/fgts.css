@@ -84,3 +84,94 @@
   transform: scale(1.1);
   cursor: pointer;
 }
+
+.fgts-card {
+  margin-top: 25px;
+  padding: 20px;
+  border-radius: 10px;
+  background: white;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+  max-width: 500px;
+}
+
+.fgts-card.success {
+  border-left: 6px solid #2e7d32;
+}
+
+.fgts-card.error {
+  border-left: 6px solid #c62828;
+}
+
+.fgts-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.badge {
+  background: #2e7d32;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+.fgts-main-value {
+  margin: 15px 0;
+  text-align: center;
+}
+
+.fgts-main-value span {
+  display: block;
+  font-size: 14px;
+  color: #666;
+}
+
+.fgts-main-value strong {
+  font-size: 28px;
+  color: #2e7d32;
+}
+
+.fgts-secondary {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 15px;
+}
+
+.fgts-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.btn-detalhes {
+  background: transparent;
+  border: 1px solid #2e7d32;
+  color: #2e7d32;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-proposta {
+  background: #2e7d32;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.parcelas-box {
+  margin-top: 15px;
+  background: #f7f7f7;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+.parcela-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+}
