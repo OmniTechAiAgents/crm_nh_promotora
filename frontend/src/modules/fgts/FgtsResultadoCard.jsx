@@ -20,12 +20,12 @@ export default function FgtsResultadoCard({ data, cpf, instituicao, onDigitarPro
       {/* 💰 Informações principais */}
       <div className="resultado-main">
         <div>
-          <span>Instituição</span>
+          <span>Instituição: </span>
           <strong>{instituicao}</strong>
         </div>
 
         <div>
-          <span>Valor líquido</span>
+          <span>Valor líquido: </span>
           <strong className="valor">
             R$ {data.valor_liquido?.toFixed(2)}
           </strong>
@@ -37,7 +37,7 @@ export default function FgtsResultadoCard({ data, cpf, instituicao, onDigitarPro
         className="link-btn"
         onClick={() => setShowParcelas(!showParcelas)}
       >
-        {showParcelas ? "Ocultar parcelas" : "Ver parcelas FGTS"}
+        {showParcelas ? "Ocultar parcelas" : "Ver parcelas FGTS   "}
       </button>
 
       {showParcelas && (
@@ -57,7 +57,7 @@ export default function FgtsResultadoCard({ data, cpf, instituicao, onDigitarPro
           className="btn-proposta"
           onClick={() => onDigitarProposta(data, cpf)}
         >
-          Digitar proposta
+             Digitar proposta
         </button>
       )}
 
