@@ -8,6 +8,7 @@ import db from "./config/db.js";
 import VCTexServices from './services/integrations/VCTexServices.js';
 import NovaVidaService from './services/integrations/NovaVidaService.js';
 import C6Service from './services/integrations/C6Service.js';
+import NossaFintechService from './services/integrations/NossaFintechService.js';
 import cors from "cors";
 
 const app = express();
@@ -28,12 +29,19 @@ async function bootstrap() {
         console.log("✅ Tabelas sincronizadas com sucesso");
 
         console.log("🔄 Inicializando tokens de APIs parceiras...");
+
         await VCTexServices.Autenticar();
         console.log("✅ Token VCTex carregado e agendamento ativo");
+
         await NovaVidaService.Autenticar();
         console.log("✅ Token NovaVida carregado e agendamento ativo");
-        await C6Service.Autenticar();
-        console.log("✅ Token C6 carregado e agendamento ativo");
+
+        await NossaFintechService.Autenticar();
+        console.log("✅ Token NossaFintech carregado e agendamento ativo")
+
+        // DESATIVADO POR ENQUANTO JA QUE O MODULO DA C6 AINDA N ESTA SENDO UTILIZADO
+        // await C6Service.Autenticar();
+        // console.log("✅ Token C6 carregado e agendamento ativo");
 
         const PORT = process.env.PORT || 3000;
         app.listen(PORT, () => {
