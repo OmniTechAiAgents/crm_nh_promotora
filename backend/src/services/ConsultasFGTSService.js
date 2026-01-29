@@ -1,5 +1,6 @@
 import ConsultasFGTSRepository from "../repositories/ConsultasFGTSRepository.js";
 import VCTexServices from "./integrations/VCTexServices.js";
+import NossaFintechService from "./integrations/NossaFintechService.js";
 
 class ConsultasFGTSService {
     async FazerConsulta (data, userData) {
@@ -10,6 +11,9 @@ class ConsultasFGTSService {
             switch (instituicao) {
                 case "VCTex":
                     resultadoRaw = await VCTexServices.Simulacao(data.cpf, userData.username);
+                    break;
+                case "Nossa fintech":
+                    resultadoRaw = await NossaFintechService.Simulacao(data.cpf, userData.username);
                     break;
                 default:
                     console.error("Instituição não encontrada");
@@ -38,6 +42,8 @@ class ConsultasFGTSService {
             return resultadoTratado;
 
         } catch (err) {
+            console.log(err)
+
             throw err;
         }
     }
