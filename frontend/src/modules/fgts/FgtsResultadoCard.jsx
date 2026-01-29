@@ -2,6 +2,9 @@ import { useState } from "react";
 import "./fgts.css";
 
 export default function FgtsResultadoCard({ resultado, instituicao }) {
+
+  if (!resultado) return null;
+  
   const [showParcelas, setShowParcelas] = useState(false);
 
   const {
