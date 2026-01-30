@@ -13,11 +13,21 @@ export const ValidarBodyProposta = z
     branchNumber: z.string().optional(),
 
     pixKey: z.string().optional(),
-    pixKeyType: z.enum(["CHAVE_ALEATORIA", "EMAIL", "TELEFONE", "CPF"]).optional()
+    pixKeyType: z.enum([
+      "CHAVE_ALEATORIA", 
+      "EMAIL", 
+      "TELEFONE", 
+      "CPF", 
+      "email", 
+      "cpf",
+      "phone",
+      "random"
+    ]).optional()
   })
   .superRefine((data, ctx) => {
     const recebeBanco = data.bankCode || data.accountType || data.accountNumber || data.accountDigit || data.branchNumber;
     const recebePix = data.pixKey || data.pixKeyType;
+    const instituicao = data.instituicao;
 
     if (recebeBanco && recebePix) {
       ctx.addIssue({

@@ -6,7 +6,7 @@ export async function seedISPBs() {
 
 
     if (count > 0) {
-        console.log("Tabela ISPBs já populada.");
+        console.log("✅ Tabela ISPBs já populada.");
         return;
     }
 

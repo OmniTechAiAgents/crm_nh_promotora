@@ -5,6 +5,7 @@ import TaskScheduler from '../../utils/TaskScheduler.js';
 import HttpException from '../../utils/HttpException.js';
 import ConsultasFGTSRepository from '../../repositories/ConsultasFGTSRepository.js';
 import ClientesService from '../ClientesService.js';
+import ISPBRepository from '../../repositories/ISPBRepository.js';
 
 
 class NossaFintechService {
@@ -176,6 +177,8 @@ class NossaFintechService {
     async Proposta(data, userUsername) {
         try {
             const verifica = await ConsultasFGTSRepository.SearchByFinancialId(data.financialId);
+
+            // DESCOMENTAR DPS
             // if(!verifica) {
             //     throw new HttpException("Nenhuma proposta encontrada com esse financialId", 404);
             // }
@@ -183,6 +186,7 @@ class NossaFintechService {
             const cliente = await ClientesService.procurarCpf(data.cpf);
             const cliente_ddd = cliente.dataValues.celular.slice(0, 2);
             const cliente_celular = cliente.dataValues.celular.slice(2);
+            const banco = await ISPBRepository.findByCod(data.bankCode);
         
             const reqBody = ({
                 simulation_key: data.financialId,
@@ -205,14 +209,23 @@ class NossaFintechService {
                     postal_code: "99999999",
                     complement: "",
                     bank_account: [
+
+                        // monta 2 bodys diferentes dependendo se tiver chave pix ou nao
                         {
-                            ispb_number: data.bankCode,
-                            account_type: data.accountType,
-                            branch_number: data.branchNumber,
-                            account_number: data.accountNumber,
-                            account_digit: data.accountDigit,
-                            pix_transfer_type: data.pixKeyType,
-                            pix_key: data.pixKey
+                            ...(data.pixKeyType == null && {
+                                ispb_number: banco.ISPB,
+                                account_type: data.accountType,
+                                branch_number: data.branchNumber,
+                                account_number: data.accountNumber,
+                                account_digit: data.accountDigit,
+                                pix_transfer_type: "manual"
+                            }),
+
+                            ...(data.pixKeyType != null && data.pixKey != null && {
+                                pix_transfer_type: "key",
+                                pix_key_type: data.pixKeyType,
+                                pix_key: data.pixKey
+                            }),
                         }
                     ]
                 }
