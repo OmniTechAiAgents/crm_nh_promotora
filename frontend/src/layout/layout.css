@@ -12,7 +12,7 @@ height: 100vh;
 
 .sidebar {
 width: 220px;
-background: #2563eb;
+background: #2e7d32;
 color: white;
 padding: 1rem;
 }
@@ -43,7 +43,7 @@ flex-direction: column;
 
 .header {
 height: 60px;
-background: white;
+background: #F5F7FA;
 border-bottom: 1px solid #e5e7eb;
 display: flex;
 align-items: center;
@@ -59,7 +59,7 @@ background: #f5f7fa;
 
 .header {
   height: 60px;
-  background: #fff;
+  background: #F5F7FA;
   border-bottom: 1px solid #e5e7eb;
   padding: 0 24px;
 
@@ -80,8 +80,8 @@ background: #f5f7fa;
 }
 
 .logout-btn {
-  background: #ef4444;
-  color: #fff;
+  background: #ffffff;
+  color: #2e7d32;
   border: none;
   padding: 6px 12px;
   border-radius: 4px;
@@ -89,5 +89,5 @@ background: #f5f7fa;
 }
 
 .logout-btn:hover {
-  background: #dc2626;
+  background: #ffffff;
 }
