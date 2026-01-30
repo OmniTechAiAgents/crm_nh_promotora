@@ -286,7 +286,7 @@ class VCTexServices {
             return true;
         } catch (err) {
             if(axios.isAxiosError(err)) {
-                const status = err.response?.data?.statusCode || 500;
+                const status = 424;
                 const message = err.response?.data?.message || "Erro desconhecido.";
 
                 throw new HttpException(message, status);
@@ -322,7 +322,7 @@ class VCTexServices {
             await this.AtualizarRegistroPropostaDB(numContract, proposalId, userUsername);
         } catch (err) {
             if(axios.isAxiosError(err)) {
-                const status = err.response?.data?.statusCode || 500;
+                const status = 424;
                 const message = err.response?.data?.message || "Erro desconhecido.";
 
                 throw new HttpException(message, status);
@@ -361,8 +361,18 @@ class VCTexServices {
 
             await this.AtualizarRegistroPropostaDB(numero_contrato, proposalId);
         } catch (err) {
-            console.log(err);
-            throw err;
+            if(axios.isAxiosError(err)) {
+                const status = 424;
+                const message = err.response?.data?.message || "Erro desconhecido.";
+
+                throw new HttpException(message, status);
+            }
+
+            if(err instanceof HttpException) {
+                throw new HttpException(err.message, err.status);
+            }
+
+            throw new HttpException(err.message, 500);
         }
     }
 
@@ -381,8 +391,7 @@ class VCTexServices {
 
             const contractNumberFormatado = contractNumber.replace(/\//g, '-');
 
-            const { data } = await axios.get(
-                `${process.env.VCTex_baseURL}/service/proposal/contract-number`,
+            const { data } = await axios.get(`${process.env.VCTex_baseURL}/service/proposal/contract-number`,
                 {
                     headers: {
                         Authorization: `Bearer ${this.accessToken}`,

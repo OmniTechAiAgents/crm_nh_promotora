@@ -42,8 +42,6 @@ class ConsultasFGTSService {
             return resultadoTratado;
 
         } catch (err) {
-            console.log(err)
-
             throw err;
         }
     }

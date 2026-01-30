@@ -77,22 +77,20 @@ class NossaFintechService {
                 }
             )
 
-            if (!responseSaldo) {
-                throw new Error("Falha ao realizar consulta de saldo");
+            if (responseSaldo.data.status === "failed") {
+                const msg = responseSaldo.data?.data?.error_description ?? "Não foi possível realizar a consulta devido a falha na instituição parceira.";
+                throw new HttpException(msg, 424);
             }
-
-            // DESCOMENTAR DEPOIS
-            // if (responseSaldo.data.data.periods.length < 3) {
-            //     throw new HttpException("O numero de parcelas é menor do que o mínimo (3).", 400)
-            // }
 
             const bodySimulacao = ({
                 cpf: cpf,
                 key: responseSaldo.data.key,
                 number_of_installments: responseSaldo.data.data.periods.length,
+                number_of_installments: 5,
                 eligibility: responseSaldo.data.eligible,
                 cod_produto: 101
             });
+
 
             // manda request para simular
             const responseSimulacao = await axios.post(`${process.env.NossaFintech_baseURL}/nossa/v1/simulation`,
@@ -105,8 +103,9 @@ class NossaFintechService {
                 }
             )
 
-            if (!responseSimulacao) {
-                throw new Error("Falha ao realizar simulação");
+            if (responseSimulacao.data.data.error_message_ptBR || responseSimulacao.status === 204) {
+                const msg = responseSimulacao.data?.data?.error_description ?? "Não foi possível realizar a consulta devido a falha na instituição parceira.";
+                throw new HttpException(msg, 424);
             }
 
             let valorTac = null;
@@ -145,12 +144,11 @@ class NossaFintechService {
             let message = "Erro inesperado ao realizar a simulação";
             
             if (axios.isAxiosError(err)) {
-                status = err.response?.data?.statusCode ?? 500;
-                message = err.response?.data?.data?.error_description ?? message;
-
-                
-            } else if (err instanceof Error) {
+                status = 424;
+                message = err.response?.data?.data?.error_message_ptBR ?? message;
+            } else if (err instanceof HttpException) {
                 message = err.message;
+                status = err.status;
             }
 
             const response = {
