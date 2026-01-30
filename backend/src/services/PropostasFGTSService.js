@@ -1,3 +1,4 @@
+import NossaFintechService from "./integrations/NossaFintechService.js";
 import VCTexServices from "./integrations/VCTexServices.js";
 
 class PropostasFGTSService {
@@ -8,6 +9,9 @@ class PropostasFGTSService {
             switch (instituicao) {
                 case "VCTex":
                     await VCTexServices.Proposta(data, userData.username);
+                    break;
+                case "Nossa fintech":
+                    await NossaFintechService.Proposta(data, userData.username);
                     break;
                 default:
                     console.error("Instituição não encontrada");

@@ -4,6 +4,7 @@ import IsTokenExpired from '../../utils/IsTokenExpired.js';
 import TaskScheduler from '../../utils/TaskScheduler.js';
 import HttpException from '../../utils/HttpException.js';
 import ConsultasFGTSRepository from '../../repositories/ConsultasFGTSRepository.js';
+import ClientesService from '../ClientesService.js';
 
 
 class NossaFintechService {
@@ -169,6 +170,64 @@ class NossaFintechService {
             await ConsultasFGTSRepository.Create(response);
 
             throw new HttpException(message, status);
+        }
+    }
+
+    async Proposta(data, userUsername) {
+        try {
+            const verifica = await ConsultasFGTSRepository.SearchByFinancialId(data.financialId);
+            // if(!verifica) {
+            //     throw new HttpException("Nenhuma proposta encontrada com esse financialId", 404);
+            // }
+
+            const cliente = await ClientesService.procurarCpf(data.cpf);
+            const cliente_ddd = cliente.dataValues.celular.slice(0, 2);
+            const cliente_celular = cliente.dataValues.celular.slice(2);
+        
+            const reqBody = ({
+                simulation_key: data.financialId,
+                client: {
+                    person_name: cliente.dataValues.nome,
+                    mother_name: "Maria da Silva",
+                    birth_date: cliente.dataValues.data_nasc,
+                    profession: "",
+                    nationality: "Brasileiro",
+                    marital_status: "single",
+                    email: "example@gmail.com",
+                    country_code: "55",
+                    area_code: cliente_ddd,
+                    phone_number: cliente_celular,
+                    street: "Rua exemplo",
+                    state: "SP",
+                    city: "Santo Andre",
+                    neighborhood: "Bairro top",
+                    number: "1",
+                    postal_code: "99999999",
+                    complement: "",
+                    bank_account: [
+                        {
+                            ispb_number: data.bankCode,
+                            account_type: data.accountType,
+                            branch_number: data.branchNumber,
+                            account_number: data.accountNumber,
+                            account_digit: data.accountDigit,
+                            pix_transfer_type: data.pixKeyType,
+                            pix_key: data.pixKey
+                        }
+                    ]
+                }
+            });
+
+            console.dir(reqBody, { depth: null });
+
+
+            return true;
+
+            // manda essa request para a API, as informacoes uteis do retorno e manda para o banco
+        } catch (err) {
+            // fazer tratamento de erro com o axios e HttpException
+
+            throw err;
         }
     }
 
