@@ -10,6 +10,7 @@ import NovaVidaService from './services/integrations/NovaVidaService.js';
 import C6Service from './services/integrations/C6Service.js';
 import NossaFintechService from './services/integrations/NossaFintechService.js';
 import cors from "cors";
+import { seedISPBs } from './utils/seedISPBs.js';
 
 const app = express();
 
@@ -27,6 +28,8 @@ async function bootstrap() {
     try {
         await db.sync();
         console.log("✅ Tabelas sincronizadas com sucesso");
+
+        await seedISPBs();
 
         console.log("🔄 Inicializando tokens de APIs parceiras...");
 
