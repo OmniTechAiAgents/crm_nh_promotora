@@ -86,7 +86,6 @@ class NossaFintechService {
                 cpf: cpf,
                 key: responseSaldo.data.key,
                 number_of_installments: responseSaldo.data.data.periods.length,
-                number_of_installments: 5,
                 eligibility: responseSaldo.data.eligible,
                 cod_produto: 101
             });
@@ -103,7 +102,7 @@ class NossaFintechService {
                 }
             )
 
-            if (responseSimulacao.data.data.error_message_ptBR || responseSimulacao.status === 204) {
+            if (responseSimulacao.data?.data?.error_message_ptBR || responseSimulacao.status === 204) {
                 const msg = responseSimulacao.data?.data?.error_description ?? "Não foi possível realizar a consulta devido a falha na instituição parceira.";
                 throw new HttpException(msg, 424);
             }
