@@ -113,13 +113,6 @@ class NossaFintechService {
                 const ptBR = responseSaldo.data?.data?.error_message_ptBR;
                 const desc = responseSaldo?.data?.data?.error_description;
 
-                console.log("ptBR:", ptBR, typeof ptBR);
-                console.log("desc:", desc, typeof desc);
-                console.log("desc === null:", desc === null);
-                console.log("desc === undefined:", desc === undefined);
-                console.log("desc != null:", desc != null);
-
-                
                 let msg = null;
 
                 // fazendo esse tratamento porco pq a API parceira n ajuda
