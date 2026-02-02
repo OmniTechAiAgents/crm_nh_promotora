@@ -68,44 +68,112 @@ class NossaFintechService {
 
     async Simulacao(cpf, userUsername) {
         try {
-            // manda request para rota de verificar saldo
-            const responseSaldo = await axios.post(`${process.env.NossaFintech_baseURL}/nossa/v1/balance`,
-                { cpf },
-                {
-                    timeout: 45_000,
-                    headers: {
-                        'Authorization': `Bearer ${this.accessToken}`,
-                    }
-                }
-            )
+            const players = [
+                { code: "qi", table: 101 , enabled: true },
+                { code: "bmp", table: 106, enabled: false }
+            ];
 
-            if (responseSaldo.data.status === "failed") {
-                const msg = responseSaldo.data?.data?.error_description ?? "Não foi possível realizar a consulta devido a falha na instituição parceira.";
+            let responseSaldo = null;
+            let responseSimulacao = null;
+            let lastError = null;
+            let usedPlayer = null;
+
+            for(const { code, table, enabled } of players) {
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                if (!enabled) continue;
+
+                try {
+                    console.log(`Consultando o saldo na "Nossa fintech" com o player: ${code}...`);
+
+                    // manda request para rota de verificar saldo
+                    responseSaldo = await axios.post(`${process.env.NossaFintech_baseURL}/nossa/v1/balance`,
+                        { 
+                            cpf: cpf,
+                            service_type: code.trim()
+                        },
+                        {
+                            // timeout: 45_000,
+                            headers: {
+                                'Authorization': `Bearer ${this.accessToken}`,
+                            }
+                        }
+                    )
+
+                    usedPlayer = code.trim();
+                    break;
+                } catch(err) {
+                    console.error(`O player ${code} falhou em concluir a simulacao`);
+                    lastError = err;
+                }
+            }
+
+            if (lastError != null || responseSaldo.data?.status == "failed" || responseSaldo.data?.status == "fail" || responseSaldo.data?.data?.error_message_ptBR) {
+
+                const ptBR = responseSaldo.data?.data?.error_message_ptBR;
+                const desc = responseSaldo?.data?.data?.error_description;
+
+                console.log("ptBR:", ptBR, typeof ptBR);
+                console.log("desc:", desc, typeof desc);
+                console.log("desc === null:", desc === null);
+                console.log("desc === undefined:", desc === undefined);
+                console.log("desc != null:", desc != null);
+
+                
+                let msg = null;
+
+                // fazendo esse tratamento porco pq a API parceira n ajuda
+                if (typeof ptBR === "string" && ptBR.trim() !== "") {
+                    msg = ptBR;
+                } else if (typeof desc === "string" && desc.trim() !== "") {
+                    console.log("else if disparado");
+                    msg = desc;
+                } else {
+                    msg = "fodase";
+                }
+
+                console.log(msg)
+
                 throw new HttpException(msg, 424);
             }
 
-            const bodySimulacao = ({
-                cpf: cpf,
-                key: responseSaldo.data.key,
-                number_of_installments: responseSaldo.data.data.periods.length,
-                eligibility: responseSaldo.data.eligible,
-                cod_produto: 101
-            });
+            // limpando o lastError
+            lastError = null;
 
+            // tenta simular com o msm player que funcionou na consulta de saldo
+            try {
+                console.log(`Simulando Nossa Fintech com o player: ${usedPlayer}...`)
 
-            // manda request para simular
-            const responseSimulacao = await axios.post(`${process.env.NossaFintech_baseURL}/nossa/v1/simulation`,
-                bodySimulacao,
-                {
-                    timeout: 45_000,
-                    headers: {
-                        'Authorization': `Bearer ${this.accessToken}`,
+                const bodySimulacao = ({
+                    cpf: cpf,
+                    key: responseSaldo.data.key,
+                    number_of_installments: responseSaldo.data.data.periods.length,
+                    eligibility: responseSaldo.data.eligible,
+                    cod_produto: players.find(p => p.code === usedPlayer)?.table,
+                    service_type: usedPlayer
+                });
+                    
+                // manda request para simular
+                responseSimulacao = await axios.post(`${process.env.NossaFintech_baseURL}/nossa/v1/simulation`,
+                    bodySimulacao,
+                    {
+                        timeout: 45_000,
+                        headers: {
+                            'Authorization': `Bearer ${this.accessToken}`,
+                        }
                     }
-                }
-            )
+                )
+            } catch (err) {
+                console.error(`O player ${usedPlayer} falhou em concluir a simulacao`);
 
-            if (responseSimulacao.data?.data?.error_message_ptBR || responseSimulacao.status === 204) {
-                const msg = responseSimulacao.data?.data?.error_description ?? "Não foi possível realizar a consulta devido a falha na instituição parceira.";
+                lastError = err;
+            }
+
+            // console.log(lastError)
+            console.log(responseSaldo)
+
+            if (lastError != null) {
+                const msg = lastError.response?.data?.data?.error_message_ptBR ?? "Não foi possível realizar a simulação devido a falha na instituição parceira.";
                 throw new HttpException(msg, 424);
             }
 
