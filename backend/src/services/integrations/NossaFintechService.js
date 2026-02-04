@@ -192,6 +192,7 @@ class NossaFintechService {
                 usuario: userUsername,
                 chave: responseSimulacao.data.key,
                 banco: usedPlayer,
+                API: "Nossa fintech",
                 mensagem: "Consulta realizada com sucesso!",
                 elegivelProposta: true
             }
@@ -223,6 +224,7 @@ class NossaFintechService {
                 usuario: userUsername,
                 chave: null,
                 banco: null,
+                API: "Nossa fintech",
                 mensagem: message,
                 elegivelProposta: false
             };
@@ -314,7 +316,8 @@ class NossaFintechService {
                 contrato: responseProposta.data.ccb_pdf,
                 numero_contrato: responseProposta.data.num_contrato,
                 usuario: userUsername,
-                banco: "Nossa fintech",
+                banco: verifica.banco,
+                API: "Nossa fintech",
                 status_proposta: "Criado",
                 msg_status: responseProposta.data.dsc_situacao_emprestimo,
                 verificar: 1

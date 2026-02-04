@@ -157,6 +157,7 @@ class VCTexServices {
                 usuario: userUsername,
                 chave: rawResponse.data.data.financialId,
                 banco: usedPlayer,
+                API: "VCTex",
                 mensagem: "Consulta realizada com sucesso!",
                 elegivelProposta: true
             }
@@ -187,6 +188,7 @@ class VCTexServices {
                 usuario: userUsername,
                 chave: null,
                 banco: null,
+                API: "VCTex",
                 mensagem: message,
                 elegivelProposta: false
             };
@@ -429,6 +431,7 @@ class VCTexServices {
                 status_proposta: propostaAPI.proposalStatusDisplayTitle,
                 msg_status: propostaAPI.proposalStatusReserveDisplayTitle,
                 banco: proposalId.dataValues.banco,
+                API: "VCTex",
                 data_status: new Date(),
 
                 // verifica pelo status, se for finalizado fica false, se nao fica true
