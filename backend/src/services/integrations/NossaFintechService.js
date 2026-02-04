@@ -6,6 +6,7 @@ import HttpException from '../../utils/HttpException.js';
 import ConsultasFGTSRepository from '../../repositories/ConsultasFGTSRepository.js';
 import ClientesService from '../ClientesService.js';
 import ISPBRepository from '../../repositories/ISPBRepository.js';
+import PropostasRepository from '../../repositories/PropostasRepository.js';
 
 
 class NossaFintechService {
@@ -315,16 +316,26 @@ class NossaFintechService {
                 usuario: userUsername,
                 banco: "Nossa fintech",
                 status_proposta: "Criado",
-                msg_status: responseProposta.data.waiting_signature,
+                msg_status: responseProposta.data.dsc_situacao_emprestimo,
                 verificar: 1
             })
 
-            console.log(bodyDB);
-        } catch (err) {
-            // fazer tratamento de erro com o axios e HttpException
-            console.log(err.response.data)
+            await PropostasRepository.create(bodyDB);
 
-            throw err;
+            return;
+        } catch (err) {
+            if(axios.isAxiosError(err)) {
+                const status = 424;
+                const message = err.response?.data?.message || "Erro desconhecido.";
+
+                throw new HttpException(message, status);
+            }
+
+            if(err instanceof HttpException) {
+                throw new HttpException(err.message, err.status);
+            }
+
+            throw new HttpException(err.message, 500);
         }
     }
 
