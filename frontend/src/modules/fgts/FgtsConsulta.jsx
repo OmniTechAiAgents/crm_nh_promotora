@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import FgtsResultadoCard from "./FgtsResultadoCard";
+import api from "../../api/client";
 import "./fgts.css";
 
 export default function FgtsConsulta() {
@@ -18,8 +19,9 @@ export default function FgtsConsulta() {
       const authData = JSON.parse(localStorage.getItem("auth_data"));
       const token = authData?.token;
 
-      const { data } = await axios.post(
-        "http://localhost:3000/consultas/FGTS/manual",
+      console.log(token)
+
+      const { data } = await api.post("/consultas/FGTS/manual",
         { cpf, instituicao },
         {
           headers: {
@@ -99,8 +101,8 @@ export default function FgtsConsulta() {
       <label className="radio-option">
         <input
           type="radio"
-          value="Nossa Fintech"
-          checked={instituicao === "Nossa Fintech"}
+          value="Nossa fintech"
+          checked={instituicao === "Nossa fintech"}
           onChange={(e) => setInstituicao(e.target.value)}
         />
         Nossa Fintech
