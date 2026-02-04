@@ -342,6 +342,42 @@ class NossaFintechService {
         }
     }
 
+
+    async VerificarApenasUmaProposta(proposalId) {
+        try {
+            const dadosAntigosRaw = await PropostasRepository.findOne(proposalId);
+            const dadosAntigos = dadosAntigosRaw.dataValues;
+
+            const dadosNovos = await axios.get(`${process.env.NossaFintech_baseURL}/nossa/v1/proposal/${proposalId}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                    }
+                }
+            )
+
+            const ultimoHistorico = dadosNovos.data.history.at(-1);
+
+            if (!ultimoHistorico) {
+                throw new HttpException('Histórico vazio na API nossa fintech', 424);
+            }
+
+            const proposalAtualizada = ({
+                ...dadosAntigos,
+
+                status_proposta: ultimoHistorico.status,
+                msg_status: ultimoHistorico.description,
+                data_status: ultimoHistorico.event_datetime
+            })
+
+            await PropostasRepository.update(proposalId, proposalAtualizada );
+        } catch (err) {
+            console.error('Erro ao atualizar proposta:', err);
+
+            throw err;
+        }
+    }
+
     getToken() {
         return this.accessToken;
     }

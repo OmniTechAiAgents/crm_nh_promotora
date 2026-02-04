@@ -52,7 +52,7 @@ class PropostasFGTSService {
                     await VCTexServices.VerificarApenasUmaProposta(proposalId);
                     break;
                 case "Nossa fintech":
-                    
+                    await NossaFintechService.VerificarApenasUmaProposta(proposalId);
                     break
                 default:
                     console.error("Instituição não encontrada");
