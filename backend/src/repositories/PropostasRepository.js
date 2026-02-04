@@ -56,6 +56,16 @@ class PropostasRepository {
             totalPages: Math.ceil(result.count / limite)
         }
     }
+
+    async getApiByProposalId(proposalId) {
+        return Tabela_propostas.findOne({
+            where: {
+                proposal_id: proposalId
+            },
+            attributes: ['API'],
+            raw: true
+        })
+    }
 }
 
 export default new PropostasRepository();

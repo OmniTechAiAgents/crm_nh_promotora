@@ -45,7 +45,19 @@ class PropostasFGTSService {
 
     async VerificarProposta(proposalId) {
         try {
-            await VCTexServices.VerificarApenasUmaProposta(proposalId);
+            const api = await PropostasRepository.getApiByProposalId(proposalId);
+
+            switch (api.API) {
+                case "VCTex":
+                    await VCTexServices.VerificarApenasUmaProposta(proposalId);
+                    break;
+                case "Nossa fintech":
+                    
+                    break
+                default:
+                    console.error("Instituição não encontrada");
+                    break;
+            }
         } catch(err) {
             throw err;
         }
