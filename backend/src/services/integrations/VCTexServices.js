@@ -349,8 +349,7 @@ class VCTexServices {
             // reagenda a task
             TaskScheduler.schedule("Verificar propostas do VCTex", () => this.VerificarTodasAsPropostas(), 1800000);
         } catch (err) {
-            console.log(err);
-            throw err
+            console.error(`Não foi possivel verificar as propostas da VCTex: ${err}`);
         }
     }
 
