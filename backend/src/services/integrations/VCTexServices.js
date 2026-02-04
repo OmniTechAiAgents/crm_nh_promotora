@@ -169,7 +169,7 @@ class VCTexServices {
             let message = "Erro inesperado ao realizar a simulação";
 
             if (axios.isAxiosError(err)) {
-                status = err.response?.data?.statusCode ?? 500;
+                status = 424;
                 message = err.response?.data?.message ?? message;
             } else if (err instanceof Error) {
                 message = err.message;
