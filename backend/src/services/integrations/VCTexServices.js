@@ -428,7 +428,10 @@ class VCTexServices {
                 numero_contrato: propostaAPI.proposalContractNumber,
                 status_proposta: propostaAPI.proposalStatusDisplayTitle,
                 msg_status: propostaAPI.proposalStatusReserveDisplayTitle,
+                banco: proposalId.dataValues.banco,
                 data_status: new Date(),
+
+                // verifica pelo status, se for finalizado fica false, se nao fica true
                 verificar
             };
 
@@ -438,8 +441,7 @@ class VCTexServices {
                     ...dadosAtualizados,
                     proposal_id: proposalId,
                     contrato: 'null',
-                    usuario: username,
-                    banco: 'VCTex'
+                    usuario: username
                 });
 
                 return;
