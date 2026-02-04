@@ -1,5 +1,6 @@
 import NossaFintechService from "./integrations/NossaFintechService.js";
 import VCTexServices from "./integrations/VCTexServices.js";
+import PropostasRepository from "../repositories/PropostasRepository.js";
 
 class PropostasFGTSService {
     async FazerProposta(data, userData) {
@@ -20,6 +21,18 @@ class PropostasFGTSService {
         } catch (err) {
             throw err;
         }
+    }
+
+    async RecuperarPropostas(pesquisa, page, limit) {
+        try {
+            const offset = (page - 1) * limit;
+    
+            const result = await PropostasRepository.SearchPagination(pesquisa, limit, offset);
+    
+            return result;
+        } catch {
+            throw err;
+            }
     }
 
     async CancelarProposta(proposalId, userData) {
