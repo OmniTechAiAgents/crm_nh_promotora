@@ -7,7 +7,16 @@ export const ValidarBodyProposta = z
 
     instituicao: z.enum(["VCTex", "Parana", "Nossa fintech"]),
     bankCode: z.string().optional(),
-    accountType: z.enum(["corrente", ["poupanca"]]).optional(),
+    accountType: z.enum([
+      "corrente", 
+      "poupanca",
+      "checking_account",
+      "saving_account",
+      "deposit_account",
+      "guaranteed_account",
+      "investment_account",
+      "payment_account"
+    ]).optional(),
     accountNumber: z.string().optional(),
     accountDigit: z.string().optional(),
     branchNumber: z.string().optional(),

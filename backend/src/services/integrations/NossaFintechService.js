@@ -162,9 +162,6 @@ class NossaFintechService {
                 lastError = err;
             }
 
-            // console.log(lastError)
-            console.log(responseSaldo)
-
             if (lastError != null) {
                 const msg = lastError.response?.data?.data?.error_message_ptBR ?? "Não foi possível realizar a simulação devido a falha na instituição parceira.";
                 throw new HttpException(msg, 424);
@@ -193,7 +190,7 @@ class NossaFintechService {
                 tabela: "Tabela Nossa Melhor",
                 usuario: userUsername,
                 chave: responseSimulacao.data.key,
-                banco: "Singulare",
+                banco: usedPlayer,
                 mensagem: "Consulta realizada com sucesso!",
                 elegivelProposta: true
             }
@@ -239,10 +236,9 @@ class NossaFintechService {
         try {
             const verifica = await ConsultasFGTSRepository.SearchByFinancialId(data.financialId);
 
-            // DESCOMENTAR DPS
-            // if(!verifica) {
-            //     throw new HttpException("Nenhuma proposta encontrada com esse financialId", 404);
-            // }
+            if(!verifica) {
+                throw new HttpException("Nenhuma proposta encontrada com esse financialId", 404);
+            }
 
             const cliente = await ClientesService.procurarCpf(data.cpf);
             const cliente_ddd = cliente.dataValues.celular.slice(0, 2);
@@ -251,6 +247,7 @@ class NossaFintechService {
         
             const reqBody = ({
                 simulation_key: data.financialId,
+                service_type: verifica.banco,
                 client: {
                     person_name: cliente.dataValues.nome,
                     mother_name: "Maria da Silva",
@@ -292,14 +289,40 @@ class NossaFintechService {
                 }
             });
 
-            console.dir(reqBody, { depth: null });
+            // enviando a requisicao para a API
+            const responseProposta = await axios.post(`${process.env.NossaFintech_baseURL}/nossa/v1/proposal`,
+                reqBody,
+                {
+                    // timeout: 45_000,
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                    }
+                }
+            );
+            
+            const bodyDB = ({
+                nome: responseProposta.data.nom_cliente,
+                cpf: responseProposta.data.cod_cpf_cliente,
+                cel: responseProposta.data.num_telefone_celular.replace(/^\+55/, ''),
+                data_nascimento: responseProposta.data.dat_nascimento,
+                proposal_id: responseProposta.data.debt_key,
+                link_form: responseProposta.data.link_form,
+                valor_liquido: responseProposta.data.val_liquido,
+                valor_seguro: responseProposta.data.val_seguro,
+                valor_emissao: responseProposta.data.val_emissao,
+                contrato: responseProposta.data.ccb_pdf,
+                numero_contrato: responseProposta.data.num_contrato,
+                usuario: userUsername,
+                banco: "Nossa fintech",
+                status_proposta: "Criado",
+                msg_status: responseProposta.data.waiting_signature,
+                verificar: 1
+            })
 
-
-            return true;
-
-            // manda essa request para a API, as informacoes uteis do retorno e manda para o banco
+            console.log(bodyDB);
         } catch (err) {
             // fazer tratamento de erro com o axios e HttpException
+            console.log(err.response.data)
 
             throw err;
         }
