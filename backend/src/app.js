@@ -52,8 +52,13 @@ async function bootstrap() {
         });
 
         // verificacao de propostas
-        await VCTexServices.VerificarTodasAsPropostas();
-        console.log("✅ Todas as propostas pendentes do VCTex foram verificadas");
+        if (VCTexServices.getToken() == null) {
+            console.log("❌ Token VCTex não fornecido, pulando a verificação de propostas.")
+        } else {
+            await VCTexServices.VerificarTodasAsPropostas();
+            console.log("✅ Todas as propostas pendentes do VCTex foram verificadas");
+        }
+        
     } catch (err) {
         console.error("❌ Falha Crítica na inicialização:");
         console.error(err);
