@@ -25,9 +25,10 @@ class PropostasRepository {
         );
     }
 
-    async findAllParaVerificar() {
+    async findAllParaVerificar(instituicao) {
         return Tabela_propostas.findAll({
             where: {
+                API: instituicao,
                 verificar: true
             },
             attributes: ['proposal_id', 'numero_contrato'],
@@ -55,6 +56,16 @@ class PropostasRepository {
             data: result.rows,
             totalPages: Math.ceil(result.count / limite)
         }
+    }
+
+    async getApiByProposalId(proposalId) {
+        return Tabela_propostas.findOne({
+            where: {
+                proposal_id: proposalId
+            },
+            attributes: ['API'],
+            raw: true
+        })
     }
 }
 

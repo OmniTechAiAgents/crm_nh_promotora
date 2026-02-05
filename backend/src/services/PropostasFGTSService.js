@@ -1,6 +1,7 @@
 import NossaFintechService from "./integrations/NossaFintechService.js";
 import VCTexServices from "./integrations/VCTexServices.js";
 import PropostasRepository from "../repositories/PropostasRepository.js";
+import HttpException from "../utils/HttpException.js";
 
 class PropostasFGTSService {
     async FazerProposta(data, userData) {
@@ -37,7 +38,26 @@ class PropostasFGTSService {
 
     async CancelarProposta(proposalId, userData) {
         try {
-            await VCTexServices.CancelarProposta(proposalId, userData);
+            const api = await PropostasRepository.getApiByProposalId(proposalId);
+            if(api == null) {
+                throw new HttpException("Proposta não encontrada", 404);
+            }
+
+            let response = null;
+
+            switch (api.API) {
+                case "VCTex":
+                    response = await VCTexServices.CancelarProposta(proposalId, userData);
+                    break;
+                case "Nossa fintech":
+                    response = await NossaFintechService.CancelarProposta(proposalId, userData);
+                    break
+                default:
+                    console.error("Instituição não encontrada");
+                    break;
+            }
+
+            return response;
         } catch(err) {
             throw err;
         }
@@ -45,7 +65,26 @@ class PropostasFGTSService {
 
     async VerificarProposta(proposalId) {
         try {
-            await VCTexServices.VerificarApenasUmaProposta(proposalId);
+            const api = await PropostasRepository.getApiByProposalId(proposalId);
+            if(api == null) {
+                throw new HttpException("Proposta não encontrada", 404);
+            }
+
+            let response = null;
+
+            switch (api.API) {
+                case "VCTex":
+                    response = await VCTexServices.VerificarApenasUmaProposta(proposalId);
+                    break;
+                case "Nossa fintech":
+                    response = await NossaFintechService.VerificarApenasUmaProposta(proposalId);
+                    break
+                default:
+                    console.error("Instituição não encontrada");
+                    break;
+            }
+
+            return response;
         } catch(err) {
             throw err;
         }

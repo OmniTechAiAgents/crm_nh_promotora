@@ -69,6 +69,10 @@ const Cpfs_individuais = db.define(
         elegivelProposta: {
             type: DataTypes.BOOLEAN,
             allowNull: false
+        },
+        API: {
+            type: DataTypes.STRING(50),
+            allowNull: false
         }
     },
     {

@@ -6,6 +6,7 @@ import HttpException from '../../utils/HttpException.js';
 import ConsultasFGTSRepository from '../../repositories/ConsultasFGTSRepository.js';
 import ClientesService from '../ClientesService.js';
 import ISPBRepository from '../../repositories/ISPBRepository.js';
+import PropostasRepository from '../../repositories/PropostasRepository.js';
 
 
 class NossaFintechService {
@@ -162,9 +163,6 @@ class NossaFintechService {
                 lastError = err;
             }
 
-            // console.log(lastError)
-            console.log(responseSaldo)
-
             if (lastError != null) {
                 const msg = lastError.response?.data?.data?.error_message_ptBR ?? "Não foi possível realizar a simulação devido a falha na instituição parceira.";
                 throw new HttpException(msg, 424);
@@ -193,7 +191,8 @@ class NossaFintechService {
                 tabela: "Tabela Nossa Melhor",
                 usuario: userUsername,
                 chave: responseSimulacao.data.key,
-                banco: "Singulare",
+                banco: usedPlayer,
+                API: "Nossa fintech",
                 mensagem: "Consulta realizada com sucesso!",
                 elegivelProposta: true
             }
@@ -225,6 +224,7 @@ class NossaFintechService {
                 usuario: userUsername,
                 chave: null,
                 banco: null,
+                API: "Nossa fintech",
                 mensagem: message,
                 elegivelProposta: false
             };
@@ -239,18 +239,22 @@ class NossaFintechService {
         try {
             const verifica = await ConsultasFGTSRepository.SearchByFinancialId(data.financialId);
 
-            // DESCOMENTAR DPS
-            // if(!verifica) {
-            //     throw new HttpException("Nenhuma proposta encontrada com esse financialId", 404);
-            // }
+            if(!verifica) {
+                throw new HttpException("Nenhuma proposta encontrada com esse financialId", 404);
+            }
 
             const cliente = await ClientesService.procurarCpf(data.cpf);
             const cliente_ddd = cliente.dataValues.celular.slice(0, 2);
             const cliente_celular = cliente.dataValues.celular.slice(2);
+
             const banco = await ISPBRepository.findByCod(data.bankCode);
+            if (banco == null) {
+                throw new HttpException("Banco não encontrado", 404);
+            }
         
             const reqBody = ({
                 simulation_key: data.financialId,
+                service_type: verifica.banco,
                 client: {
                     person_name: cliente.dataValues.nome,
                     mother_name: "Maria da Silva",
@@ -292,15 +296,163 @@ class NossaFintechService {
                 }
             });
 
-            console.dir(reqBody, { depth: null });
+            // enviando a requisicao para a API
+            const responseProposta = await axios.post(`${process.env.NossaFintech_baseURL}/nossa/v1/proposal`,
+                reqBody,
+                {
+                    // timeout: 45_000,
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                    }
+                }
+            );
+            
+            const bodyDB = ({
+                nome: responseProposta.data.nom_cliente,
+                cpf: responseProposta.data.cod_cpf_cliente,
+                cel: responseProposta.data.num_telefone_celular.replace(/^\+55/, ''),
+                data_nascimento: responseProposta.data.dat_nascimento,
+                proposal_id: responseProposta.data.debt_key,
+                link_form: responseProposta.data.link_form,
+                valor_liquido: responseProposta.data.val_liquido,
+                valor_seguro: responseProposta.data.val_seguro,
+                valor_emissao: responseProposta.data.val_emissao,
+                contrato: responseProposta.data.ccb_pdf,
+                numero_contrato: responseProposta.data.num_contrato,
+                usuario: userUsername,
+                banco: verifica.banco,
+                API: "Nossa fintech",
+                status_proposta: "Criado",
+                msg_status: responseProposta.data.dsc_situacao_emprestimo,
+                verificar: 1
+            })
 
+            await PropostasRepository.create(bodyDB);
 
-            return true;
-
-            // manda essa request para a API, as informacoes uteis do retorno e manda para o banco
+            return;
         } catch (err) {
-            // fazer tratamento de erro com o axios e HttpException
+            if(axios.isAxiosError(err)) {
+                const status = 424;
+                const message = err.response?.data?.message || "Erro desconhecido.";
 
+                throw new HttpException(message, status);
+            }
+
+            if(err instanceof HttpException) {
+                throw new HttpException(err.message, err.status);
+            }
+
+            throw new HttpException(err.message, 500);
+        }
+    }
+
+    async VerificarTodasAsPropostas() {
+        try {
+            const propostas = await PropostasRepository.findAllParaVerificar("Nossa fintech");
+
+            for(const { proposal_id } of propostas) {
+                await this.AtualizarRegistroPropostaDB(proposal_id);
+
+                await new Promise(resolve => setTimeout(resolve, 5000));
+            };
+
+            TaskScheduler.schedule("Verificar propostas da Nossa fintech", () => this.VerificarTodasAsPropostas(), 1800000);
+        } catch (err) {
+            console.error(`Não foi possível verificar as propostas da Nossa fintech: ${err}`);
+        }
+    }
+
+    async VerificarApenasUmaProposta(proposalId) {
+        try {
+            await this.AtualizarRegistroPropostaDB(proposalId);
+
+            const response = await PropostasRepository.findOne(proposalId);
+
+            return response;
+        } catch (err) {
+            console.error('Erro ao atualizar proposta:', err);
+
+            throw err;
+        }
+    }
+
+    async CancelarProposta(proposalId) {
+        try {
+            await axios.post(`${process.env.NossaFintech_baseURL}/nossa/v1/cancel_operation`,
+                {
+                    "debt_key": proposalId
+                },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`
+                    }
+                }
+            )
+
+            // delay pra n torar o servidor deles
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            await this.AtualizarRegistroPropostaDB(proposalId);
+
+            const response = await PropostasRepository.findOne(proposalId);
+
+            return response;
+        } catch(err) {
+            if(axios.isAxiosError(err)) {
+                const status = 424;
+                const message = err.response?.data?.message || "Erro desconhecido.";
+
+                throw new HttpException(message, status);
+            }
+
+            if(err instanceof HttpException) {
+                throw new HttpException(err.message, err.status);
+            }
+        }
+    }
+
+
+    async AtualizarRegistroPropostaDB(proposalId) {
+        try {
+            const STATUS_FINALIZADOS = new Set([
+                "Cancelado Permanentemente",
+                "Operação cancelada",
+                "Cancelado",
+
+                // verificar funcionalidade depois
+                "Operação desembolsada (paga)"
+            ]);
+
+            const dadosAntigosRaw = await PropostasRepository.findOne(proposalId);
+            const dadosAntigos = dadosAntigosRaw.dataValues;
+
+            const dadosNovos = await axios.get(`${process.env.NossaFintech_baseURL}/nossa/v1/proposal/${proposalId}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                    }
+                }
+            )
+
+            const ultimoHistorico = dadosNovos.data.history.at(-1);
+
+            if (!ultimoHistorico) {
+                throw new HttpException('Histórico vazio na API nossa fintech', 424);
+            }
+
+            // faz o ternario para saber se ainda precisa verificar a proposta
+            const verificar = !STATUS_FINALIZADOS.has(ultimoHistorico.status)
+
+            const proposalAtualizada = ({
+                ...dadosAntigos,
+
+                status_proposta: ultimoHistorico.status,
+                msg_status: ultimoHistorico.description,
+                data_status: ultimoHistorico.event_datetime,
+                verificar
+            })
+
+            await PropostasRepository.update(proposalId, proposalAtualizada)
+        } catch (err) {
             throw err;
         }
     }

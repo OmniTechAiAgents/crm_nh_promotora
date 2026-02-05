@@ -77,6 +77,10 @@ const Tabela_propostas = db.define(
         data_status: {
             type: DataTypes.DATE,
             allowNull: true
+        },
+        API: {
+            type: DataTypes.STRING(50),
+            allowNull: false
         }
     },
     {

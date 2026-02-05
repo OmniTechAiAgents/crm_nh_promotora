@@ -157,6 +157,7 @@ class VCTexServices {
                 usuario: userUsername,
                 chave: rawResponse.data.data.financialId,
                 banco: usedPlayer,
+                API: "VCTex",
                 mensagem: "Consulta realizada com sucesso!",
                 elegivelProposta: true
             }
@@ -187,6 +188,7 @@ class VCTexServices {
                 usuario: userUsername,
                 chave: null,
                 banco: null,
+                API: "VCTex",
                 mensagem: message,
                 elegivelProposta: false
             };
@@ -320,6 +322,10 @@ class VCTexServices {
             // precisa desse timeout por causa da latência do servidor deles
             await new Promise(resolve => setTimeout(resolve, 3000));
             await this.AtualizarRegistroPropostaDB(numContract, proposalId, userUsername);
+
+            const response = await PropostasRepository.findOne(proposalId);
+            
+            return response;
         } catch (err) {
             if(axios.isAxiosError(err)) {
                 const status = 424;
@@ -336,7 +342,7 @@ class VCTexServices {
 
     async VerificarTodasAsPropostas() {
         try {
-            const propostas = await PropostasRepository.findAllParaVerificar();
+            const propostas = await PropostasRepository.findAllParaVerificar("VCTex");
 
             // for diferente para funcionar o await da funcao
             for (const { proposal_id, numero_contrato } of propostas) {
@@ -359,6 +365,10 @@ class VCTexServices {
             const numero_contrato = proposal.dataValues.numero_contrato
 
             await this.AtualizarRegistroPropostaDB(numero_contrato, proposalId);
+
+            const response = await PropostasRepository.findOne(proposalId);
+            
+            return response;
         } catch (err) {
             if(axios.isAxiosError(err)) {
                 const status = 424;
@@ -428,25 +438,26 @@ class VCTexServices {
                 numero_contrato: propostaAPI.proposalContractNumber,
                 status_proposta: propostaAPI.proposalStatusDisplayTitle,
                 msg_status: propostaAPI.proposalStatusReserveDisplayTitle,
+                banco: propostaAPI.baas,
+                API: "VCTex",
                 data_status: new Date(),
+
+                // verifica pelo status, se for finalizado fica false, se nao fica true
                 verificar
             };
 
             // se nao existe, cria
             if (!propostaDB) {
-                await PropostasRepository.create({
+                return await PropostasRepository.create({
                     ...dadosAtualizados,
                     proposal_id: proposalId,
                     contrato: 'null',
-                    usuario: username,
-                    banco: 'VCTex'
+                    usuario: username
                 });
-
-                return;
             }
 
             // se existe, atualiza
-            await propostaDB.update(dadosAtualizados);
+            return await propostaDB.update(dadosAtualizados);
 
         } catch (err) {
             console.error('Erro ao atualizar proposta:', err);
