@@ -342,7 +342,36 @@ class NossaFintechService {
         }
     }
 
+    async VerificarTodasAsPropostas() {
+        try {
+            const propostas = await PropostasRepository.findAllParaVerificar("Nossa fintech");
+
+            for(const { proposal_id } of propostas) {
+                await this.AtualizarRegistroPropostaDB(proposal_id);
+
+                await new Promise(resolve => setTimeout(resolve, 5000));
+            };
+
+            TaskScheduler.schedule("Verificar propostas da Nossa fintech", () => this.VerificarTodasAsPropostas(), 1800000);
+        } catch (err) {
+            console.error(`Não foi possível verificar as propostas da Nossa fintech: ${err}`);
+        }
+    }
+
     async VerificarApenasUmaProposta(proposalId) {
+        try {
+            await this.AtualizarRegistroPropostaDB(proposalId);
+
+            // talvez retornar o body da nova proposta atualizada
+        } catch (err) {
+            console.error('Erro ao atualizar proposta:', err);
+
+            throw err;
+        }
+    }
+
+
+    async AtualizarRegistroPropostaDB(proposalId) {
         try {
             const dadosAntigosRaw = await PropostasRepository.findOne(proposalId);
             const dadosAntigos = dadosAntigosRaw.dataValues;
@@ -371,8 +400,6 @@ class NossaFintechService {
 
             await PropostasRepository.update(proposalId, proposalAtualizada );
         } catch (err) {
-            console.error('Erro ao atualizar proposta:', err);
-
             throw err;
         }
     }

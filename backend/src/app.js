@@ -52,11 +52,13 @@ async function bootstrap() {
         });
 
         // verificacao de propostas
-        if (VCTexServices.getToken() == null) {
-            console.log("❌ Token VCTex não fornecido, pulando a verificação de propostas.")
-        } else {
+        if (VCTexServices.getToken() != null) {
             await VCTexServices.VerificarTodasAsPropostas();
             console.log("✅ Todas as propostas pendentes do VCTex foram verificadas");
+        }
+        if(NossaFintechService.getToken() != null) {
+            await NossaFintechService.VerificarTodasAsPropostas();
+            console.log("✅ Todas as propostas pendentes da Nossa fintech foram verificadas");
         }
         
     } catch (err) {
