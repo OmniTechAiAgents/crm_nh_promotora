@@ -12,6 +12,8 @@ export default function FgtsResultadoCard({ resultado }) {
     motivoErro,
   } = resultado;
 
+  const formatarData = (data) => data.split('-').reverse().join('/');
+
   // ---------- CARD OFERTA DISPONÍVEL ----------
   if (status === "ELEGIVEL") {
     return (
@@ -31,24 +33,13 @@ export default function FgtsResultadoCard({ resultado }) {
 
             {anuidades.length > 0 ? (
               anuidades.map((a, i) => {
-                const ano =
-                  a.ano ??
-                  a.anoReferencia ??
-                  a.ano_referencia ??
-                  a.parcela ??
-                  i + 1;
+                const ano = formatarData(a.dueDate)
 
-                const valor =
-                  a.valor ??
-                  a.valorParcela ??
-                  a.valor_parcela ??
-                  a.valorDisponivel ??
-                  a.valor_disponivel ??
-                  0;
+                const valor = a.amount
 
                 return (
                   <div key={i} className="linha-parcela">
-                    <span>Ano {ano}</span>
+                    <span>{ano}</span>
                     <span>R$ {Number(valor).toFixed(2)}</span>
                   </div>
                 );
