@@ -246,7 +246,11 @@ class NossaFintechService {
             const cliente = await ClientesService.procurarCpf(data.cpf);
             const cliente_ddd = cliente.dataValues.celular.slice(0, 2);
             const cliente_celular = cliente.dataValues.celular.slice(2);
+
             const banco = await ISPBRepository.findByCod(data.bankCode);
+            if (banco == null) {
+                throw new HttpException("Banco não encontrado", 404);
+            }
         
             const reqBody = ({
                 simulation_key: data.financialId,
@@ -409,6 +413,15 @@ class NossaFintechService {
 
     async AtualizarRegistroPropostaDB(proposalId) {
         try {
+            const STATUS_FINALIZADOS = new Set([
+                "Cancelado Permanentemente",
+                "Operação cancelada",
+                "Cancelado",
+
+                // verificar funcionalidade depois
+                "Operação desembolsada (paga)"
+            ]);
+
             const dadosAntigosRaw = await PropostasRepository.findOne(proposalId);
             const dadosAntigos = dadosAntigosRaw.dataValues;
 
@@ -426,15 +439,19 @@ class NossaFintechService {
                 throw new HttpException('Histórico vazio na API nossa fintech', 424);
             }
 
+            // faz o ternario para saber se ainda precisa verificar a proposta
+            const verificar = !STATUS_FINALIZADOS.has(ultimoHistorico.status)
+
             const proposalAtualizada = ({
                 ...dadosAntigos,
 
                 status_proposta: ultimoHistorico.status,
                 msg_status: ultimoHistorico.description,
-                data_status: ultimoHistorico.event_datetime
+                data_status: ultimoHistorico.event_datetime,
+                verificar
             })
 
-            const teste = await PropostasRepository.update(proposalId, proposalAtualizada)
+            await PropostasRepository.update(proposalId, proposalAtualizada)
         } catch (err) {
             throw err;
         }
