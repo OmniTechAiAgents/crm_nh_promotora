@@ -438,7 +438,7 @@ class VCTexServices {
                 numero_contrato: propostaAPI.proposalContractNumber,
                 status_proposta: propostaAPI.proposalStatusDisplayTitle,
                 msg_status: propostaAPI.proposalStatusReserveDisplayTitle,
-                banco: proposalId.dataValues.banco,
+                banco: propostaAPI.baas,
                 API: "VCTex",
                 data_status: new Date(),
 
