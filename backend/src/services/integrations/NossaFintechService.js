@@ -370,6 +370,36 @@ class NossaFintechService {
         }
     }
 
+    async CancelarProposta(proposalId) {
+        try {
+            await axios.post(`${process.env.NossaFintech_baseURL}/nossa/v1/cancel_operation`,
+                {
+                    "debt_key": proposalId
+                },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`
+                    }
+                }
+            )
+
+            // delay pra n torar o servidor deles
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            await this.AtualizarRegistroPropostaDB(proposalId);
+        } catch(err) {
+            if(axios.isAxiosError(err)) {
+                const status = 424;
+                const message = err.response?.data?.message || "Erro desconhecido.";
+
+                throw new HttpException(message, status);
+            }
+
+            if(err instanceof HttpException) {
+                throw new HttpException(err.message, err.status);
+            }
+        }
+    }
+
 
     async AtualizarRegistroPropostaDB(proposalId) {
         try {
