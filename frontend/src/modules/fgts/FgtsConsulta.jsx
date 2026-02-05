@@ -19,8 +19,6 @@ export default function FgtsConsulta() {
       const authData = JSON.parse(localStorage.getItem("auth_data"));
       const token = authData?.token;
 
-      console.log(token)
-
       const { data } = await api.post("/consultas/FGTS/manual",
         { cpf, instituicao },
         {
