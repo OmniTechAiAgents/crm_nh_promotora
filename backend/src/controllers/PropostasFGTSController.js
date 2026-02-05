@@ -74,9 +74,9 @@ class PropostasFGTSController {
         try {
             const dados = ValidarBodyCancelarProposta.parse(req.body)
 
-            await PropostasFGTSService.CancelarProposta(dados.proposalId, req.user);
+            const response = await PropostasFGTSService.CancelarProposta(dados.proposalId, req.user);
 
-            return res.status(200).json({ msg: "Proposta cancelada com sucesso." });
+            return res.status(200).json( response );
         } catch (err) {
             console.log(err);
             if (err instanceof ZodError) {
@@ -97,9 +97,9 @@ class PropostasFGTSController {
         try {
             const dados = ValidarBodyCancelarProposta.parse(req.body);
 
-            await PropostasFGTSService.VerificarProposta(dados.proposalId);
+            const response = await PropostasFGTSService.VerificarProposta(dados.proposalId);
 
-            return res.status(200).json({ msg: "Proposta verificada com sucesso." });
+            return res.status(200).json( response );
         } catch (err) {
             if (err instanceof ZodError) {
                 return res.status(400).json({

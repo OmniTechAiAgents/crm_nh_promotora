@@ -362,7 +362,9 @@ class NossaFintechService {
         try {
             await this.AtualizarRegistroPropostaDB(proposalId);
 
-            // talvez retornar o body da nova proposta atualizada
+            const response = await PropostasRepository.findOne(proposalId);
+
+            return response;
         } catch (err) {
             console.error('Erro ao atualizar proposta:', err);
 
@@ -386,6 +388,10 @@ class NossaFintechService {
             // delay pra n torar o servidor deles
             await new Promise(resolve => setTimeout(resolve, 3000));
             await this.AtualizarRegistroPropostaDB(proposalId);
+
+            const response = await PropostasRepository.findOne(proposalId);
+
+            return response;
         } catch(err) {
             if(axios.isAxiosError(err)) {
                 const status = 424;
@@ -428,7 +434,7 @@ class NossaFintechService {
                 data_status: ultimoHistorico.event_datetime
             })
 
-            await PropostasRepository.update(proposalId, proposalAtualizada );
+            const teste = await PropostasRepository.update(proposalId, proposalAtualizada)
         } catch (err) {
             throw err;
         }

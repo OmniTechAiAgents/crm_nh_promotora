@@ -43,17 +43,21 @@ class PropostasFGTSService {
                 throw new HttpException("Proposta não encontrada", 404);
             }
 
+            let response = null;
+
             switch (api.API) {
                 case "VCTex":
-                    await VCTexServices.CancelarProposta(proposalId, userData);
+                    response = await VCTexServices.CancelarProposta(proposalId, userData);
                     break;
                 case "Nossa fintech":
-                    await NossaFintechService.CancelarProposta(proposalId, userData);
+                    response = await NossaFintechService.CancelarProposta(proposalId, userData);
                     break
                 default:
                     console.error("Instituição não encontrada");
                     break;
             }
+
+            return response;
         } catch(err) {
             throw err;
         }
@@ -66,17 +70,21 @@ class PropostasFGTSService {
                 throw new HttpException("Proposta não encontrada", 404);
             }
 
+            let response = null;
+
             switch (api.API) {
                 case "VCTex":
-                    await VCTexServices.VerificarApenasUmaProposta(proposalId);
+                    response = await VCTexServices.VerificarApenasUmaProposta(proposalId);
                     break;
                 case "Nossa fintech":
-                    await NossaFintechService.VerificarApenasUmaProposta(proposalId);
+                    response = await NossaFintechService.VerificarApenasUmaProposta(proposalId);
                     break
                 default:
                     console.error("Instituição não encontrada");
                     break;
             }
+
+            return response;
         } catch(err) {
             throw err;
         }

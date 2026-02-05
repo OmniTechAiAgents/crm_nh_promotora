@@ -322,6 +322,10 @@ class VCTexServices {
             // precisa desse timeout por causa da latência do servidor deles
             await new Promise(resolve => setTimeout(resolve, 3000));
             await this.AtualizarRegistroPropostaDB(numContract, proposalId, userUsername);
+
+            const response = await PropostasRepository.findOne(proposalId);
+            
+            return response;
         } catch (err) {
             if(axios.isAxiosError(err)) {
                 const status = 424;
@@ -361,6 +365,10 @@ class VCTexServices {
             const numero_contrato = proposal.dataValues.numero_contrato
 
             await this.AtualizarRegistroPropostaDB(numero_contrato, proposalId);
+
+            const response = await PropostasRepository.findOne(proposalId);
+            
+            return response;
         } catch (err) {
             if(axios.isAxiosError(err)) {
                 const status = 424;
@@ -440,18 +448,16 @@ class VCTexServices {
 
             // se nao existe, cria
             if (!propostaDB) {
-                await PropostasRepository.create({
+                return await PropostasRepository.create({
                     ...dadosAtualizados,
                     proposal_id: proposalId,
                     contrato: 'null',
                     usuario: username
                 });
-
-                return;
             }
 
             // se existe, atualiza
-            await propostaDB.update(dadosAtualizados);
+            return await propostaDB.update(dadosAtualizados);
 
         } catch (err) {
             console.error('Erro ao atualizar proposta:', err);
