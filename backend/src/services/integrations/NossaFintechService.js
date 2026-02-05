@@ -342,7 +342,6 @@ class NossaFintechService {
         }
     }
 
-
     async VerificarApenasUmaProposta(proposalId) {
         try {
             const dadosAntigosRaw = await PropostasRepository.findOne(proposalId);

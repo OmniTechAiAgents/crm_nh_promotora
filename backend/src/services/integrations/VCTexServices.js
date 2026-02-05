@@ -338,7 +338,7 @@ class VCTexServices {
 
     async VerificarTodasAsPropostas() {
         try {
-            const propostas = await PropostasRepository.findAllParaVerificar();
+            const propostas = await PropostasRepository.findAllParaVerificar("VCTex");
 
             // for diferente para funcionar o await da funcao
             for (const { proposal_id, numero_contrato } of propostas) {

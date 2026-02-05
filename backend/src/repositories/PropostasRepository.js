@@ -25,9 +25,10 @@ class PropostasRepository {
         );
     }
 
-    async findAllParaVerificar() {
+    async findAllParaVerificar(instituicao) {
         return Tabela_propostas.findAll({
             where: {
+                API: instituicao,
                 verificar: true
             },
             attributes: ['proposal_id', 'numero_contrato'],
