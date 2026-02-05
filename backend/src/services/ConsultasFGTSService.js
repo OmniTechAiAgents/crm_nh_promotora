@@ -20,11 +20,17 @@ class ConsultasFGTSService {
                     break;
             }
 
+            // padronizando a array de anuidades
+            const anuidadesPadronizadas = (resultadoRaw.anuidades || []).map(a => ({
+                dueDate: a.dueDate ?? a.due_date,
+                amount: a.amount ?? a.total_amount
+            }));
+
             // mapeando o resultado
             const resultadoTratado = ({
                 id: resultadoRaw.id,
                 cpf: resultadoRaw.cpf,
-                anuidades: resultadoRaw.anuidades,
+                anuidades: anuidadesPadronizadas,
                 valor_bruto: resultadoRaw.valor_bruto,
                 valor_liquido: resultadoRaw.valor_liquido,
                 valor_tac: resultadoRaw.valor_tac,
