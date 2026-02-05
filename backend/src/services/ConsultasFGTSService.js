@@ -26,7 +26,7 @@ class ConsultasFGTSService {
                 amount: a.amount ?? a.total_amount
             }));
 
-            // mapeando o resultado
+            // mapeando o resultadoo
             const resultadoTratado = ({
                 id: resultadoRaw.id,
                 cpf: resultadoRaw.cpf,
