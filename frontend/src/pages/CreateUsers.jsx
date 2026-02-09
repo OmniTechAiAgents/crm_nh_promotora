@@ -1,6 +1,6 @@
 import { useState } from "react";
 import api from "../api/client.js";
-import "./CreateUser.css";
+import "./createusers.css";
 
 export default function CreateUser() {
   const [form, setForm] = useState({
@@ -45,51 +45,53 @@ export default function CreateUser() {
   }
 
   return (
-    <div style={{ maxWidth: 400 }}>
-      <h2>Criar novo usuário</h2>
+    <div className="create-user-container">
+      <div className="create-user-card">
+        <h2>Criar novo usuário</h2>
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Usuário: </label>
-          <input
-            type="text"
-            name="username"
-            value={form.username}
-            onChange={handleChange}
-            required
-          />
-        </div>
+        <form className="create-user-form" onSubmit={handleSubmit}>
+          <div>
+            <label>Usuário</label>
+            <input
+              type="text"
+              name="username"
+              value={form.username}
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-        <div>
-          <label>Senha: </label>
-          <input
-            type="password"
-            name="password"
-            value={form.password}
-            onChange={handleChange}
-            required
-          />
-        </div>
+          <div>
+            <label>Senha</label>
+            <input
+              type="password"
+              name="password"
+              value={form.password}
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-        <div>
-          <label>Perfil: </label>
-          <select
-            name="role"
-            value={form.role}
-            onChange={handleChange}
-          >
-            <option value="promotor">Promotor</option>
-            <option value="admin">Administrador</option>
-          </select>
-        </div>
+          <div>
+            <label>Perfil</label>
+            <select
+              name="role"
+              value={form.role}
+              onChange={handleChange}
+            >
+              <option value="promotor">Promotor</option>
+              <option value="admin">Administrador</option>
+            </select>
+          </div>
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Criando..." : "Criar usuário"}
-        </button>
-      </form>
+          <button type="submit" disabled={loading}>
+            {loading ? "Criando..." : "Criar usuário"}
+          </button>
+        </form>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {success && <p style={{ color: "green" }}>{success}</p>}
+        {error && <div className="form-error">{error}</div>}
+        {success && <div className="form-success">{success}</div>}
+      </div>
     </div>
   );
 }

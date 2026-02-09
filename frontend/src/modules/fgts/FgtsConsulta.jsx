@@ -106,7 +106,7 @@ export default function FgtsConsulta() {
         Nossa Fintech
       </label>
 
-      <label className="radio-option">
+      {/* <label className="radio-option">
         <input
           type="radio"
           value="Paraná"
@@ -114,7 +114,7 @@ export default function FgtsConsulta() {
           onChange={(e) => setInstituicao(e.target.value)}
         />
         Paraná
-      </label>
+      </label> */}
     </div>
 
     {/* RESULTADO */}
