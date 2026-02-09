@@ -21,7 +21,8 @@ class UsuariosController {
                     role: user.role,
                     createdAt: user.createdAt,
                     updatedAt: user.updatedAt
-                }))
+                })),
+                totalPages: responseRaw.totalPages
             };
 
             if (!response.data || response.data.length == 0) {
