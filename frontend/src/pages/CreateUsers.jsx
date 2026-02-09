@@ -1,5 +1,6 @@
 import { useState } from "react";
 import api from "../api/client.js";
+import "./CreateUser.css";
 
 export default function CreateUser() {
   const [form, setForm] = useState({
@@ -49,7 +50,7 @@ export default function CreateUser() {
 
       <form onSubmit={handleSubmit}>
         <div>
-          <label>Usuário</label>
+          <label>Usuário: </label>
           <input
             type="text"
             name="username"
@@ -60,7 +61,7 @@ export default function CreateUser() {
         </div>
 
         <div>
-          <label>Senha</label>
+          <label>Senha: </label>
           <input
             type="password"
             name="password"
@@ -71,7 +72,7 @@ export default function CreateUser() {
         </div>
 
         <div>
-          <label>Perfil</label>
+          <label>Perfil: </label>
           <select
             name="role"
             value={form.role}

@@ -12,7 +12,7 @@ export const routesConfig = [
   {
     path: "/registro",
     label: "Criar Usuário",
-    permission: "FGTS_VIEW",
+    permission: "USER_MANAGE",
     showInMenu: true,
     element: <CreateUser />
   }
