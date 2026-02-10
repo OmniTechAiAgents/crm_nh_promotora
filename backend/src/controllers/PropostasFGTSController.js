@@ -23,11 +23,9 @@ class PropostasFGTSController {
                 pixKeyType: dados.pixKeyType ?? null
             };
 
-            return res.status(200).json({ TESTES: objProposta })
+            await PropostasFGTSService.FazerProposta(objProposta, req.user);
 
-            // await PropostasFGTSService.FazerProposta(objProposta, req.user);
-
-            // return res.status(200).json({ msg: "Proposta criada com sucesso e já armazenada no banco de dados." });
+            return res.status(200).json({ msg: "Proposta criada com sucesso e já armazenada no banco de dados." });
         } catch (err) {
             if (err instanceof ZodError) {
                 return res.status(400).json({
