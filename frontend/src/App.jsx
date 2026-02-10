@@ -5,6 +5,7 @@ import { routesConfig } from "./config/routesConfig";
 import NotFound from "./pages/NotFound";
 import AccessDenied from "./pages/AccessDenied";
 import Layout from "./layout/Layout";
+import CreateUser from "./pages/CreateUsers";
 
 export default function App() {
   return (
@@ -16,6 +17,16 @@ export default function App() {
       {/* pública */}
       <Route path="/login" element={<Login />} />
 
+      {/* criaação de usuários - ADMIN */}
+      {/* <Route
+        path="/registro"
+        element={
+          <PermissionRoute role="admin">
+            <CreateUser />
+          </PermissionRoute>
+        }
+      /> */}
+
       {/* BLOCO COM LAYOUT */}
       <Route element={<Layout />}>
 
@@ -24,7 +35,7 @@ export default function App() {
             key={route.path}
             path={route.path}
             element={
-              <PermissionRoute permission={route.permission}>
+              <PermissionRoute role={route.role}>
                 {route.element}
               </PermissionRoute>
             }

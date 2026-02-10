@@ -15,7 +15,7 @@ export default function FgtsConsulta() {
       setLoading(true);
       setResultado(null);
 
-      // 🔐 BUSCA TOKEN SALVO NO LOGIN
+      //BUSCA TOKEN SALVO NO LOGIN
       const authData = JSON.parse(localStorage.getItem("auth_data"));
       const token = authData?.token;
 
@@ -28,7 +28,7 @@ export default function FgtsConsulta() {
         }
       );
 
-      // 🎯 FRONT NÃO USA "CDC" OU RETORNO TÉCNICO DO BANCO
+      //FRONT NÃO USA "CDC" OU RETORNO TÉCNICO DO BANCO
       const ofertaTratada = {
         status: data.proposta_id
           ? "PROPOSTA_EXISTENTE"
@@ -37,7 +37,7 @@ export default function FgtsConsulta() {
           : "NAO_ELEGIVEL",
 
         cpf: data.cpf,
-        instituicaoEscolhida: instituicao, // 🔥 ESCOLHA DO USUÁRIO
+        instituicaoEscolhida: instituicao,
         valorLiquido: data.valor_liquido,
         valorBruto: data.valor_bruto,
         anuidades: data.anuidades || [],
@@ -82,7 +82,7 @@ export default function FgtsConsulta() {
       </button>
     </div>
 
-    {/* 🔥 INSTITUIÇÕES VOLTARAM */}
+    {/* INSTITUIÇÕES VOLTARAM */}
     <div className="instituicoes">
       <span className="inst-title">Instituição:</span>
 
@@ -93,7 +93,7 @@ export default function FgtsConsulta() {
           checked={instituicao === "VCTex"}
           onChange={(e) => setInstituicao(e.target.value)}
         />
-        VCTex
+        VCTEX
       </label>
 
       <label className="radio-option">
@@ -103,10 +103,10 @@ export default function FgtsConsulta() {
           checked={instituicao === "Nossa fintech"}
           onChange={(e) => setInstituicao(e.target.value)}
         />
-        Nossa Fintech
+        NOSSA FINTECH
       </label>
 
-      <label className="radio-option">
+      {/* <label className="radio-option">
         <input
           type="radio"
           value="Paraná"
@@ -114,7 +114,7 @@ export default function FgtsConsulta() {
           onChange={(e) => setInstituicao(e.target.value)}
         />
         Paraná
-      </label>
+      </label> */}
     </div>
 
     {/* RESULTADO */}

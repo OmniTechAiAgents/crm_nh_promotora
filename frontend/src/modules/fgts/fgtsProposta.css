@@ -1,0 +1,66 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal-container {
+  background: white;
+  width: 100%;
+  max-width: 520px;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.proposta-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.radio-group {
+  display: flex;
+  gap: 20px;
+}
+
+.proposta-form input,
+.proposta-form select {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+}
+
+.proposta-form input.error,
+.proposta-form select.error {
+  border-color: #dc2626;
+  background: #fee2e2;
+}
+
+.proposta-form button {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+}

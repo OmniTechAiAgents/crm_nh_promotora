@@ -5,7 +5,7 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
-  const [authLoading, setAuthLoading] = useState(true); // 🔥 NOVO
+  const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
     const storedAuth = localStorage.getItem("auth_data");
@@ -16,7 +16,7 @@ export function AuthProvider({ children }) {
       setToken(token);
     }
 
-    setAuthLoading(false); // 🔥 AGORA sabemos se tem sessão ou não
+    setAuthLoading(false);
   }, []);
 
   function login(authData) {
@@ -40,7 +40,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, token, login, logout, authLoading }} // 🔥 EXPORTANDO
+      value={{ user, token, login, logout, authLoading }}
     >
       {children}
     </AuthContext.Provider>
