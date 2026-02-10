@@ -41,7 +41,7 @@ class PropostasRepository {
 
         if (pesquisa) {
             where[Op.or] = [
-                { cpf: { [Op.like]: `%${pesquisa}` } }
+                { cpf: { [Op.like]: `%${pesquisa}%` } }
             ]
         }
 
