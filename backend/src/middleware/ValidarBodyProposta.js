@@ -10,12 +10,7 @@ export const ValidarBodyProposta = z
     accountType: z.enum([
       "corrente", 
       "poupanca",
-      "checking_account",
-      "saving_account",
-      "deposit_account",
-      "guaranteed_account",
-      "investment_account",
-      "payment_account"
+      "pagamento"
     ]).optional(),
     accountNumber: z.string().optional(),
     accountDigit: z.string().optional(),
@@ -23,21 +18,25 @@ export const ValidarBodyProposta = z
 
     pixKey: z.string().optional(),
     pixKeyType: z.enum([
-      "CHAVE_ALEATORIA", 
-      "EMAIL", 
-      "TELEFONE", 
-      "CPF", 
+      "chave_aleatoria", 
       "email", 
-      "cpf",
-      "phone",
-      "random"
+      "telefone", 
+      "cpf"
     ]).optional()
   })
   .superRefine((data, ctx) => {
     const recebeBanco = data.bankCode || data.accountType || data.accountNumber || data.accountDigit || data.branchNumber;
     const recebePix = data.pixKey || data.pixKeyType;
-    const instituicao = data.instituicao;
 
+    if (data.instituicao === "VCTex" && data.accountType === "pagamento") {
+      ctx.addIssue({
+        path: ["accountType"],
+        code: z.ZodIssueCode.custom,
+        message: "A instituição VCTex não suporta conta do tipo pagamento"
+      });
+    }
+
+    // verifica a integridade das informações de conta e pix
     if (recebeBanco && recebePix) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -45,14 +44,12 @@ export const ValidarBodyProposta = z
       });
       return;
     }
-
     if (!data.cpf || VerifyCpfMask(data.cpf)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'CPF inválido. Envie apenas números.'
       });
     }
-
     if (recebeBanco) {
       if (!data.bankCode || !data.accountType || !data.accountNumber || !data.accountDigit | !data.branchNumber) {
         ctx.addIssue({
@@ -61,7 +58,6 @@ export const ValidarBodyProposta = z
         });
       }
     }
-
     if (recebePix) {
       if (!data.pixKey || !data.pixKeyType) {
         ctx.addIssue({
@@ -70,11 +66,80 @@ export const ValidarBodyProposta = z
         });
       }
     }
-
     if (!recebeBanco && !recebePix) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'É necessário o envio da chave pix ou dos dados bancários'
       });
     }
+  })
+  .transform((data) => {
+    if (data.instituicao == "Nossa fintech") {
+      // padronizando valores tipo de conta
+      switch (data.accountType) {
+        case "corrente":
+          data.accountType = "checking_account"
+          break;
+        case "poupanca":
+          data.accountType = "saving_account"
+          break;
+        case "pagamento":
+          data.accountType = "payment_account"
+          break;
+        default:
+          break
+      }
+
+      // padronizando valores do tipo de chave pix
+      switch (data.pixKeyType) {
+        case "chave_aleatoria":
+          data.pixKeyType = "random"
+          break;
+        case "email":
+          data.pixKeyType = "email"
+          break;
+        case "telefone":
+          data.pixKeyType = "phone"
+          break;
+        case "cpf":
+          data.pixKeyType = "cpf"
+          break;
+        default:
+          break;
+      }
+    }
+
+    if (data.instituicao == "VCTex") {
+      switch (data.accountType) {
+        case "corrente":
+          data.accountType = "corrente"
+          break;
+        case "poupanca":
+          data.accountType = "poupanca"
+          break;
+        case "pagamento":
+          data.accountType = "DEU ERRO"
+          break;
+        default:
+          break
+      }
+
+      switch (data.pixKeyType) {
+        case "chave_aleatoria":
+          data.pixKeyType = "CHAVE_ALEATORIA"
+          break;
+        case "email":
+          data.pixKeyType = "EMAIL"
+          break;
+        case "telefone":
+          data.pixKeyType = "TELEFONE"
+          break;
+        case "cpf":
+          data.pixKeyType = "CPF"
+          break;
+        default:
+          break;
+      }
+    }
+    return data;
   })
