@@ -48,6 +48,33 @@ services:
     networks:
       - app_network
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  python_ms:
+    build: ./python_ms
+    container_name: python_ms
+    volumes:
+      - ./python_ms:/app
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - app_network
+
 volumes:
   mysql_data:
 
