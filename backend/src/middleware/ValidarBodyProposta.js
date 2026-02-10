@@ -18,14 +18,10 @@ export const ValidarBodyProposta = z
 
     pixKey: z.string().optional(),
     pixKeyType: z.enum([
-      "CHAVE_ALEATORIA", 
-      "EMAIL", 
-      "TELEFONE", 
-      "CPF", 
+      "chave_aleatoria", 
       "email", 
-      "cpf",
-      "phone",
-      "random"
+      "telefone", 
+      "cpf"
     ]).optional()
   })
   .superRefine((data, ctx) => {
@@ -79,6 +75,7 @@ export const ValidarBodyProposta = z
   })
   .transform((data) => {
     if (data.instituicao == "Nossa fintech") {
+      // padronizando valores tipo de conta
       switch (data.accountType) {
         case "corrente":
           data.accountType = "checking_account"
@@ -91,6 +88,24 @@ export const ValidarBodyProposta = z
           break;
         default:
           break
+      }
+
+      // padronizando valores do tipo de chave pix
+      switch (data.pixKeyType) {
+        case "chave_aleatoria":
+          data.pixKeyType = "random"
+          break;
+        case "email":
+          data.pixKeyType = "email"
+          break;
+        case "telefone":
+          data.pixKeyType = "phone"
+          break;
+        case "cpf":
+          data.pixKeyType = "cpf"
+          break;
+        default:
+          break;
       }
     }
 
@@ -107,6 +122,23 @@ export const ValidarBodyProposta = z
           break;
         default:
           break
+      }
+
+      switch (data.pixKeyType) {
+        case "chave_aleatoria":
+          data.pixKeyType = "CHAVE_ALEATORIA"
+          break;
+        case "email":
+          data.pixKeyType = "EMAIL"
+          break;
+        case "telefone":
+          data.pixKeyType = "TELEFONE"
+          break;
+        case "cpf":
+          data.pixKeyType = "CPF"
+          break;
+        default:
+          break;
       }
     }
     return data;
