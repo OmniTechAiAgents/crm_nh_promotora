@@ -1,57 +1,113 @@
+import { useState } from "react";
 import "./fgts.css";
+import FgtsProposta from "./FgtsProposta";
+import Modal from "../../components/Modal";
 
 export default function FgtsResultadoCard({ resultado }) {
+  const [openModal, setOpenModal] = useState(false);
+
   if (!resultado) return null;
+
+  // 🔁 NORMALIZAÇÃO SEGURA DO BACKEND
+  const normalizado = (() => {
+    // Caso backend retorne erro ou algo inesperado
+    if (resultado.elegivelProposta === undefined) {
+      return {
+        status: "ERRO",
+        motivoErro: resultado.mensagem || "Resposta inválida do servidor",
+      };
+    }
+
+    if (resultado.elegivelProposta === true) {
+      return {
+        status: "ELEGIVEL",
+        cpf: resultado.cpf,
+        valorLiquido: resultado.valor_liquido,
+        anuidades: resultado.anuidades || [],
+        chave: resultado.chave, // 🔑 financialId REAL
+        instituicaoEscolhida: resultado.banco,
+      };
+    }
+
+    // elegivelProposta === false
+    return {
+      status: "NAO_ELEGIVEL",
+      cpf: resultado.cpf,
+      motivoErro:
+        resultado.mensagem || "Saldo insuficiente ou restrição.",
+    };
+  })();
 
   const {
     status,
     valorLiquido,
     instituicaoEscolhida,
-    anuidades = [], // ✅ evita undefined
+    anuidades = [],
     cpf,
     motivoErro,
-  } = resultado;
+    chave,
+  } = normalizado;
 
-  const formatarData = (data) => data.split('-').reverse().join('/');
+  const formatarData = (data) =>
+    data.split("-").reverse().join("/");
 
   // ---------- CARD OFERTA DISPONÍVEL ----------
   if (status === "ELEGIVEL") {
     return (
-      <div className="card oferta">
-        <div className="card-header verde">✔ Oferta Disponível</div>
+      <>
+        <div className="card oferta">
+          <div className="card-header verde">
+            ✔ Oferta Disponível
+          </div>
 
-        <div className="card-body">
-          <p>Cliente vai receber:</p>
-          <h1>R$ {Number(valorLiquido || 0).toFixed(2)}</h1>
+          <div className="card-body">
+            <p>Cliente vai receber:</p>
+            <h1>
+              R$ {Number(valorLiquido || 0).toFixed(2)}
+            </h1>
 
-          <p>
-            Instituição: <strong>{instituicaoEscolhida}</strong>
-          </p>
+            <p>
+              Instituição:{" "}
+              <strong>{instituicaoEscolhida}</strong>
+            </p>
 
-          <details>
-            <summary>Ver parcelas do FGTS</summary>
+            <details>
+              <summary>Ver parcelas do FGTS</summary>
 
-            {anuidades.length > 0 ? (
-              anuidades.map((a, i) => {
-                const ano = formatarData(a.dueDate)
-
-                const valor = a.amount
-
-                return (
+              {anuidades.length > 0 ? (
+                anuidades.map((a, i) => (
                   <div key={i} className="linha-parcela">
-                    <span>{ano}</span>
-                    <span>R$ {Number(valor).toFixed(2)}</span>
+                    <span>{formatarData(a.dueDate)}</span>
+                    <span>
+                      R$ {Number(a.amount).toFixed(2)}
+                    </span>
                   </div>
-                );
-              })
-            ) : (
-              <div>Nenhuma anuidade disponível</div>
-            )}
-          </details>
+                ))
+              ) : (
+                <div>Nenhuma anuidade disponível</div>
+              )}
+            </details>
 
-          <button className="btn-principal">Digitar Proposta</button>
+            <button
+              className="btn-principal"
+              onClick={() => setOpenModal(true)}
+            >
+              Digitar Proposta
+            </button>
+          </div>
         </div>
-      </div>
+
+        {/* ---------- MODAL ---------- */}
+        <Modal
+          open={openModal}
+          onClose={() => setOpenModal(false)}
+        >
+          <FgtsProposta
+            financialId={chave}
+            onSuccess={() => setOpenModal(false)}
+          />
+        </Modal>
+      </>
     );
   }
 
@@ -59,32 +115,18 @@ export default function FgtsResultadoCard({ resultado }) {
   if (status === "NAO_ELEGIVEL") {
     return (
       <div className="card erro">
-        <div className="card-header vermelho">⚠ Não Elegível</div>
+        <div className="card-header vermelho">
+          ⚠ Não Elegível
+        </div>
         <div className="card-body">
           <p>Motivo:</p>
-          <strong>{motivoErro || "Saldo insuficiente ou restrição."}</strong>
+          <strong>{motivoErro}</strong>
         </div>
       </div>
     );
   }
 
-  // ---------- CARD PROPOSTA JÁ EXISTE ----------
-  if (status === "PROPOSTA_EXISTENTE") {
-    return (
-      <div className="card proposta">
-        <div className="card-header cinza">📝 Proposta Já Digitada</div>
-        <div className="card-body">
-          <p>Status: Proposta já registrada</p>
-          <p>CPF: {cpf}</p>
-          <button className="btn-secundario" disabled>
-            Proposta Enviada
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // ---------- ERRO TÉCNICO ----------
+  // ---------- ERRO GENÉRICO ----------
   return (
     <div className="card erro">
       <div className="card-header vermelho">Erro</div>
