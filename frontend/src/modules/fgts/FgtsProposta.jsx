@@ -57,67 +57,72 @@ export default function FgtsProposta({
 
   // ---------- ENVIO ----------
   const enviarProposta = async () => {
-    // // if (validar()) {
-    //   console.log(formaRecebimento, pixKey, pixKeyType, bankCode, branchNumber, accountNumber, accountDigit, accountType);
+  // 1️⃣ Validação estrutural
+  if (!financialId || !cpf || !instituicao) {
+    alert("Erro interno. Refaça a simulação.");
+    return;
+  }
 
-    //   alert("Campos obrigatórios não preenchidos.");
-    //   return;
-    // }
-    
+  // 2️⃣ Validação de formulário
+  if (!validar()) {
+    alert("Preencha todos os campos obrigatórios.");
+    return;
+  }
 
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      const authData = JSON.parse(localStorage.getItem("auth_data"));
-      const token = authData?.token;
+    const authData = JSON.parse(localStorage.getItem("auth_data"));
+    const token = authData?.token;
 
-      if (!token) {
-        alert("Sessão expirada.");
-        return;
-      }
-
-      // BODY BASE
-      const body = {
-        cpf,
-        instituicao,
-      };
-
-      // PIX OU CONTA (NUNCA OS DOIS)
-      if (formaRecebimento === "PIX") {
-        body.pixKey = pixKey;
-        body.pixKeyType = pixKeyType;
-      } else {
-        body.bankCode = bankCode;
-        body.branchNumber = branchNumber;
-        body.accountNumber = accountNumber;
-        body.accountDigit = accountDigit;
-        body.accountType = accountType;
-      }
-      console.table(body);
-
-      await api.post(
-        `/propostas/fgts?financialId=${financialId}`,
-        body,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      alert("Proposta criada com sucesso!");
-      onSuccess?.();
-
-    } catch (err) {
-      console.error(err.response?.data || err);
-      alert(
-        err.response?.data?.msg ||
-        "Erro ao criar proposta"
-      );
-    } finally {
-      setLoading(false);
+    if (!token) {
+      alert("Sessão expirada.");
+      return;
     }
-  };
+
+    const body = {
+      cpf,
+      instituicao,
+    };
+
+    if (formaRecebimento === "PIX") {
+      body.pixKey = pixKey.trim();
+      body.pixKeyType = pixKeyType;
+    } else {
+      body.bankCode = bankCode.trim();
+      body.branchNumber = branchNumber.trim();
+      body.accountNumber = accountNumber.trim();
+      body.accountDigit = accountDigit.trim();
+      body.accountType = accountType;
+    }
+
+    console.table(body);
+
+    await api.post(
+      `/propostas/fgts`,
+      body,
+      {
+        params: { financialId },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    alert("Proposta criada com sucesso!");
+    onSuccess?.();
+
+  } catch (err) {
+    console.error(err.response?.data || err);
+    alert(
+      err.response?.data?.msg ||
+      "Erro ao criar proposta"
+    );
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   // ---------- UI ----------
   return (
