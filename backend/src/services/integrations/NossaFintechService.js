@@ -236,7 +236,7 @@ class NossaFintechService {
         }
     }
 
-    async Proposta(data, userUsername) {
+    async Proposta(data, userId) {
         try {
             const verifica = await ConsultasFGTSRepository.SearchByFinancialId(data.financialId);
 
@@ -247,10 +247,13 @@ class NossaFintechService {
             const cliente = await ClientesService.procurarCpf(data.cpf);
             const cliente_ddd = cliente.dataValues.celular.slice(0, 2);
             const cliente_celular = cliente.dataValues.celular.slice(2);
+            let banco = null;
 
-            const banco = await ISPBRepository.findByCod(data.bankCode);
-            if (banco == null) {
-                throw new HttpException("Banco não encontrado", 404);
+            if (data.bankCode != null && data.bankCode != "") {
+                banco = await ISPBRepository.findByCod(data.bankCode);
+                if (banco == null) {
+                    throw new HttpException("Banco não encontrado", 404);
+                }
             }
         
             const reqBody = ({
@@ -320,7 +323,7 @@ class NossaFintechService {
                 valor_emissao: responseProposta.data.val_emissao,
                 contrato: responseProposta.data.ccb_pdf,
                 numero_contrato: responseProposta.data.num_contrato,
-                usuario: userUsername,
+                usuario_id: userId,
                 banco: verifica.banco,
                 API: "Nossa fintech",
                 status_proposta: "Criado",
