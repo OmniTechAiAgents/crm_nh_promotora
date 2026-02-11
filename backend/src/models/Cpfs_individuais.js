@@ -1,5 +1,6 @@
 import { DataTypes, Sequelize } from 'sequelize';
 import db from '../config/db.js';
+import Usuario from './Usuario.js';
 
 const Cpfs_individuais = db.define(
     "Cpfs_individuais",
@@ -48,9 +49,15 @@ const Cpfs_individuais = db.define(
             allowNull: true,
             defaultValue: null
         },
-        usuario: {
-            type: DataTypes.STRING(255),
+        usuario_id: {
+            type: DataTypes.INTEGER,
             allowNull: false,
+            references: {
+                model: 'usuarios',
+                key: 'id'
+            },
+            onUpdate: 'CASCADE',
+            onDelete: 'CASCADE'
         },
         chave: {
             type: DataTypes.STRING(50),
@@ -80,5 +87,13 @@ const Cpfs_individuais = db.define(
         timestamp: true
     }
 );
+
+Cpfs_individuais.belongsTo(Usuario, {
+    foreignKey: 'usuarioId'
+});
+
+Usuario.hasMany(Cpfs_individuais, {
+    foreignKey: 'usuarioId'
+});
 
 export default Cpfs_individuais;
