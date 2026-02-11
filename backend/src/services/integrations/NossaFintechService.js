@@ -67,7 +67,8 @@ class NossaFintechService {
         }
     }
 
-    async Simulacao(cpf, userUsername) {
+    async Simulacao(cpf, userId) {
+        //userUsername
         try {
             const players = [
                 { code: "qi", table: 101 , enabled: true },
@@ -189,7 +190,7 @@ class NossaFintechService {
                 valor_tac: valorTac,
                 valor_seguro: null,
                 tabela: "Tabela Nossa Melhor",
-                usuario: userUsername,
+                usuario_id: userId,
                 chave: responseSimulacao.data.key,
                 banco: usedPlayer,
                 API: "Nossa fintech",
@@ -221,7 +222,7 @@ class NossaFintechService {
                 valor_tac: null,
                 valor_seguro: null,
                 tabela: "Tabela Nossa Melhor",
-                usuario: userUsername,
+                usuario_id: userId,
                 chave: null,
                 banco: null,
                 API: "Nossa fintech",

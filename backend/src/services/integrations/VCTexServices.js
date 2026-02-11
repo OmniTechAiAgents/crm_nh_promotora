@@ -66,7 +66,7 @@ class VCTexServices {
         }
     }
 
-    async Simulacao(cpf, userUsername) {
+    async Simulacao(cpf, userId) {
         try {
             // desativar algum se a API for chata com requisicoes enviadas rapidamente
             const players = [
@@ -154,7 +154,7 @@ class VCTexServices {
                 valor_tac: rawResponse.data.data.simulationData.contractTacAmount,
                 valor_seguro: rawResponse.data.data.simulationData.contractInsuranceAmount,
                 tabela: "Tabela Exponencial",
-                usuario: userUsername,
+                usuario_id: userId,
                 chave: rawResponse.data.data.financialId,
                 banco: usedPlayer,
                 API: "VCTex",
@@ -185,7 +185,7 @@ class VCTexServices {
                 valor_tac: null,
                 valor_seguro: null,
                 tabela: "Tabela Exponencial",
-                usuario: userUsername,
+                usuario_id: userId,
                 chave: null,
                 banco: null,
                 API: "VCTex",

@@ -1,6 +1,7 @@
 import ConsultasFGTSRepository from "../repositories/ConsultasFGTSRepository.js";
 import VCTexServices from "./integrations/VCTexServices.js";
 import NossaFintechService from "./integrations/NossaFintechService.js";
+import AuthService from "./AuthService.js";
 
 class ConsultasFGTSService {
     async FazerConsulta (data, userData) {
@@ -10,10 +11,10 @@ class ConsultasFGTSService {
         
             switch (instituicao) {
                 case "VCTex":
-                    resultadoRaw = await VCTexServices.Simulacao(data.cpf, userData.username);
+                    resultadoRaw = await VCTexServices.Simulacao(data.cpf, userData.id);
                     break;
                 case "Nossa fintech":
-                    resultadoRaw = await NossaFintechService.Simulacao(data.cpf, userData.username);
+                    resultadoRaw = await NossaFintechService.Simulacao(data.cpf, userData.id);
                     break;
                 default:
                     console.error("Instituição não encontrada");
@@ -26,6 +27,14 @@ class ConsultasFGTSService {
                 amount: a.amount ?? a.total_amount
             }));
 
+            // recuperando e tratando dados do usuário
+            const usuarioRaw = await AuthService.BuscarUsuarioPorId(resultadoRaw.usuario_id);
+            const usuario_data = {
+                id: usuarioRaw.dataValues.id,
+                username: usuarioRaw.dataValues.username,
+                role: usuarioRaw.dataValues.role
+            }
+
             // mapeando o resultadoo
             const resultadoTratado = ({
                 id: resultadoRaw.id,
@@ -36,7 +45,7 @@ class ConsultasFGTSService {
                 valor_tac: resultadoRaw.valor_tac,
                 valor_seguro: resultadoRaw.valor_seguro,
                 tabela: resultadoRaw.tabela,
-                usuario: resultadoRaw.usuario,
+                usuario: usuario_data,
                 chave: resultadoRaw.chave,
                 banco: resultadoRaw.banco,
                 mensagem: resultadoRaw.mensagem,
