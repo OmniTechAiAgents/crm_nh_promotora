@@ -159,7 +159,7 @@ export default function FgtsConsulta() {
       </div>
 
       {/* RESULTADO */}
-      {resultado && <FgtsResultadoCard resultado={resultado} />}
+      {resultado && <FgtsResultadoCard resultado={resultado}/>}
     </div>
   );
 }

@@ -3,8 +3,10 @@ import "./fgts.css";
 import FgtsProposta from "./FgtsProposta";
 import Modal from "../../components/Modal";
 
-export default function FgtsResultadoCard({ resultado }) {
+export default function FgtsResultadoCard({ resultado}) {
   const [openModal, setOpenModal] = useState(false);
+  console.log("Resultado recebido no card:", resultado);
+  
 
   if (!resultado) return null;
 
@@ -78,6 +80,7 @@ export default function FgtsResultadoCard({ resultado }) {
           <FgtsProposta
             financialId={financialId} // vem direto da consulta
             cpf={cpf}
+            instituicao={instituicaoEscolhida}
             onSuccess={() => setOpenModal(false)}
           />
         </Modal>
