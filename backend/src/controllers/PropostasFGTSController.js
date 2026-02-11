@@ -48,7 +48,7 @@ class PropostasFGTSController {
             const page = parseInt(req.query.pagina) || 1;
             const limit = parseInt(req.query.limite) || 10;
 
-            const response = await PropostasFGTSService.RecuperarPropostas(pesquisa, page, limit);
+            const response = await PropostasFGTSService.RecuperarPropostas(pesquisa, page, limit, req.user);
 
             if (!response.data || response.data.length == 0) {
                 return res.status(204).send();

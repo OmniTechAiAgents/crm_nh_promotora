@@ -61,11 +61,14 @@ class ConsultasFGTSService {
         }
     }
 
-    async RecuperarConsultas(pesquisa, page, limit) {
+    async RecuperarConsultas(pesquisa, page, limit, userData) {
         try {
             const offset = (page - 1) * limit;
 
-            const result = await ConsultasFGTSRepository.SearchPagination(pesquisa, limit, offset);
+            // se for promotor, filtra para apenas as propostas dele, se for adm, pega todas as propostas
+            const filtroUserId = userData.role == "promotor" ? userData.id : null;
+
+            const result = await ConsultasFGTSRepository.SearchPagination(pesquisa, limit, offset, filtroUserId);
 
             return result;
         } catch {

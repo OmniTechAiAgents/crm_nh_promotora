@@ -36,13 +36,17 @@ class PropostasRepository {
         });
     }
 
-    async SearchPagination(pesquisa, limite, offset) {
+    async SearchPagination(pesquisa, limite, offset, filtroUserId) {
         const where = {};
 
         if (pesquisa) {
             where[Op.or] = [
                 { cpf: { [Op.like]: `%${pesquisa}%` } }
             ]
+        }
+
+        if (filtroUserId != null) {
+            where.usuario_id = filtroUserId
         }
 
         const result = await Tabela_propostas.findAndCountAll({

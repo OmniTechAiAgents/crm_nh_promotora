@@ -14,7 +14,7 @@ class ConsultasFGTSRepository {
         })
     }
 
-    async SearchPagination(pesquisa, limite, offset) {
+    async SearchPagination(pesquisa, limite, offset, filtroUserId) {
         const where = {};
 
         // add pesquisa se tiver (opcional do usuario);
@@ -22,6 +22,10 @@ class ConsultasFGTSRepository {
             where[Op.or] = [
                 { cpf: { [Op.like]: `%${pesquisa}%` } }
             ]
+        }
+
+        if (filtroUserId != null) {
+            where.usuario_id = filtroUserId
         }
 
         const result = await Cpfs_individuais.findAndCountAll({
