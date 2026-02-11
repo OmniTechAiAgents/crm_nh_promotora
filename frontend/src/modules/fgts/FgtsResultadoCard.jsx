@@ -3,40 +3,12 @@ import "./fgts.css";
 import FgtsProposta from "./FgtsProposta";
 import Modal from "../../components/Modal";
 
-export default function FgtsResultadoCard({ resultado }) {
+export default function FgtsResultadoCard({ resultado}) {
   const [openModal, setOpenModal] = useState(false);
+  console.log("Resultado recebido no card:", resultado);
+  
 
   if (!resultado) return null;
-
-  // 🔁 NORMALIZAÇÃO SEGURA DO BACKEND
-  const normalizado = (() => {
-    // Caso backend retorne erro ou algo inesperado
-    if (resultado.elegivelProposta === undefined) {
-      return {
-        status: "ERRO",
-        motivoErro: resultado.mensagem || "Resposta inválida do servidor",
-      };
-    }
-
-    if (resultado.elegivelProposta === true) {
-      return {
-        status: "ELEGIVEL",
-        cpf: resultado.cpf,
-        valorLiquido: resultado.valor_liquido,
-        anuidades: resultado.anuidades || [],
-        chave: resultado.chave, // 🔑 financialId REAL
-        instituicaoEscolhida: resultado.banco,
-      };
-    }
-
-    // elegivelProposta === false
-    return {
-      status: "NAO_ELEGIVEL",
-      cpf: resultado.cpf,
-      motivoErro:
-        resultado.mensagem || "Saldo insuficiente ou restrição.",
-    };
-  })();
 
   const {
     status,
@@ -45,11 +17,13 @@ export default function FgtsResultadoCard({ resultado }) {
     anuidades = [],
     cpf,
     motivoErro,
-    chave,
-  } = normalizado;
+    financialId,
+  } = resultado;
 
-  const formatarData = (data) =>
-    data.split("-").reverse().join("/");
+  const formatarData = (data) => {
+    if (!data) return "-";
+    return data.split("-").reverse().join("/");
+  };
 
   // ---------- CARD OFERTA DISPONÍVEL ----------
   if (status === "ELEGIVEL") {
@@ -62,6 +36,7 @@ export default function FgtsResultadoCard({ resultado }) {
 
           <div className="card-body">
             <p>Cliente vai receber:</p>
+
             <h1>
               R$ {Number(valorLiquido || 0).toFixed(2)}
             </h1>
@@ -79,7 +54,7 @@ export default function FgtsResultadoCard({ resultado }) {
                   <div key={i} className="linha-parcela">
                     <span>{formatarData(a.dueDate)}</span>
                     <span>
-                      R$ {Number(a.amount).toFixed(2)}
+                      R$ {Number(a.amount || 0).toFixed(2)}
                     </span>
                   </div>
                 ))
@@ -103,7 +78,9 @@ export default function FgtsResultadoCard({ resultado }) {
           onClose={() => setOpenModal(false)}
         >
           <FgtsProposta
-            financialId={chave}
+            financialId={financialId} // vem direto da consulta
+            cpf={cpf}
+            instituicao={instituicaoEscolhida}
             onSuccess={() => setOpenModal(false)}
           />
         </Modal>
@@ -120,7 +97,23 @@ export default function FgtsResultadoCard({ resultado }) {
         </div>
         <div className="card-body">
           <p>Motivo:</p>
-          <strong>{motivoErro}</strong>
+          <strong>
+            {motivoErro || "Saldo insuficiente ou restrição."}
+          </strong>
+        </div>
+      </div>
+    );
+  }
+
+  // ---------- PROPOSTA JÁ EXISTENTE ----------
+  if (status === "PROPOSTA_EXISTENTE") {
+    return (
+      <div className="card alerta">
+        <div className="card-header amarelo">
+          ℹ Proposta já existente
+        </div>
+        <div className="card-body">
+          <p>Já existe uma proposta ativa para este CPF.</p>
         </div>
       </div>
     );
@@ -129,7 +122,9 @@ export default function FgtsResultadoCard({ resultado }) {
   // ---------- ERRO GENÉRICO ----------
   return (
     <div className="card erro">
-      <div className="card-header vermelho">Erro</div>
+      <div className="card-header vermelho">
+        Erro
+      </div>
       <div className="card-body">
         {motivoErro || "Erro inesperado na consulta."}
       </div>

@@ -1,0 +1,303 @@
+.esteira-container {
+  padding: 30px;
+}
+
+/* TÍTULO */
+.esteira-container h1 {
+  margin-bottom: 20px;
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* ================= BUSCA ================= */
+
+.busca-container {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  align-items: center;
+}
+
+.busca-container input {
+  width: 260px;
+  height: 40px;
+  padding: 0 12px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  outline: none;
+  transition: 0.2s;
+}
+
+.busca-container input:focus {
+  border-color: #2e7d32;
+  box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.15);
+}
+
+.busca-container button {
+  height: 40px;
+  padding: 0 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: #2e7d32;
+  color: white;
+  transition: 0.2s;
+}
+
+.busca-container button:hover {
+  background-color: #256628;
+}
+
+/* ================= CARD DA TABELA ================= */
+
+.tabela-card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  padding: 16px;
+  overflow-x: auto;
+}
+
+/* ================= TABELA ================= */
+
+.tabela-propostas {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.tabela-propostas thead {
+  background-color: #f5f5f5;
+}
+
+.tabela-propostas th {
+  text-align: left;
+  padding: 10px;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.tabela-propostas td {
+  padding: 10px;
+  border-bottom: 1px solid #f0f0f0;
+  vertical-align: middle;
+}
+
+.tabela-propostas tr:hover {
+  background-color: #fafafa;
+}
+
+/* ================= LINK FORMALIZAÇÃO ================= */
+
+.link-coluna {
+  max-width: 260px;
+  word-break: break-word;
+}
+
+.link-formalizacao {
+  color: #2e7d32;
+  cursor: pointer;
+  transition: 0.2s;
+  font-size: 13px;
+}
+
+.link-formalizacao:hover {
+  text-decoration: underline;
+}
+
+.link-visitado {
+  color: #6a1b9a;
+}
+
+.link-formalizacao:active {
+  opacity: 0.7;
+}
+
+/* ================= BOTÃO DETALHAR ================= */
+
+.detalhar-btn {
+  background: transparent;
+  border: 1px solid #2e7d32;
+  color: #2e7d32;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: 0.2s;
+}
+
+.detalhar-btn:hover {
+  background: #2e7d32;
+  color: white;
+}
+
+/* ================= PAGINAÇÃO ================= */
+
+.pagination-container {
+  margin-top: 20px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pagination-container button {
+  min-width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.pagination-container button:hover {
+  border-color: #2e7d32;
+  color: #2e7d32;
+}
+
+.active-page {
+  background: #2e7d32 !important;
+  color: white !important;
+  border-color: #2e7d32 !important;
+}
+
+.detalhe-card {
+  margin-top: 20px;
+  padding: 20px;
+  background: #1e1e2f;
+  border-radius: 8px;
+  color: white;
+}
+
+.fechar-detalhe-btn {
+  margin-top: 15px;
+  padding: 8px 14px;
+  background: #ff4d4f;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+/* OVERLAY */
+.drawer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.35);
+  z-index: 999;
+  backdrop-filter: blur(2px);
+}
+
+/* DRAWER */
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 420px;
+  height: 100%;
+  background: white;
+  box-shadow: -8px 0 25px rgba(0,0,0,0.15);
+  z-index: 1000;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.3s ease forwards;
+}
+
+/* ANIMAÇÃO */
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* HEADER */
+.drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.drawer-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.drawer-header button {
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+/* CONTEÚDO */
+.drawer-content {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.drawer-section {
+  background: #f8f9fa;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.btn-cancelar {
+  width: 100%;
+  padding: 10px;
+  background: #c62828;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: 0.2s;
+}
+
+.btn-cancelar:hover {
+  background: #a91f1f;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-confirmacao {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  width: 380px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.modal-confirmacao h3 {
+  margin-bottom: 10px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
