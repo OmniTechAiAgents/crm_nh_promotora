@@ -98,7 +98,6 @@ export default function FgtsEsteira() {
 
       setMostrarConfirmacao(false);
       fecharDrawer();
-
       await fetchPropostas();
 
       alert("Proposta cancelada com sucesso.");
@@ -154,6 +153,7 @@ export default function FgtsEsteira() {
                   <th>Nome</th>
                   <th>Proposta</th>
                   <th>Banco</th>
+                  <th>Promotor</th>
                   <th>Valor Líquido</th>
                   <th>Status</th>
                   <th>Formalização</th>
@@ -167,6 +167,12 @@ export default function FgtsEsteira() {
                     <td>{proposta.nome}</td>
                     <td>{proposta.numero_contrato || "-"}</td>
                     <td>{proposta.API}</td>
+
+                    {/* NOVO CAMPO */}
+                    <td>
+                      {proposta.usuario?.username || "-"}
+                    </td>
+
                     <td>R$ {proposta.valor_liquido}</td>
                     <td>{proposta.status_proposta}</td>
 
@@ -226,75 +232,45 @@ export default function FgtsEsteira() {
             </div>
 
             <div className="drawer-content">
-              <div className="drawer-section">
-                <strong>Nome:</strong> {propostaSelecionada.nome}
-              </div>
-
-              <div className="drawer-section">
-                <strong>CPF:</strong> {propostaSelecionada.cpf}
-              </div>
-
-              <div className="drawer-section">
-                <strong>Contrato:</strong>{" "}
-                {propostaSelecionada.numero_contrato || "-"}
-              </div>
-
-              <div className="drawer-section">
-                <strong>Banco:</strong> {propostaSelecionada.API}
-              </div>
-
-              <div className="drawer-section">
-                <strong>Status:</strong>{" "}
-                {propostaSelecionada.status_proposta}
-              </div>
-
-              <div className="drawer-section">
-                <strong>Mensagem Status:</strong>{" "}
-                {propostaSelecionada.msg_status || "-"}
-              </div>
-
-              <div className="drawer-section">
-                <strong>Valor Líquido:</strong> R${" "}
-                {propostaSelecionada.valor_liquido}
-              </div>
-
-              <div className="drawer-section">
-                <strong>Valor Seguro:</strong> R${" "}
-                {propostaSelecionada.valor_seguro}
-              </div>
-
-              <div className="drawer-section">
-                <strong>Valor Emissão:</strong> R${" "}
-                {propostaSelecionada.valor_emissao}
-              </div>
-
-              <div className="drawer-section">
-                <strong>Data Criação:</strong>{" "}
-                {new Date(
-                  propostaSelecionada.createdAt
-                ).toLocaleString("pt-BR")}
-              </div>
-
-              {propostaSelecionada.link_form && (
                 <div className="drawer-section">
-                  <strong>Link Formalização:</strong>
-                  <br />
-                  {propostaSelecionada.link_form}
+                    <strong>Promotor:</strong>{" "}
+                    {propostaSelecionada.usuario?.username || "-"}
                 </div>
-              )}
 
-              {/* ===== BOTÃO CONTROLADO PELO BOOLEAN ===== */}
-
-              {propostaSelecionada.verificar === true && (
-                <div className="drawer-actions">
-                  <button
-                    className="btn-cancelar"
-                    onClick={() => setMostrarConfirmacao(true)}
-                  >
-                    Cancelar Proposta
-                  </button>
+                <div className="drawer-section">
+                    <strong>Nome:</strong> {propostaSelecionada.nome}
                 </div>
-              )}
+
+                <div className="drawer-section">
+                    <strong>Proposta:</strong>{" "}
+                        {propostaSelecionada.numero_contrato || "-"}
+                </div>
+
+                <div className="drawer-section">
+                    <strong>CPF:</strong> {propostaSelecionada.cpf}
+                </div>
+
+                <div className="drawer-section">
+                    <strong>Banco:</strong> {propostaSelecionada.API}
+                </div>
+
+                <div className="drawer-section">
+                    <strong>Status:</strong> {propostaSelecionada.status_proposta}
+                </div>
+                <div className="drawer-section">
+                    <strong>Valor Líquido:</strong> R$ {propostaSelecionada.valor_liquido}
+                </div>
+
+                {propostaSelecionada.verificar && (
+                    <div className="drawer-actions">
+                    <button
+                        className="btn-cancelar"
+                        onClick={() => setMostrarConfirmacao(true)}
+                    >
+                        Cancelar Proposta
+                    </button>
+                    </div>
+                )}
             </div>
           </div>
         </>

@@ -37,7 +37,7 @@ export default function Sidebar() {
             )
             .map(route => (
               <li key={route.path}>
-                <NavLink to={route.path}>
+                <NavLink to={route.path} end>
                   {route.label}
                 </NavLink>
               </li>
