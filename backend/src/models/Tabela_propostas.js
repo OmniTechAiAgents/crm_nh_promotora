@@ -97,11 +97,12 @@ const Tabela_propostas = db.define(
 )
 
 Tabela_propostas.belongsTo(Usuario, {
-    foreignKey: 'usuarioId'
+    foreignKey: 'usuario_id',
+    as: 'usuario'
 });
 
 Usuario.hasMany(Tabela_propostas, {
-    foreignKey: 'usuarioId'
+    foreignKey: 'usuario_id'
 });
 
 export default Tabela_propostas;

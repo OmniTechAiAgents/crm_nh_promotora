@@ -35,9 +35,9 @@ class PropostasFGTSService {
             const result = await PropostasRepository.SearchPagination(pesquisa, limit, offset, filtroUserId);
     
             return result;
-        } catch {
+        } catch (err) {
             throw err;
-            }
+        }
     }
 
     async CancelarProposta(proposalId, userData) {

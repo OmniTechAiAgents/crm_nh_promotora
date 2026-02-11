@@ -89,11 +89,12 @@ const Cpfs_individuais = db.define(
 );
 
 Cpfs_individuais.belongsTo(Usuario, {
-    foreignKey: 'usuarioId'
+    foreignKey: 'usuario_id',
+    as: 'usuario'
 });
 
 Usuario.hasMany(Cpfs_individuais, {
-    foreignKey: 'usuarioId'
+    foreignKey: 'usuario_id'
 });
 
 export default Cpfs_individuais;

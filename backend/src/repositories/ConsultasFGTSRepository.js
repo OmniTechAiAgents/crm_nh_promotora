@@ -1,5 +1,6 @@
 import Cpfs_individuais from '../models/Cpfs_individuais.js';
 import { Op } from 'sequelize';
+import Usuario from "../models/Usuario.js";
 
 class ConsultasFGTSRepository {
     async Create(data) {
@@ -30,6 +31,13 @@ class ConsultasFGTSRepository {
 
         const result = await Cpfs_individuais.findAndCountAll({
             where,
+            include: [
+                {
+                    model: Usuario,
+                    as: 'usuario',
+                    attributes: { exclude: ['password'] }
+                }
+            ],
             limit: limite,
             offset,
             order: [['createdAt', 'DESC']]
