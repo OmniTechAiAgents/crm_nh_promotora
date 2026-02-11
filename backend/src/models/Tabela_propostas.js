@@ -1,5 +1,6 @@
 import { DataTypes } from 'sequelize';
-import db from "../config/db.js"
+import db from "../config/db.js";
+import Usuario from './Usuario.js';
 
 const Tabela_propostas = db.define(
     "tabela_propostas",
@@ -53,9 +54,15 @@ const Tabela_propostas = db.define(
             type: DataTypes.STRING(60),
             allowNull: false
         },
-        usuario: {
-            type: DataTypes.STRING,
-            allowNull: false
+        usuario_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'usuarios',
+                key: 'id'
+            },
+            onUpdate: 'CASCADE',
+            onDelete: 'CASCADE'
         },
         banco: {
             type: DataTypes.STRING(50),
@@ -88,5 +95,14 @@ const Tabela_propostas = db.define(
         timestamp: true
     }
 )
+
+Tabela_propostas.belongsTo(Usuario, {
+    foreignKey: 'usuario_id',
+    as: 'usuario'
+});
+
+Usuario.hasMany(Tabela_propostas, {
+    foreignKey: 'usuario_id'
+});
 
 export default Tabela_propostas;

@@ -1,5 +1,6 @@
 import Tabela_propostas from "../models/Tabela_propostas.js";
 import { Op } from 'sequelize';
+import Usuario from "../models/Usuario.js";
 
 class PropostasRepository {
     async create(data) {
@@ -36,7 +37,7 @@ class PropostasRepository {
         });
     }
 
-    async SearchPagination(pesquisa, limite, offset) {
+    async SearchPagination(pesquisa, limite, offset, filtroUserId) {
         const where = {};
 
         if (pesquisa) {
@@ -45,8 +46,19 @@ class PropostasRepository {
             ]
         }
 
+        if (filtroUserId != null) {
+            where.usuario_id = filtroUserId
+        }
+
         const result = await Tabela_propostas.findAndCountAll({
             where,
+            include: [
+                {
+                    model: Usuario,
+                    as: 'usuario',
+                    attributes: { exclude: ['password'] }
+                }
+            ],
             limit: limite,
             offset,
             order: [['createdAt', 'DESC']]

@@ -2,6 +2,7 @@ import NossaFintechService from "./integrations/NossaFintechService.js";
 import VCTexServices from "./integrations/VCTexServices.js";
 import PropostasRepository from "../repositories/PropostasRepository.js";
 import HttpException from "../utils/HttpException.js";
+import AuthService from "./AuthService.js";
 
 class PropostasFGTSService {
     async FazerProposta(data, userData) {
@@ -10,10 +11,10 @@ class PropostasFGTSService {
                     
             switch (instituicao) {
                 case "VCTex":
-                    await VCTexServices.Proposta(data, userData.username);
+                    await VCTexServices.Proposta(data, userData.id);
                     break;
                 case "Nossa fintech":
-                    await NossaFintechService.Proposta(data, userData.username);
+                    await NossaFintechService.Proposta(data, userData.id);
                     break;
                 default:
                     console.error("Instituição não encontrada");
@@ -24,16 +25,19 @@ class PropostasFGTSService {
         }
     }
 
-    async RecuperarPropostas(pesquisa, page, limit) {
+    async RecuperarPropostas(pesquisa, page, limit, userData) {
         try {
             const offset = (page - 1) * limit;
     
-            const result = await PropostasRepository.SearchPagination(pesquisa, limit, offset);
+            // se for promotor, filtra para apenas as propostas dele, se for adm, pega todas as propostas
+            const filtroUserId = userData.role == "promotor" ? userData.id : null;
+
+            const result = await PropostasRepository.SearchPagination(pesquisa, limit, offset, filtroUserId);
     
             return result;
-        } catch {
+        } catch (err) {
             throw err;
-            }
+        }
     }
 
     async CancelarProposta(proposalId, userData) {
@@ -57,7 +61,19 @@ class PropostasFGTSService {
                     break;
             }
 
-            return response;
+            const usuarioRaw = await AuthService.BuscarUsuarioPorId(response.usuario_id);
+            const usuario_data = {
+                id: usuarioRaw.dataValues.id,
+                username: usuarioRaw.dataValues.username,
+                role: usuarioRaw.dataValues.role
+            }
+
+            const { usuarioId, ...dadosProposta } = response.dataValues;
+
+            return {
+                ...dadosProposta,
+                usuario: usuario_data
+            };
         } catch(err) {
             throw err;
         }
@@ -84,7 +100,20 @@ class PropostasFGTSService {
                     break;
             }
 
-            return response;
+            // recuperando e tratando dados do usuário
+            const usuarioRaw = await AuthService.BuscarUsuarioPorId(response.usuario_id);
+            const usuario_data = {
+                id: usuarioRaw.dataValues.id,
+                username: usuarioRaw.dataValues.username,
+                role: usuarioRaw.dataValues.role
+            }
+
+            const { usuarioId, ...dadosProposta } = response.dataValues;
+
+            return {
+                ...dadosProposta,
+                usuario: usuario_data
+            };
         } catch(err) {
             throw err;
         }

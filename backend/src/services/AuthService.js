@@ -91,6 +91,16 @@ class AuthService {
         }
     }
 
+    async BuscarUsuarioPorId(id) {
+        try {
+            const result = await AuthRepository.findOneById(id);
+
+            return result;
+        } catch (err) {
+            throw err;
+        }
+    }
+
     async AtualizarUsuario(usuarioId, data) {
         try {
             const usuarioData = await AuthRepository.findOneById(usuarioId);

@@ -66,7 +66,7 @@ class VCTexServices {
         }
     }
 
-    async Simulacao(cpf, userUsername) {
+    async Simulacao(cpf, userId) {
         try {
             // desativar algum se a API for chata com requisicoes enviadas rapidamente
             const players = [
@@ -154,7 +154,7 @@ class VCTexServices {
                 valor_tac: rawResponse.data.data.simulationData.contractTacAmount,
                 valor_seguro: rawResponse.data.data.simulationData.contractInsuranceAmount,
                 tabela: "Tabela Exponencial",
-                usuario: userUsername,
+                usuario_id: userId,
                 chave: rawResponse.data.data.financialId,
                 banco: usedPlayer,
                 API: "VCTex",
@@ -185,7 +185,7 @@ class VCTexServices {
                 valor_tac: null,
                 valor_seguro: null,
                 tabela: "Tabela Exponencial",
-                usuario: userUsername,
+                usuario_id: userId,
                 chave: null,
                 banco: null,
                 API: "VCTex",
@@ -199,7 +199,8 @@ class VCTexServices {
         }
     }
 
-    async Proposta(data, userUsername) {
+    async Proposta(data, userId) {
+        // userUsername
         try {
             // logica completa para mandar a proposta para a VCTex
             const verifica = await ConsultasFGTSRepository.SearchByFinancialId(data.financialId);
@@ -283,7 +284,7 @@ class VCTexServices {
             }
             
             // apos verificar o status, passa para recuperar as informacoes com o link de formalizacao
-            await this.AtualizarRegistroPropostaDB(response.data.data.proposalcontractNumber, response.data.data.proposalId, userUsername)
+            await this.AtualizarRegistroPropostaDB(response.data.data.proposalcontractNumber, response.data.data.proposalId, userId)
 
             return true;
         } catch (err) {
@@ -302,7 +303,7 @@ class VCTexServices {
         }
     }
 
-    async CancelarProposta(proposalId, userUsername) {
+    async CancelarProposta(proposalId, userId) {
         try {
             await axios.patch(`${process.env.VCTex_baseURL}/service/proposal/cancel`,
                 {
@@ -321,7 +322,7 @@ class VCTexServices {
 
             // precisa desse timeout por causa da latência do servidor deles
             await new Promise(resolve => setTimeout(resolve, 3000));
-            await this.AtualizarRegistroPropostaDB(numContract, proposalId, userUsername);
+            await this.AtualizarRegistroPropostaDB(numContract, proposalId, userId);
 
             const response = await PropostasRepository.findOne(proposalId);
             
@@ -387,7 +388,7 @@ class VCTexServices {
 
 
     // funcao interna (só usa aqui dentro desse service)
-    async AtualizarRegistroPropostaDB(contractNumber, proposalId, username) {
+    async AtualizarRegistroPropostaDB(contractNumber, proposalId, userId) {
         try {
             const STATUS_FINALIZADOS = new Set([
                 70, 80, 130,
@@ -452,7 +453,7 @@ class VCTexServices {
                     ...dadosAtualizados,
                     proposal_id: proposalId,
                     contrato: 'null',
-                    usuario: username
+                    usuario_id: userId
                 });
             }
 
