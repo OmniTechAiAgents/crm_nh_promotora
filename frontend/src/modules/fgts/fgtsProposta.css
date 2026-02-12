@@ -1,26 +1,57 @@
+/* ============================= */
+/* OVERLAY */
+/* ============================= */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.55);
+  background: rgba(15, 23, 42, 0.65); /* azul escuro suave */
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 999;
+  padding: 20px;
 }
 
+/* ============================= */
+/* CONTAINER */
+/* ============================= */
 .modal-container {
-  background: white;
+  background: #ffffff;
   width: 100%;
-  max-width: 520px;
-  border-radius: 12px;
-  padding: 24px;
+  max-width: 540px;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  animation: fadeInScale 0.2s ease-out;
 }
 
+/* animação suave */
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ============================= */
+/* HEADER */
+/* ============================= */
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 24px;
+}
+
+.modal-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #0f172a;
 }
 
 .modal-close {
@@ -28,39 +59,127 @@
   border: none;
   font-size: 22px;
   cursor: pointer;
+  color: #64748b;
+  transition: 0.2s;
 }
 
+.modal-close:hover {
+  color: #0f172a;
+}
+
+/* ============================= */
+/* FORM */
+/* ============================= */
 .proposta-form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
-.radio-group {
-  display: flex;
-  gap: 20px;
+/* labels */
+.proposta-form label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #334155;
+  margin-bottom: 4px;
 }
 
+/* inputs */
 .proposta-form input,
 .proposta-form select {
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #d1d5db;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  outline: none;
+  background: #f8fafc;
 }
 
+.proposta-form input:focus,
+.proposta-form select:focus {
+  border-color: #2563eb;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* erro */
 .proposta-form input.error,
 .proposta-form select.error {
   border-color: #dc2626;
-  background: #fee2e2;
+  background: #fef2f2;
 }
 
+.proposta-form input.error:focus,
+.proposta-form select.error:focus {
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+}
+
+/* ============================= */
+/* RADIO GROUP */
+/* ============================= */
+.radio-group {
+  display: flex;
+  gap: 24px;
+  padding: 8px 0;
+}
+
+.radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #334155;
+}
+
+.radio-group input[type="radio"] {
+  accent-color: #2563eb;
+  cursor: pointer;
+}
+
+/* ============================= */
+/* BOTÃO */
+/* ============================= */
 .proposta-form button {
-  margin-top: 12px;
-  padding: 12px;
-  border-radius: 8px;
-  background: #2563eb;
+  margin-top: 10px;
+  padding: 14px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
   color: white;
   border: none;
   font-weight: 600;
+  font-size: 15px;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.proposta-form button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+}
+
+.proposta-form button:active {
+  transform: translateY(0);
+}
+
+.proposta-form button:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* ============================= */
+/* RESPONSIVO */
+/* ============================= */
+@media (max-width: 480px) {
+  .modal-container {
+    padding: 20px;
+  }
+
+  .radio-group {
+    flex-direction: column;
+    gap: 12px;
+  }
 }
