@@ -6,8 +6,8 @@ import HttpException from '../../utils/HttpException.js';
 import ConsultasFGTSRepository from '../../repositories/ConsultasFGTSRepository.js';
 import SimulateFGTS from '../../utils/SimulateFGTS.js';
 import ClientesService from '../ClientesService.js';
-
 import PropostasRepository from '../../repositories/PropostasRepository.js';
+import NovaVidaService from './NovaVidaService.js';
 
 class VCTexServices {
     constructor() {
@@ -208,6 +208,13 @@ class VCTexServices {
                 throw new HttpException("Nenhuma proposta encontrada com esse financialId", 404);
             }
 
+            const resultBuscaCliente = await ClientesService.procurarCpf(data.cpf); 
+            if (!resultBuscaCliente || resultBuscaCliente?.length === 0) {
+                const dadosCliente = await NovaVidaService.BuscarDados(data.cpf);
+            
+                await ClientesService.criarClienteNovaVida(dadosCliente, data.cpf);
+            }
+            
             const cliente = await ClientesService.procurarCpf(data.cpf);
 
             const reqBody = ({

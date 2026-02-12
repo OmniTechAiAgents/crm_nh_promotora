@@ -1,32 +1,20 @@
 import ClientesRepository from "../repositories/ClientesRepository.js";
 import NovaVidaService from "./integrations/NovaVidaService.js";
 import ParseNascNV from "../utils/ParseNascNV.js";
+import HttpException from "../utils/HttpException.js";
 
 class ClientesService {
     async procurarCpf(cpf) {
         try {
             const consultaDB = await ClientesRepository.findOneByCpf(cpf);
-            
-            if (consultaDB) {
-                return consultaDB;
-            }
-
-            // busca os dados com a API da NovaVida
-            const dadosCliente = await NovaVidaService.BuscarDados(cpf);
-
-            // armazena novos dados no banco
-            await this.criarCliente(dadosCliente, cpf);
-
-            // retornando a busca do banco para padronizar a formatacao de retorno
-            const resultado = await ClientesRepository.findOneByCpf(cpf);
-
-            return resultado;
+        
+            return consultaDB;
         } catch (err) {
             throw err;
         }
     }
 
-    async criarCliente(data, cpf) {
+    async criarClienteNovaVida(data, cpf) {
         try {
             // tratamento do campo DATA_NASC
             const DataFormatada = ParseNascNV(data.CONSULTA.CADASTRO.NASC);
@@ -46,7 +34,18 @@ class ClientesService {
         }
     }
 
+    async criarClienteDB(data) {
+        try {
+            const existe = await this.procurarCpf(data.cpf);
+            if(existe) {
+                throw new HttpException("Esse cliente já está registrado no banco de dados.", 409)
+            }
 
+            return await ClientesRepository.create(data);
+        } catch (err) {
+            throw err;
+        }
+    }
 }
 
 export default new ClientesService();

@@ -5,6 +5,7 @@ import AuthRouters from "./routes/AuthRoutes.js";
 import ConsultasRoutes from "./routes/ConsultasRoutes.js";
 import PropostasRoutes from './routes/PropostasRouter.js';
 import UsuariosRoutes from './routes/UsuariosRoutes.js';
+import ClientesRoutes from './routes/ClientesRoutes.js';
 import db from "./config/db.js";
 import VCTexServices from './services/integrations/VCTexServices.js';
 import NovaVidaService from './services/integrations/NovaVidaService.js';
@@ -25,6 +26,7 @@ app.use('/auth', AuthRouters);
 app.use('/consultas', ConsultasRoutes);
 app.use('/propostas', PropostasRoutes);
 app.use('/usuarios', UsuariosRoutes);
+app.use('/clientes', ClientesRoutes);
 
 async function bootstrap() {
     try {

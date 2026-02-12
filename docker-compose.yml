@@ -29,6 +29,7 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules
+      - ./shared_uploads:/app/csvs_consulta_lote
     depends_on:
       mysql:
         condition: service_healthy
@@ -69,6 +70,7 @@ services:
     container_name: python_ms
     volumes:
       - ./python_ms:/app
+      - ./shared_uploads:/app/csvs_consulta_lote
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -77,6 +79,7 @@ services:
 
 volumes:
   mysql_data:
+  shared_uploads: 
 
 networks:
   app_network:

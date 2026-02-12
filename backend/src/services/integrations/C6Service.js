@@ -3,6 +3,7 @@ import TokenAPIsRepository from '../../repositories/TokenAPIsRepository.js';
 import IsTokenExpired from '../../utils/IsTokenExpired.js';
 import TaskScheduler from '../../utils/TaskScheduler.js';
 import ClientesService from '../ClientesService.js';
+import NovaVidaService from './NovaVidaService.js';
 
 class C6Service {
     constructor() {
@@ -70,7 +71,14 @@ class C6Service {
 
     async GerarLinkAutenticacaoCLT(cpf) {
         try {
-            const clienteData = await ClientesService.procurarCpf(cpf);
+            const resultBuscaCliente = await ClientesService.procurarCpf(data.cpf); 
+            if (!resultBuscaCliente || resultBuscaCliente?.length === 0) {
+                const dadosCliente = await NovaVidaService.BuscarDados(data.cpf);
+            
+                await ClientesService.criarClienteNovaVida(dadosCliente, data.cpf);
+            }
+            
+            const clienteData = await ClientesService.procurarCpf(data.cpf);
 
             const clienteBody = ({
                 nome: clienteData.dataValues.nome,
