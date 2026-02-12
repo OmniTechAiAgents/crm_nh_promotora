@@ -7,6 +7,7 @@ import ConsultasFGTSRepository from '../../repositories/ConsultasFGTSRepository.
 import ClientesService from '../ClientesService.js';
 import ISPBRepository from '../../repositories/ISPBRepository.js';
 import PropostasRepository from '../../repositories/PropostasRepository.js';
+import NovaVidaService from './NovaVidaService.js';
 
 
 class NossaFintechService {
@@ -242,6 +243,13 @@ class NossaFintechService {
 
             if(!verifica) {
                 throw new HttpException("Nenhuma proposta encontrada com esse financialId", 404);
+            }
+
+            const resultBuscaCliente = await ClientesService.procurarCpf(data.cpf); 
+            if (!resultBuscaCliente || resultBuscaCliente?.length === 0) {
+                const dadosCliente = await NovaVidaService.BuscarDados(data.cpf);
+
+                await ClientesService.criarClienteNovaVida(dadosCliente, data.cpf);
             }
 
             const cliente = await ClientesService.procurarCpf(data.cpf);
