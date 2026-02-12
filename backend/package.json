@@ -13,6 +13,7 @@
     "express-oauth2-jwt-bearer": "^1.7.2",
     "fast-xml-parser": "^5.3.3",
     "jsonwebtoken": "^9.0.3",
+    "multer": "^2.0.2",
     "mysql2": "^3.16.0",
     "node-cron": "^4.2.1",
     "sequelize": "^6.37.7",

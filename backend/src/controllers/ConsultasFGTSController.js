@@ -59,6 +59,20 @@ class ConsultasFGTSController {
             return res.status(500).json({ erro: err.message });
         }
     }
+
+    async IniciarConsultaEmLote (req, res) {
+        try {
+            if (!req.file) {
+                return res.status(400).json({ erro: "É preciso enviar um arquivo .csv para inciar a operação." });
+            }
+
+            console.log(`Nome do arquivo: ${req.file.filename}`)
+
+            return res.status(200).json({ msg: "foi, hehe" });
+        } catch(err) {
+            return res.status(500).json({ erro: err })
+        }
+    }
 }
 
 export default new ConsultasFGTSController();
