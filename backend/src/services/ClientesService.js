@@ -1,6 +1,7 @@
 import ClientesRepository from "../repositories/ClientesRepository.js";
 import NovaVidaService from "./integrations/NovaVidaService.js";
 import ParseNascNV from "../utils/ParseNascNV.js";
+import HttpException from "../utils/HttpException.js";
 
 class ClientesService {
     async procurarCpf(cpf) {
@@ -33,7 +34,18 @@ class ClientesService {
         }
     }
 
+    async criarClienteDB(data) {
+        try {
+            const existe = await this.procurarCpf(data.cpf);
+            if(existe) {
+                throw new HttpException("Esse cliente já está registrado no banco de dados.", 409)
+            }
 
+            return await ClientesRepository.create(data);
+        } catch (err) {
+            throw err;
+        }
+    }
 }
 
 export default new ClientesService();
