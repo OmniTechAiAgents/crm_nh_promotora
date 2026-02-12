@@ -73,7 +73,7 @@ const Tabela_propostas = db.define(
             allowNull: false
         },
         msg_status: {
-            type: DataTypes.STRING(100),
+            type: DataTypes.STRING,
             allowNull: true
         },
         verificar: {

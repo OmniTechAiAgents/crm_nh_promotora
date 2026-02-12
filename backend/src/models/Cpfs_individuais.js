@@ -70,7 +70,7 @@ const Cpfs_individuais = db.define(
             defaultValue: null
         },
         mensagem: {
-            type: DataTypes.STRING(100),
+            type: DataTypes.STRING,
             allowNull: false
         },
         elegivelProposta: {
