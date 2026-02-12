@@ -14,6 +14,6 @@ ConsultasRoutes.post("/FGTS/manual", AuthenticationToken, ConsultasFGTSControlle
 ConsultasRoutes.post("/CLT/manual", AuthenticationToken, ConsultasCLTController.FazerConsulta);
 
 // parte automatizada (consuta em lote)
-ConsultasRoutes.post("/FGTS/lote", AuthenticationToken, uploadCsv.single("file"), ConsultasFGTSController.IniciarConsultaEmLote);
+ConsultasRoutes.post("/FGTS/lote", AuthenticationToken, AuthorizeRoles('admin'), uploadCsv.single("file"), ConsultasFGTSController.IniciarConsultaEmLote);
 
 export default ConsultasRoutes;

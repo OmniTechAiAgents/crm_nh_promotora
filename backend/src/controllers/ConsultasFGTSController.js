@@ -2,6 +2,9 @@ import ConsultasFGTSService from "../services/ConsultasFGTSService.js";
 import HttpException from "../utils/HttpException.js";
 import { ValidarBodyConsulta } from "../middleware/ValidarBodyConsulta.js";
 import { ZodError } from "zod";
+import { ValidarBodyConsultaEmLote } from "../middleware/ValidarBodyConsultaEmLote.js";
+import ConsultasLoteService from "../services/ConsultasLoteService.js";
+import AuthService from "../services/AuthService.js";
 
 class ConsultasFGTSController {
     async FazerConsulta (req, res) {
@@ -62,15 +65,39 @@ class ConsultasFGTSController {
 
     async IniciarConsultaEmLote (req, res) {
         try {
+            const { id_promotor } = ValidarBodyConsultaEmLote.parse(req.body);
+
+            const promotorExiste = await AuthService.BuscarUsuarioPorId(id_promotor);
+            if(!promotorExiste) {
+                console.log("entrou no if")
+                throw new HttpException("Não existe nenhum promotor com esse id.", 400);
+            }
+
             if (!req.file) {
                 return res.status(400).json({ erro: "É preciso enviar um arquivo .csv para inciar a operação." });
             }
+            
+            const objDB = ({
+                id_admin: req.user.id,
+                id_promotor: id_promotor,
+                local_path: req.file.filename
+            })
 
-            console.log(`Nome do arquivo: ${req.file.filename}`)
+            await ConsultasLoteService.Postar(objDB);
 
-            return res.status(200).json({ msg: "foi, hehe" });
+            return res.status(200).send();
         } catch(err) {
-            return res.status(500).json({ erro: err })
+            if (err instanceof ZodError) {
+                return res.status(400).json({
+                    erro: err.issues[0].message
+                });
+            }
+
+            if (err instanceof HttpException) {
+                return res.status(err.status).json({ erro: err.message });
+            }
+
+            return res.status(500).json({ erro: err.message });
         }
     }
 }
