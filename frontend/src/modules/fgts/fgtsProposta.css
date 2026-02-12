@@ -1,185 +1,119 @@
-/* ============================= */
-/* OVERLAY */
-/* ============================= */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.65); /* azul escuro suave */
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-  padding: 20px;
-}
-
-/* ============================= */
-/* CONTAINER */
-/* ============================= */
-.modal-container {
-  background: #ffffff;
+.proposta-container {
   width: 100%;
-  max-width: 540px;
-  border-radius: 16px;
-  padding: 28px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-  animation: fadeInScale 0.2s ease-out;
+  max-width: 520px;
+  padding: 10px;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
-/* animação suave */
-@keyframes fadeInScale {
-  from {
-    opacity: 0;
-    transform: scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+.proposta-header {
+  margin-bottom: 25px;
 }
 
-/* ============================= */
-/* HEADER */
-/* ============================= */
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.modal-header h2 {
-  font-size: 20px;
-  font-weight: 600;
-  color: #0f172a;
-}
-
-.modal-close {
-  background: none;
-  border: none;
+.proposta-header h2 {
   font-size: 22px;
-  cursor: pointer;
-  color: #64748b;
-  transition: 0.2s;
+  margin: 0;
+  color: #1f2937;
 }
 
-.modal-close:hover {
-  color: #0f172a;
+.proposta-header p {
+  font-size: 14px;
+  color: #6b7280;
+  margin-top: 5px;
 }
 
-/* ============================= */
-/* FORM */
-/* ============================= */
 .proposta-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
 
-/* labels */
-.proposta-form label {
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.section-title {
   font-size: 14px;
-  font-weight: 500;
-  color: #334155;
-  margin-bottom: 4px;
+  font-weight: 600;
+  color: #374151;
 }
 
-/* inputs */
-.proposta-form input,
-.proposta-form select {
-  padding: 12px 14px;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
-  font-size: 14px;
-  transition: all 0.2s ease;
-  outline: none;
-  background: #f8fafc;
-}
-
-.proposta-form input:focus,
-.proposta-form select:focus {
-  border-color: #2563eb;
-  background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-}
-
-/* erro */
-.proposta-form input.error,
-.proposta-form select.error {
-  border-color: #dc2626;
-  background: #fef2f2;
-}
-
-.proposta-form input.error:focus,
-.proposta-form select.error:focus {
-  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
-}
-
-/* ============================= */
-/* RADIO GROUP */
-/* ============================= */
 .radio-group {
   display: flex;
-  gap: 24px;
-  padding: 8px 0;
+  gap: 12px;
 }
 
-.radio-group label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.radio-card {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  border: 2px solid #e5e7eb;
   cursor: pointer;
+  text-align: center;
+  transition: 0.2s ease;
+  font-weight: 500;
+  background: #fff;
+}
+
+.radio-card input {
+  display: none;
+}
+
+.radio-card:hover {
+  border-color: #3b82f6;
+}
+
+.radio-card.ativo {
+  border-color: #3b82f6;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+input,
+select {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
   font-size: 14px;
-  color: #334155;
+  transition: 0.2s ease;
 }
 
-.radio-group input[type="radio"] {
-  accent-color: #2563eb;
-  cursor: pointer;
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
 }
 
-/* ============================= */
-/* BOTÃO */
-/* ============================= */
-.proposta-form button {
+.btn-confirmar {
   margin-top: 10px;
   padding: 14px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
-  color: white;
+  border-radius: 10px;
   border: none;
   font-weight: 600;
   font-size: 15px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: 0.2s ease;
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
+  color: white;
 }
 
-.proposta-form button:hover {
+.btn-confirmar:hover {
+  opacity: 0.9;
   transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
 }
 
-.proposta-form button:active {
-  transform: translateY(0);
-}
-
-.proposta-form button:disabled {
-  background: #94a3b8;
+.btn-confirmar:disabled {
+  background: #9ca3af;
   cursor: not-allowed;
-  box-shadow: none;
-  transform: none;
 }
 
-/* ============================= */
-/* RESPONSIVO */
-/* ============================= */
-@media (max-width: 480px) {
-  .modal-container {
-    padding: 20px;
-  }
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
 
-  .radio-group {
-    flex-direction: column;
-    gap: 12px;
-  }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
 }

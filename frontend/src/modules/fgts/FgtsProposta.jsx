@@ -125,32 +125,43 @@ export default function FgtsProposta({
 
 
   // ---------- UI ----------
-  return (
-    <div className="card proposta-digitacao">
-      <h3>Digitação da Proposta</h3>
+return (
+  <div className="proposta-container">
+    <div className="proposta-header">
+      <h2>Digitação da Proposta</h2>
+      <p>Preencha os dados para envio da proposta</p>
+    </div>
 
-      <div className="form-group">
-        <label>Forma de recebimento</label>
-        <label>
-          <input
-            type="radio"
-            checked={formaRecebimento === "PIX"}
-            onChange={() => setFormaRecebimento("PIX")}
-          />
-          PIX
-        </label>
-        <label>
-          <input
-            type="radio"
-            checked={formaRecebimento === "CONTA"}
-            onChange={() => setFormaRecebimento("CONTA")}
-          />
-          Conta Bancária
-        </label>
+    <div className="proposta-form">
+
+      {/* FORMA DE RECEBIMENTO */}
+      <div className="form-section">
+        <label className="section-title">Forma de recebimento</label>
+
+        <div className="radio-group">
+          <label className={`radio-card ${formaRecebimento === "PIX" ? "ativo" : ""}`}>
+            <input
+              type="radio"
+              checked={formaRecebimento === "PIX"}
+              onChange={() => setFormaRecebimento("PIX")}
+            />
+            PIX
+          </label>
+
+          <label className={`radio-card ${formaRecebimento === "CONTA" ? "ativo" : ""}`}>
+            <input
+              type="radio"
+              checked={formaRecebimento === "CONTA"}
+              onChange={() => setFormaRecebimento("CONTA")}
+            />
+            Conta Bancária
+          </label>
+        </div>
       </div>
 
+      {/* PIX */}
       {formaRecebimento === "PIX" && (
-        <>
+        <div className="form-section fade-in">
           <input
             placeholder="Chave PIX"
             value={pixKey}
@@ -167,11 +178,12 @@ export default function FgtsProposta({
             <option value="telefone">Telefone</option>
             <option value="chave_aleatoria">Aleatória</option>
           </select>
-        </>
+        </div>
       )}
 
+      {/* CONTA */}
       {formaRecebimento === "CONTA" && (
-        <>
+        <div className="form-section fade-in">
           <input placeholder="Banco" value={bankCode} onChange={(e) => setBankCode(e.target.value)} />
           <input placeholder="Agência" value={branchNumber} onChange={(e) => setBranchNumber(e.target.value)} />
           <input placeholder="Conta" value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)} />
@@ -188,16 +200,17 @@ export default function FgtsProposta({
               <option value="pagamento">Pagamento</option>
             )}
           </select>
-        </>
+        </div>
       )}
 
       <button
-        className="btn-principal"
+        className="btn-confirmar"
         onClick={enviarProposta}
         disabled={loading}
       >
         {loading ? "Enviando..." : "Confirmar Proposta"}
       </button>
     </div>
-  );
+  </div>
+);
 }
