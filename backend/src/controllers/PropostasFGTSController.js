@@ -3,6 +3,7 @@ import HttpException from "../utils/HttpException.js";
 import { ZodError } from "zod";
 import PropostasFGTSService from "../services/PropostasFGTSService.js";
 import { ValidarBodyCancelarProposta } from "../middleware/ValidarBodyCancelarProposta.js";
+import ISPBService from "../services/ISPBService.js";
 
 class PropostasFGTSController {
     async FazerProposta (req, res) {
@@ -109,6 +110,27 @@ class PropostasFGTSController {
                 });
             }
 
+            if (err instanceof HttpException) {
+                return res.status(err.status).json({ erro: err.message });
+            }
+
+            return res.status(500).json({ erro: err.message });
+        }
+    }
+
+    async PesquisarBanco (req, res) {
+        try {
+            const pesquisa = req.query.pesquisa;
+            const limit = parseInt(req.query.limite) || 10;
+
+            const result = await ISPBService.PesquisarBanco(pesquisa, limit);
+
+            if (!result || result?.length == 0) {
+                return res.status(204).send();
+            }
+
+            return res.status(200).json(result);
+        } catch (err) {
             if (err instanceof HttpException) {
                 return res.status(err.status).json({ erro: err.message });
             }

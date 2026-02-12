@@ -10,4 +10,6 @@ PropostasRoutes.get("/FGTS", AuthenticationToken, PropostasFGTSController.Recupe
 PropostasRoutes.patch("/FGTS/cancelar", AuthenticationToken, PropostasFGTSController.CancelarProposta);
 PropostasRoutes.patch("/FGTS/verificar", AuthenticationToken, PropostasFGTSController.VerificarProposta);
 
+PropostasRoutes.get("/pesquisarBanco", AuthenticationToken, PropostasFGTSController.PesquisarBanco);
+
 export default PropostasRoutes;
