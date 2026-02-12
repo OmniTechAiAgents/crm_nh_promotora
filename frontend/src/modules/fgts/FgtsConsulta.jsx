@@ -3,6 +3,26 @@ import FgtsResultadoCard from "./FgtsResultadoCard";
 import api from "../../api/client";
 import "./fgts.css";
 
+// Função para normalizar o CPF
+function normalizarCPF(cpfInput) {
+  if (!cpfInput) return "";
+
+  // Remove tudo que não é número
+  let somenteNumeros = cpfInput.replace(/\D/g, "");
+
+  // Preenche com zeros à esquerda até completar 11 caracteres
+  while (somenteNumeros.length < 11) {
+    somenteNumeros = "0" + somenteNumeros;
+  }
+
+  // Corta se tiver mais de 11 caracteres
+  if (somenteNumeros.length > 11) {
+    somenteNumeros = somenteNumeros.slice(0, 11);
+  }
+
+  return somenteNumeros;
+}
+
 export default function FgtsConsulta() {
   const [cpf, setCpf] = useState("");
   const [instituicao, setInstituicao] = useState("VCTex");
@@ -12,14 +32,7 @@ export default function FgtsConsulta() {
   const consultar = async () => {
     setResultado(null);
 
-    // Validação básica de CPF
-    if (!cpf || cpf.length !== 11) {
-      setResultado({
-        status: "ERRO",
-        motivoErro: "CPF inválido. Digite somente números.",
-      });
-      return;
-    }
+    const cpfNormalizado = normalizarCPF(cpf);
 
     try {
       setLoading(true);
@@ -36,11 +49,12 @@ export default function FgtsConsulta() {
         return;
       }
 
+      // Requisição ao backend
       const { data } = await api.post(
         "/consultas/FGTS/manual",
         {
-          cpf,           // SEM máscara
-          instituicao,   // Enum controlado
+          cpf: cpfNormalizado,
+          instituicao,
         },
         {
           headers: {
@@ -81,12 +95,24 @@ export default function FgtsConsulta() {
     } catch (err) {
       console.error("ERRO CONSULTA:", err);
 
+      const status = err.response?.status;
+      const data = err.response?.data;
+
+      let motivoErro = "Erro ao consultar backend";
+
+      if (status === 401) {
+        motivoErro = "Sessão expirada. Faça login novamente.";
+      } else if (data) {
+        if (typeof data === "object") {
+          motivoErro = data.motivo || data.erro || data.mensagem || JSON.stringify(data);
+        } else if (typeof data === "string") {
+          motivoErro = data;
+        }
+      }
+
       setResultado({
         status: "ERRO",
-        motivoErro:
-          err.response?.status === 401
-            ? "Sessão expirada. Faça login novamente."
-            : err.response?.data?.mensagem || "Erro ao consultar backend",
+        motivoErro,
       });
     } finally {
       setLoading(false);
@@ -104,10 +130,8 @@ export default function FgtsConsulta() {
           <input
             placeholder="Digite o CPF"
             value={cpf}
-            onChange={(e) =>
-              setCpf(e.target.value.replace(/\D/g, ""))
-            }
-            maxLength={11}
+            onChange={(e) => setCpf(e.target.value)}
+            maxLength={14} // permite digitar pontos/traços, será normalizado
           />
         </div>
 
@@ -143,23 +167,10 @@ export default function FgtsConsulta() {
           />
           NOSSA FINTECH
         </label>
-
-        {/* Parana */}
-        {/* 
-        <label className="radio-option">
-          <input
-            type="radio"
-            value="Parana"
-            checked={instituicao === "Parana"}
-            onChange={(e) => setInstituicao(e.target.value)}
-          />
-          Paraná
-        </label>
-        */}
       </div>
 
       {/* RESULTADO */}
-      {resultado && <FgtsResultadoCard resultado={resultado}/>}
+      {resultado && <FgtsResultadoCard resultado={resultado} />}
     </div>
   );
 }
