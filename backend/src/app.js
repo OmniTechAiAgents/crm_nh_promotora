@@ -14,6 +14,7 @@ import NossaFintechService from './services/integrations/NossaFintechService.js'
 import cors from "cors";
 import { seedISPBs } from './utils/seedISPBs.js';
 import { connectRabbit } from './config/rabbitMQ.js';
+import MicroservicesRoutes from './routes/MicroservicesRoutes.js';
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use('/consultas', ConsultasRoutes);
 app.use('/propostas', PropostasRoutes);
 app.use('/usuarios', UsuariosRoutes);
 app.use('/clientes', ClientesRoutes);
+app.use('/microservicos', MicroservicesRoutes)
 
 async function bootstrap() {
     try {

@@ -2,6 +2,7 @@ import ConsultasFGTSRepository from "../repositories/ConsultasFGTSRepository.js"
 import VCTexServices from "./integrations/VCTexServices.js";
 import NossaFintechService from "./integrations/NossaFintechService.js";
 import AuthService from "./AuthService.js";
+import HttpException from "../utils/HttpException.js";
 
 class ConsultasFGTSService {
     async FazerConsulta (data, userData) {
@@ -18,7 +19,8 @@ class ConsultasFGTSService {
                     break;
                 default:
                     console.error("Instituição não encontrada");
-                    break;
+                    console.log(data);
+                    throw new HttpException("Instituição não encontrada.", 404);
             }
 
             // padronizando a array de anuidades
@@ -55,7 +57,6 @@ class ConsultasFGTSService {
             })
 
             return resultadoTratado;
-
         } catch (err) {
             throw err;
         }
