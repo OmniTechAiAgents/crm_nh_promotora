@@ -13,6 +13,7 @@ import C6Service from './services/integrations/C6Service.js';
 import NossaFintechService from './services/integrations/NossaFintechService.js';
 import cors from "cors";
 import { seedISPBs } from './utils/seedISPBs.js';
+import { connectRabbit } from './config/rabbitMQ.js';
 
 const app = express();
 
@@ -32,6 +33,9 @@ async function bootstrap() {
     try {
         await db.sync();
         console.log("✅ Tabelas sincronizadas com sucesso");
+
+        await connectRabbit();
+        // ja tem console.log na função
 
         await seedISPBs();
 

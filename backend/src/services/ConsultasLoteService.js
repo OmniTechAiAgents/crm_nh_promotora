@@ -1,4 +1,5 @@
 import ConsultasLoteRepository from "../repositories/ConsultasLoteRepository.js";
+import { PublisherRabbitMQ } from "../utils/PublisherRabbitMQ.js";
 
 
 class ConsultasLoteService {
@@ -8,8 +9,7 @@ class ConsultasLoteService {
             const result = await ConsultasLoteRepository.create(data);
 
             // captura os dados necessários e monta a msg para o rabbitMQ
-            console.log("Body que seria enviado para o rabbitMQ:")
-            console.log(result.dataValues);
+            await PublisherRabbitMQ("consultas_lote", result.dataValues);
         } catch(err) {
             throw err;
         }
