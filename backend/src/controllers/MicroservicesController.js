@@ -81,9 +81,9 @@ class MicroservicesController {
 
     async EditarRegistroDeConsulta(req, res) {
         try {
-            const { id, status } = req.body;
+            const { id, status, mensagem } = req.body;
 
-            await ConsultasLoteService.Editar(id, status)
+            await ConsultasLoteService.Editar(id, status, mensagem)
 
             return res.status(200).json({ msg: "Status do registro de consulta editado com sucesso" })
         } catch (err) {

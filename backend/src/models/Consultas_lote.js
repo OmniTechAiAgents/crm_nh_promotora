@@ -38,6 +38,11 @@ const Consultas_lote = db.define(
         local_path: {
             type: DataTypes.STRING,
             allowNull: false
+        },
+        mensagem: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            defaultValue: null
         }
     },
     {

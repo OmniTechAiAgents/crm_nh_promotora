@@ -16,15 +16,16 @@ class ConsultasLoteService {
         }
     }
 
-    async Editar(consultaId, status) {
+    async Editar(consultaId, status, mensagem) {
         try {
             const existe = await ConsultasLoteRepository.findOneConsultaById(consultaId);
             if(!existe) throw new HttpException("Consulta não encontrada", 404);
 
             const bodyDB = ({
                 ...existe,
-                status: status
-            })
+                status: status,
+                mensagem: mensagem
+            });
 
             return await ConsultasLoteRepository.update(consultaId, bodyDB);
         } catch (err) {
