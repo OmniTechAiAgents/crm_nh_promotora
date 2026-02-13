@@ -19,9 +19,10 @@ class rabbitMQConsumer:
             id_admin = bodyJson['id_admin']
             id_promotor = bodyJson['id_promotor']
             local_path = bodyJson['local_path']
+            instituicao = bodyJson['instituicao']
 
             # print(local_path)
-            consulta_lote = consulta_lote_service(id, id_promotor, local_path)
+            consulta_lote = consulta_lote_service(id, id_promotor, local_path, instituicao)
             consulta_lote.inciar_consulta_lote()
         except json.decoder.JSONDecodeError:
             print("Json Inválido, Interrompendo consulta.")

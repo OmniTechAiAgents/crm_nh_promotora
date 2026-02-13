@@ -65,7 +65,7 @@ class ConsultasFGTSController {
 
     async IniciarConsultaEmLote (req, res) {
         try {
-            const { id_promotor } = ValidarBodyConsultaEmLote.parse(req.body);
+            const { id_promotor, instituicao } = ValidarBodyConsultaEmLote.parse(req.body);
 
             const promotorExiste = await AuthService.BuscarUsuarioPorId(id_promotor);
             if(!promotorExiste) {
@@ -80,7 +80,8 @@ class ConsultasFGTSController {
             const objDB = ({
                 id_admin: req.user.id,
                 id_promotor: id_promotor,
-                local_path: req.file.filename
+                local_path: req.file.filename,
+                instituicao: instituicao
             })
 
             await ConsultasLoteService.Postar(objDB);

@@ -26,6 +26,10 @@ const Consultas_lote = db.define(
                 key: 'id'
             }
         },
+        instituicao: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
         status: {
             type: DataTypes.ENUM("em_andamento", "cancelado", "concluido"),
             allowNull: false,
