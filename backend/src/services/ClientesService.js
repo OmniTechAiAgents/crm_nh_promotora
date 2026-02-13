@@ -1,5 +1,4 @@
 import ClientesRepository from "../repositories/ClientesRepository.js";
-import NovaVidaService from "./integrations/NovaVidaService.js";
 import ParseNascNV from "../utils/ParseNascNV.js";
 import HttpException from "../utils/HttpException.js";
 

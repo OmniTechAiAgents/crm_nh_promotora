@@ -5,7 +5,6 @@ import AuthRouters from "./routes/AuthRoutes.js";
 import ConsultasRoutes from "./routes/ConsultasRoutes.js";
 import PropostasRoutes from './routes/PropostasRouter.js';
 import UsuariosRoutes from './routes/UsuariosRoutes.js';
-import ClientesRoutes from './routes/ClientesRoutes.js';
 import db from "./config/db.js";
 import VCTexServices from './services/integrations/VCTexServices.js';
 import NovaVidaService from './services/integrations/NovaVidaService.js';
@@ -13,6 +12,8 @@ import C6Service from './services/integrations/C6Service.js';
 import NossaFintechService from './services/integrations/NossaFintechService.js';
 import cors from "cors";
 import { seedISPBs } from './utils/seedISPBs.js';
+import { connectRabbit } from './config/rabbitMQ.js';
+import MicroservicesRoutes from './routes/MicroservicesRoutes.js';
 
 const app = express();
 
@@ -26,12 +27,15 @@ app.use('/auth', AuthRouters);
 app.use('/consultas', ConsultasRoutes);
 app.use('/propostas', PropostasRoutes);
 app.use('/usuarios', UsuariosRoutes);
-app.use('/clientes', ClientesRoutes);
+app.use('/microservicos', MicroservicesRoutes)
 
 async function bootstrap() {
     try {
         await db.sync();
         console.log("✅ Tabelas sincronizadas com sucesso");
+
+        await connectRabbit();
+        // ja tem console.log na função
 
         await seedISPBs();
 
