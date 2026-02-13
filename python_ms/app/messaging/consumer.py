@@ -1,6 +1,6 @@
 import pika
 import json
-
+from app.services.consulta_lote_service import consulta_lote_service
 
 class rabbitMQConsumer:
     def __init__(self, host, queue_name):
@@ -20,11 +20,13 @@ class rabbitMQConsumer:
             id_promotor = bodyJson['id_promotor']
             local_path = bodyJson['local_path']
 
-            print(f"Valores recebidos: {id}, {id_admin}, {id_promotor}, {local_path}")
+            # print(local_path)
+            consulta_lote = consulta_lote_service(id, id_promotor, local_path)
+            consulta_lote.inciar_consulta_lote()
         except json.decoder.JSONDecodeError:
-            print("Json Inválido, Interrompendo migracao.")
+            print("Json Inválido, Interrompendo consulta.")
         except Exception as e:
-            print(f"Erro desconhecido: {e}, interrompendo migracao.")
+            print(f"Erro desconhecido: {e}, interrompendo consulta.")
         finally:
             channel.basic_ack(delivery_tag=method_frame.delivery_tag)
 
