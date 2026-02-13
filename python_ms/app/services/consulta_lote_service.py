@@ -1,5 +1,7 @@
 from app.repositories.csv_repository import csv_repository
+from app.utils.enviar_request_node import enviar_request
 import pandas as pd
+
 
 class consulta_lote_service:
     def __init__(self, id_registro_db, id_promotor, local_path, instituicao):
@@ -20,8 +22,15 @@ class consulta_lote_service:
         }
         colunas_df = set(csv_df.columns)
         if (colunas_df != colunasValidas):
-            print("COLUNAS ERRADAS, RETORNAR ERRO.")
+            body = {
+                "id": self.id_registro_db,
+                "status": "cancelado",
+                "mensagem": "Estrutura do arquivo .csv inválida"
+            }
+            # retornando erro para a API em NodeJS
+            return enviar_request("PATCH", "/microservicos/consultas_lote", body);
 
+        print("DATAFRAME PASSOU SUAVE.")
 
         # Verifica se o cliente já existe no banco de dados da API principal
         
