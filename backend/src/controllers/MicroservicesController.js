@@ -4,6 +4,7 @@ import HttpException from "../utils/HttpException.js";
 import ClientesService from "../services/ClientesService.js";
 import { ZodError } from "zod";
 import { ValidarBodyCliente } from "../middleware/ValidarBodyCliente.js";
+import ConsultasLoteService from "../services/ConsultasLoteService.js";
 
 class MicroservicesController {
     async Consultar(req, res) {
@@ -70,6 +71,22 @@ class MicroservicesController {
                 });
             }
 
+            if (err instanceof HttpException) {
+                return res.status(err.status).json({ erro: err.message });
+            }
+
+            return res.status(500).json({ erro: err.message });
+        }
+    }
+
+    async EditarRegistroDeConsulta(req, res) {
+        try {
+            const { id, status } = req.body;
+
+            await ConsultasLoteService.Editar(id, status)
+
+            return res.status(200).json({ msg: "Status do registro de consulta editado com sucesso" })
+        } catch (err) {
             if (err instanceof HttpException) {
                 return res.status(err.status).json({ erro: err.message });
             }
