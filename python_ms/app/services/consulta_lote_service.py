@@ -21,6 +21,7 @@ class consulta_lote_service:
         colunas_df = set(csv_df.columns)
         if (colunas_df != colunasValidas):
             print("COLUNAS ERRADAS, RETORNAR ERRO.")
-        else:
-            print("Colunas certas.")
 
+
+        # Verifica se o cliente já existe no banco de dados da API principal
+        
