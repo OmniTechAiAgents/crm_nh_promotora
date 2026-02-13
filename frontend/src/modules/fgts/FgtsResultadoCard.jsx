@@ -3,10 +3,11 @@ import "./fgts.css";
 import FgtsProposta from "./FgtsProposta";
 import Modal from "../../components/Modal";
 
-export default function FgtsResultadoCard({ resultado}) {
+export default function FgtsResultadoCard({ resultado }) {
   const [openModal, setOpenModal] = useState(false);
+  const [propostaDigitada, setPropostaDigitada] = useState(false);
+
   console.log("Resultado recebido no card:", resultado);
-  
 
   if (!resultado) return null;
 
@@ -26,7 +27,7 @@ export default function FgtsResultadoCard({ resultado}) {
   };
 
   // ---------- CARD OFERTA DISPONÍVEL ----------
-  if (status === "ELEGIVEL") {
+  if (status === "ELEGIVEL" && !propostaDigitada) {
     return (
       <>
         <div className="card oferta">
@@ -78,13 +79,40 @@ export default function FgtsResultadoCard({ resultado}) {
           onClose={() => setOpenModal(false)}
         >
           <FgtsProposta
-            financialId={financialId} // vem direto da consulta
+            financialId={financialId}
             cpf={cpf}
             instituicao={instituicaoEscolhida}
-            onSuccess={() => setOpenModal(false)}
+            onSuccess={() => {
+              setOpenModal(false);
+              setPropostaDigitada(true);
+            }}
           />
         </Modal>
       </>
+    );
+  }
+
+  // ---------- OFERTA CONSUMIDA ----------
+  if (status === "ELEGIVEL" && propostaDigitada) {
+    return (
+      <div className="card consumido">
+        <div className="card-header cinza">
+          ✔ Proposta Digitada
+        </div>
+
+        <div className="card-body">
+          <p>
+            Esta oferta foi utilizada para geração de proposta.
+          </p>
+
+          <button
+            className="btn-secundario"
+            onClick={() => (window.location.href = "/esteira-propostas")}
+          >
+            Ir para Esteira de Propostas
+          </button>
+        </div>
+      </div>
     );
   }
 
