@@ -1,66 +1,119 @@
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.55);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-}
-
-.modal-container {
-  background: white;
+.proposta-container {
   width: 100%;
   max-width: 520px;
-  border-radius: 12px;
-  padding: 24px;
+  padding: 10px;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
+.proposta-header {
+  margin-bottom: 25px;
 }
 
-.modal-close {
-  background: none;
-  border: none;
+.proposta-header h2 {
   font-size: 22px;
-  cursor: pointer;
+  margin: 0;
+  color: #1f2937;
+}
+
+.proposta-header p {
+  font-size: 14px;
+  color: #6b7280;
+  margin-top: 5px;
 }
 
 .proposta-form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 18px;
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
 }
 
 .radio-group {
   display: flex;
-  gap: 20px;
+  gap: 12px;
 }
 
-.proposta-form input,
-.proposta-form select {
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #d1d5db;
+.radio-card {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  border: 2px solid #e5e7eb;
+  cursor: pointer;
+  text-align: center;
+  transition: 0.2s ease;
+  font-weight: 500;
+  background: #fff;
 }
 
-.proposta-form input.error,
-.proposta-form select.error {
-  border-color: #dc2626;
-  background: #fee2e2;
+.radio-card input {
+  display: none;
 }
 
-.proposta-form button {
-  margin-top: 12px;
+.radio-card:hover {
+  border-color: #3b82f6;
+}
+
+.radio-card.ativo {
+  border-color: #3b82f6;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+input,
+select {
   padding: 12px;
   border-radius: 8px;
-  background: #2563eb;
-  color: white;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  transition: 0.2s ease;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.btn-confirmar {
+  margin-top: 10px;
+  padding: 14px;
+  border-radius: 10px;
   border: none;
   font-weight: 600;
+  font-size: 15px;
   cursor: pointer;
+  transition: 0.2s ease;
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
+  color: white;
+}
+
+.btn-confirmar:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btn-confirmar:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
 }
