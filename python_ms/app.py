@@ -1,31 +1,13 @@
-import pika
-import time
-import json
+import os
+from dotenv import load_dotenv
+from app.messaging.consumer import rabbitMQConsumer
 
-print("fodase teste")
+load_dotenv()
 
-while True:
-    try:
-        connection = pika.BlockingConnection(
-            pika.ConnectionParameters(host="rabbitmq")
-        )
-        channel = connection.channel()
+rabbitHost = os.getenv("rabbitMQ_host")
+queueName = os.getenv("queue_name")
 
-        channel.queue_declare(queue="consultas_lote", durable=True)
-
-        def callback(ch, method, properties, body):
-            data = json.loads(body.decode("utf-8"))
-            print("Recebido:", body)
-            ch.basic_ack(delivery_tag=method.delivery_tag)
-
-        channel.basic_consume(
-            queue="consultas_lote",
-            on_message_callback=callback
-        )
-
-        print("Aguardando mensagens...")
-        channel.start_consuming()
-
-    except pika.exceptions.AMQPConnectionError as e:
-        print("Conexão perdida, tentando reconectar em 5s...", e)
-        time.sleep(5)
+if __name__ == "__main__":
+    print("Rodando microservice-python...")
+    consumer = rabbitMQConsumer(host=rabbitHost, queue_name=queueName)
+    consumer.start_consuming()
