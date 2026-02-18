@@ -1,6 +1,6 @@
 import pika
 import json
-from app.services.consulta_lote_service import consulta_lote_service
+from app.messaging.gerenciar_jobs import gerenciar_jobs
 
 class rabbitMQConsumer:
     def __init__(self, host, queue_name):
@@ -8,20 +8,17 @@ class rabbitMQConsumer:
         self.queue_name = queue_name
         self.connection = None
         self.channel = None
+        self.jobs = gerenciar_jobs()
     
     def on_message(self, channel, method_frame, header_frame, body):
         try:
             bodyJson = json.loads(body.decode("utf-8"))
 
-            id = bodyJson['id']
-            id_admin = bodyJson['id_admin']
-            id_promotor = bodyJson['id_promotor']
-            local_path = bodyJson['local_path']
-            instituicao = bodyJson['instituicao']
+            def callback():
+                self.jobs.processar_job(bodyJson)
+                ch.basic_ack(delivery_tag=method.delivery_tag)
 
-            # print(local_path)
-            consulta_lote = consulta_lote_service(id, id_promotor, local_path, instituicao)
-            consulta_lote.inciar_consulta_lote()
+            self.jobs.executor.submit(callback)
         except json.decoder.JSONDecodeError:
             print("Json Inválido, Interrompendo consulta.")
         except Exception as e:
