@@ -11,7 +11,8 @@ class consulta_lote_service:
         self.instituicao = instituicao
     
     def inciar_consulta_lote(self):
-        csv_df = csv_repository(self.local_path).getDataFrame()
+        arquivo_csv = csv_repository(self.local_path)
+        csv_df = arquivo_csv.getDataFrame()
 
         # Verificação da estrutura do arquivo (colunas):
         colunasValidas = {
@@ -21,16 +22,34 @@ class consulta_lote_service:
             "Celular"
         }
         colunas_df = set(csv_df.columns)
-        if (colunas_df != colunasValidas):
+
+        colunas_faltando = colunasValidas - colunas_df
+        colunas_extras = colunas_df - colunasValidas
+
+        if colunas_faltando or colunas_extras:
+            mensagem_erro = "Estrutura do arquivo .csv inválida."
+
+            if colunas_faltando:
+                mensagem_erro += f" Colunas faltando: {', '.join(colunas_faltando)}."
+
+            if colunas_extras:
+                mensagem_erro += f" Colunas não esperadas: {', '.join(colunas_extras)}."
+
             body = {
                 "id": self.id_registro_db,
                 "status": "cancelado",
-                "mensagem": "Estrutura do arquivo .csv inválida"
+                "mensagem": mensagem_erro
             }
+
+            # criar lógica para apagar o arquivo mal-estruturado
+            arquivo_csv.deleteFile()
+
             # retornando erro para a API em NodeJS
             return enviar_request("PATCH", "/microservicos/consultas_lote", body);
 
-        print("DATAFRAME PASSOU SUAVE.")
+        # transforma todas as colunas do DF em letra minuscula para facilitar no código
 
         # Verifica se o cliente já existe no banco de dados da API principal
+        for index, row in csv_df.iterrows():
+            print(row['cpf']);
         

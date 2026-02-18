@@ -7,7 +7,7 @@ load_dotenv()
 apiNodeURL = os.getenv("api_node_URL")
 token_api_node = os.getenv("token_api_node")
 
-def enviar_request(method, endpoint, body=None, params=None):
+def enviar_request(method, endpoint, body=None, params=None, retornarBody=False):
     url = f"{apiNodeURL}{endpoint}"
 
     headers = {
@@ -25,5 +25,8 @@ def enviar_request(method, endpoint, body=None, params=None):
         )
 
         response.raise_for_status()
+
+        if (retornarBody):
+            return response.json()
     except requests.exceptions.RequestException as e:
         print(f"[API ERROR] {method} {endpoint} -> {e}")

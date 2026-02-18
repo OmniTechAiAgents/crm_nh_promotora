@@ -15,4 +15,12 @@ class csv_repository:
     def getDataFrame(self):
         print(self.local_path)
 
-        return pd.read_csv(f"{default_path}/{self.local_path}", sep=";");
+        return pd.read_csv(f"{default_path}/{self.local_path}", sep=";")
+
+    def deleteFile(self):
+        path = f"{default_path}/{self.local_path}"
+
+        if os.path.exists:
+            os.remove(path)
+        else:
+            print(f"Arquivo no seguinte caminho não foi encontrado {path}")
