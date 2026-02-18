@@ -21,7 +21,7 @@ def enviar_request(method, endpoint, body=None, params=None, retornarResponse=Fa
             headers=headers,
             json=body,
             params=params,
-            timeout=15
+            timeout=180
         )
 
         response.raise_for_status()
@@ -29,18 +29,20 @@ def enviar_request(method, endpoint, body=None, params=None, retornarResponse=Fa
         if (retornarResponse):
             return response
     except requests.exceptions.RequestException as e:
-        mensagem_erro = None
-        status_code = None
+        response = getattr(e, "response", None)
 
-        # tenta pegar resposta da API
-        if hasattr(e, "response") and e.response is not None:
-            status_code = e.response.status_code
-
+        if response is not None:
+            # a API respondeu (400,404,424 etc)
             try:
-                data = e.response.json()
+                data = response.json()
                 mensagem_erro = data.get("erro") or data.get("message")
             except ValueError:
-                # não veio JSON
-                mensagem_erro = e.response.text
+                mensagem_erro = response.text
 
-        print(f"[API ERROR] {method} {endpoint} -> {status_code} | {mensagem_erro or str(e)}")
+            print(f"[API ERROR] {method} {endpoint} -> {response.status_code} | {mensagem_erro}")
+
+            return response
+
+        else:
+            print(f"[NETWORK ERROR] {method} {endpoint} -> {str(e)}")
+            return None

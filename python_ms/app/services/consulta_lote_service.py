@@ -29,6 +29,7 @@ class consulta_lote_service:
         colunas_extras = colunas_df - colunasValidas
 
 
+        # Verificando a integradade das colunas
         if colunas_faltando or colunas_extras:
             mensagem_erro = "Estrutura do arquivo .csv inválida."
 
@@ -44,10 +45,8 @@ class consulta_lote_service:
                 "mensagem": mensagem_erro
             }
 
-            # criar lógica para apagar o arquivo mal-estruturado
             arquivo_csv.deleteFile()
 
-            # retornando erro para a API em NodeJS
             return enviar_request("PATCH", "/microservicos/consultas_lote", body);
 
 
@@ -58,9 +57,7 @@ class consulta_lote_service:
             data_nasc = formatar_data(row['Dt Nasc'])
             celular = row['Celular']
 
-            verificar_cliente_existente = enviar_request("GET", f"/microservicos/clientes", params={"cpf": cpf}, retornarResponse=True)
-
-            # print(verificar_cliente_existente.status_code)
+            verificar_cliente_existente = enviar_request("GET", "/microservicos/clientes", params={"cpf": cpf}, retornarResponse=True)
 
             if verificar_cliente_existente.status_code == 204:
                 body = {
@@ -72,4 +69,23 @@ class consulta_lote_service:
                 enviar_request("POST", "/microservicos/clientes", body)
                 print(celular)
             
-            # continuar aqui
+            print("tentando fazer a consulta...")
+
+            bodyConsulta = {
+                "id_promotor": self.id_promotor,
+                "cpf": cpf,
+                "instituicao": self.instituicao
+            }
+            consulta = enviar_request("POST", "/microservicos/consulta/FGTS", bodyConsulta, retornarResponse=True)
+            print(consulta.json().get("erro"))
+            if consulta.status_code == 200:
+                # adiciona no dataframe de consultas realizadas com sucesso.
+                print("fds")
+            elif consulta.status_code == 424:
+                # adiciona no dataframe que armazenas as consultas com erro
+                print("fds2")
+            else:
+                # aqui armazena só erro server_side
+                print("fds3")
+            
+            print("Indo para o próximo cpf...")
