@@ -1,5 +1,7 @@
 from app.repositories.csv_repository import csv_repository
 from app.utils.enviar_request_node import enviar_request
+from app.utils.formatar_data import formatar_data
+from app.utils.remover_mascara_cpf import remover_mascara_cpf
 import pandas as pd
 
 
@@ -26,6 +28,7 @@ class consulta_lote_service:
         colunas_faltando = colunasValidas - colunas_df
         colunas_extras = colunas_df - colunasValidas
 
+
         if colunas_faltando or colunas_extras:
             mensagem_erro = "Estrutura do arquivo .csv inválida."
 
@@ -47,9 +50,26 @@ class consulta_lote_service:
             # retornando erro para a API em NodeJS
             return enviar_request("PATCH", "/microservicos/consultas_lote", body);
 
-        # transforma todas as colunas do DF em letra minuscula para facilitar no código
 
         # Verifica se o cliente já existe no banco de dados da API principal
         for index, row in csv_df.iterrows():
-            print(row['cpf']);
-        
+            cpf = remover_mascara_cpf(row['CPF'])
+            nome = row['Cliente']
+            data_nasc = formatar_data(row['Dt Nasc'])
+            celular = row['Celular']
+
+            verificar_cliente_existente = enviar_request("GET", f"/microservicos/clientes", params={"cpf": cpf}, retornarResponse=True)
+
+            # print(verificar_cliente_existente.status_code)
+
+            if verificar_cliente_existente.status_code == 204:
+                body = {
+                    "cpf": cpf,
+                    "nome": nome,
+                    "data_nasc": data_nasc,
+                    "celular": celular
+                }
+                enviar_request("POST", "/microservicos/clientes", body)
+                print(celular)
+            
+            # continuar aqui

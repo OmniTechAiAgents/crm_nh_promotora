@@ -13,9 +13,20 @@ class csv_repository:
         self.local_path = local_path
     
     def getDataFrame(self):
-        print(self.local_path)
+        path = os.path.join(default_path, self.local_path)
 
-        return pd.read_csv(f"{default_path}/{self.local_path}", sep=";")
+        df = pd.read_csv(path, sep=";", dtype={"CPF": str, "Cliente": str, "Dt Nasc": str, "Celular": str})
+
+        # converte "" para NaN
+        df.replace("", pd.NA, inplace=True)
+
+        # remove linhas totalmente vazias
+        df.dropna(how="all", inplace=True)
+
+        # reseta índice
+        df.reset_index(drop=True, inplace=True)
+
+        return df
 
     def deleteFile(self):
         path = f"{default_path}/{self.local_path}"
