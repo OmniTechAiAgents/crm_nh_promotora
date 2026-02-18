@@ -5,7 +5,6 @@ import pandas as pd
 load_dotenv()
 
 default_path = os.getenv("default_path_csvs")
-print(default_path)
 
 class csv_repository:
     def __init__ (self, local_path):

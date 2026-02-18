@@ -8,6 +8,5 @@ rabbitHost = os.getenv("rabbitMQ_host")
 queueName = os.getenv("queue_name")
 
 if __name__ == "__main__":
-    print("Rodando microservice-python...")
     consumer = rabbitMQConsumer(host=rabbitHost, queue_name=queueName)
     consumer.start_consuming()
