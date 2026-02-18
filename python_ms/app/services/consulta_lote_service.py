@@ -16,6 +16,9 @@ class consulta_lote_service:
         arquivo_csv = csv_repository(self.local_path)
         csv_df = arquivo_csv.getDataFrame()
 
+        df_consultas_sucesso = pd.DataFrame(columns=["CPF", "Cliente", "Dt Nasc", "Celular", "Cod_retorno", "Mensagem"])
+        df_consultas_erro = pd.DataFrame(columns=["CPF", "Cliente", "Dt Nasc", "Celular", "Cod_retorno", "Mensagem"])
+
         # Verificação da estrutura do arquivo (colunas):
         colunasValidas = {
             "CPF",
@@ -67,7 +70,6 @@ class consulta_lote_service:
                     "celular": celular
                 }
                 enviar_request("POST", "/microservicos/clientes", body)
-                print(celular)
             
             print("tentando fazer a consulta...")
 
@@ -77,15 +79,32 @@ class consulta_lote_service:
                 "instituicao": self.instituicao
             }
             consulta = enviar_request("POST", "/microservicos/consulta/FGTS", bodyConsulta, retornarResponse=True)
-            print(consulta.json().get("erro"))
             if consulta.status_code == 200:
-                # adiciona no dataframe de consultas realizadas com sucesso.
-                print("fds")
-            elif consulta.status_code == 424:
-                # adiciona no dataframe que armazenas as consultas com erro
-                print("fds2")
+                df_consultas_sucesso.loc[len(df_consultas_sucesso)] = {
+                    "CPF": cpf,
+                    "Cliente": nome,
+                    "Dt Nasc": data_nasc,
+                    "Celular": celular,
+                    "Cod_retorno": consulta.status_code,
+                    "Mensagem": "Consulta concluída com sucesso."
+                }
             else:
-                # aqui armazena só erro server_side
-                print("fds3")
-            
-            print("Indo para o próximo cpf...")
+                df_consultas_erro.loc[len(df_consultas_erro)] = {
+                    "CPF": cpf,
+                    "Cliente": nome,
+                    "Dt Nasc": data_nasc,
+                    "Celular": celular,
+                    "Cod_retorno": consulta.status_code,
+                    "Mensagem": consulta.json().get("erro")
+                }
+
+        arquivo_csv.saveDataFrame(df_consultas_sucesso, f"/sucesso/SUCESSO-{self.local_path}")
+        arquivo_csv.saveDataFrame(df_consultas_erro, f"/erro/ERRO-{self.local_path}")
+
+        body = {
+            "id": self.id_registro_db,
+            "status": "concluido",
+            "mensagem": "Consulta em lote concluída com sucesso!"
+        }
+
+        return enviar_request("PATCH", "/microservicos/consultas_lote", body);

@@ -34,3 +34,18 @@ class csv_repository:
             os.remove(path)
         else:
             print(f"Arquivo no seguinte caminho não foi encontrado {path}")
+
+    def saveDataFrame(self, df, local_path):
+        path = os.path.join(default_path, local_path)
+
+        # garante que o diretório base exista
+        os.makedirs(default_path, exist_ok=True)
+
+        df.to_csv(
+            path,
+            sep=";",
+            index=False,
+            encoding="utf-8-sig"
+        )
+
+        print(f"CSV salvo com sucesso em: {path}")

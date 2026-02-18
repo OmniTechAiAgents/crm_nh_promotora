@@ -39,7 +39,7 @@ def enviar_request(method, endpoint, body=None, params=None, retornarResponse=Fa
             except ValueError:
                 mensagem_erro = response.text
 
-            print(f"[API ERROR] {method} {endpoint} -> {response.status_code} | {mensagem_erro}")
+            # print(f"[API ERROR] {method} {endpoint} -> {response.status_code} | {mensagem_erro}")
 
             return response
 
