@@ -30,6 +30,8 @@ class MicroservicesController {
             if (err instanceof HttpException) {
                 return res.status(err.status).json({ erro: err.message });
             }
+
+            return res.status(500).json({ erro: err.message });
         }
     }
 
