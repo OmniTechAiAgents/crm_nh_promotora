@@ -35,17 +35,21 @@ class csv_repository:
         else:
             print(f"Arquivo no seguinte caminho não foi encontrado {path}")
 
-    def saveDataFrame(self, df, local_path):
-        path = os.path.join(default_path, local_path)
+    def saveDataFrame(self, df, subpath):
+        try:
+            path = os.path.join(f"{default_path}/{subpath}", self.local_path)
 
-        # garante que o diretório base exista
-        os.makedirs(default_path, exist_ok=True)
+            # garante que o diretório base exista
+            os.makedirs(f"{default_path}/{subpath}", exist_ok=True)
 
-        df.to_csv(
-            path,
-            sep=";",
-            index=False,
-            encoding="utf-8-sig"
-        )
+            df.to_csv(
+                path,
+                sep=";",
+                index=False,
+                encoding="utf-8-sig"
+            )
 
-        print(f"CSV salvo com sucesso em: {path}")
+            # print(f"CSV salvo com sucesso em: {path}")
+        except Exception as e:
+            print(f"Erro ao salvar o dataframe:")
+            print(e)

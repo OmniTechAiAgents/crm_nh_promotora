@@ -52,7 +52,7 @@ class consulta_lote_service:
 
             return enviar_request("PATCH", "/microservicos/consultas_lote", body);
 
-
+        # counter = 1
         # Verifica se o cliente já existe no banco de dados da API principal
         for index, row in csv_df.iterrows():
             cpf = remover_mascara_cpf(row['CPF'])
@@ -71,7 +71,7 @@ class consulta_lote_service:
                 }
                 enviar_request("POST", "/microservicos/clientes", body)
             
-            print("tentando fazer a consulta...")
+            # print(f"{counter} - tentando fazer a consulta...")
 
             bodyConsulta = {
                 "id_promotor": self.id_promotor,
@@ -97,9 +97,13 @@ class consulta_lote_service:
                     "Cod_retorno": consulta.status_code,
                     "Mensagem": consulta.json().get("erro")
                 }
+            
+            # counter = counter + 1
 
-        arquivo_csv.saveDataFrame(df_consultas_sucesso, f"/sucesso/SUCESSO-{self.local_path}")
-        arquivo_csv.saveDataFrame(df_consultas_erro, f"/erro/ERRO-{self.local_path}")
+        arquivo_csv_sucesso = csv_repository(f"SUCESSO-{self.local_path}").saveDataFrame(df_consultas_sucesso, "sucesso/")
+        arquivo_csv_erros = csv_repository(f"ERRO-{self.local_path}").saveDataFrame(df_consultas_erro, "erro/")
+
+        # print("Print depois de ter salvo os arquivos")
 
         body = {
             "id": self.id_registro_db,
