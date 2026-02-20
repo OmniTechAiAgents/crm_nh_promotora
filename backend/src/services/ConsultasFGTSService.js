@@ -72,7 +72,7 @@ class ConsultasFGTSService {
             const result = await ConsultasFGTSRepository.SearchPagination(pesquisa, limit, offset, filtroUserId);
 
             return result;
-        } catch {
+        } catch(err) {
             throw err;
         }
     }
