@@ -32,6 +32,18 @@ class ConsultasLoteService {
             throw err;
         }
     }
+
+    async RecuperarConsultas(pesquisa, page, limit) {
+        try {
+            const offset = (page - 1) * limit;
+
+            const result = await ConsultasLoteRepository.SearchPagination(pesquisa, limit, offset);
+
+            return result;
+        } catch(err) {
+            throw err;
+        }
+    }
 }
 
 export default new ConsultasLoteService();
