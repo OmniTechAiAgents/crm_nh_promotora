@@ -62,14 +62,24 @@ class ConsultasFGTSService {
         }
     }
 
-    async RecuperarConsultas(pesquisa, page, limit, userData) {
+    async RecuperarConsultas(pesquisa, page, limit, userData, filtroElegivelProposta) {
         try {
             const offset = (page - 1) * limit;
 
             // se for promotor, filtra para apenas as propostas dele, se for adm, pega todas as propostas
             const filtroUserId = userData.role == "promotor" ? userData.id : null;
 
-            const result = await ConsultasFGTSRepository.SearchPagination(pesquisa, limit, offset, filtroUserId);
+            // transformando o valor para booleano numero por causa do sequelize
+
+            if (filtroElegivelProposta?.toLowerCase() == "true") {
+                filtroElegivelProposta = 1;
+            } else if (filtroElegivelProposta?.toLowerCase() == "false") {
+                filtroElegivelProposta = 0;
+            } else {
+                filtroElegivelProposta = null;
+            }
+
+            const result = await ConsultasFGTSRepository.SearchPagination(pesquisa, limit, offset, filtroUserId, filtroElegivelProposta);
 
             return result;
         } catch(err) {

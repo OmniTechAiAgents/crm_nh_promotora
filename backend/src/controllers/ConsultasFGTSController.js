@@ -40,8 +40,10 @@ class ConsultasFGTSController {
             const pesquisa = req.query.pesquisa;
             const page = parseInt(req.query.pagina) || 1;
             const limit = parseInt(req.query.limite) || 10;
+            
+            const filtroElegivelProposta = req.query.elegivelOferta || null;
 
-            const response = await ConsultasFGTSService.RecuperarConsultas(pesquisa, page, limit, req.user);
+            const response = await ConsultasFGTSService.RecuperarConsultas(pesquisa, page, limit, req.user, filtroElegivelProposta);
 
             if (!response.data || response.data.length == 0) {
                 return res.status(204).send();
