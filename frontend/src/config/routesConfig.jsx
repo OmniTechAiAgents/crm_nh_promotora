@@ -2,6 +2,7 @@ import FgtsConsulta from "../modules/fgts/FgtsConsulta";
 import CreateUser from "../pages/CreateUsers";
 import FgtsEsteira from "../modules/fgts/FgtsEsteira";
 import UsersList from "../modules/users/UsersList";
+import AdminFgtsLotePage from "../pages/admin/AdminFgtsLotePage";
 
 export const routesConfig = [
   {
@@ -31,6 +32,13 @@ export const routesConfig = [
   permission: "USER_MANAGE",
   showInMenu: true,
   element: <UsersList />
+},
+{
+  path: "/admin/fgts-lote",
+  label: "FGTS em Lote",
+  permission: "USER_MANAGE",
+  showInMenu: true,
+  element: <AdminFgtsLotePage />
 }
 
 
