@@ -170,6 +170,12 @@ class NossaFintechService {
                 throw new HttpException(msg, 424);
             }
 
+            // tratando erro das parcelas vazias
+            if (responseSimulacao.data.installments.length == 0) {
+                const msg = "Cliente é inelegível pois, o prazo para o primeiro desconto é superior a 24 meses";
+                throw new HttpException(msg, 424);
+            }
+
             let valorTac = null;
             let fees = responseSimulacao?.data.external_contract_fees ?? []
 
@@ -368,7 +374,7 @@ class NossaFintechService {
                 await new Promise(resolve => setTimeout(resolve, 5000));
             };
 
-            TaskScheduler.schedule("Verificar propostas da Nossa fintech", () => this.VerificarTodasAsPropostas(), 1800000);
+            TaskScheduler.schedule("Verificar propostas da Nossa fintech", () => this.VerificarTodasAsPropostas(), 600000);
         } catch (err) {
             console.error(`Não foi possível verificar as propostas da Nossa fintech: ${err}`);
         }

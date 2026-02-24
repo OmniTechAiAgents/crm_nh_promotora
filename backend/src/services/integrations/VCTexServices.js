@@ -70,8 +70,8 @@ class VCTexServices {
         try {
             // desativar algum se a API for chata com requisicoes enviadas rapidamente
             const players = [
-                { code: "QITECH", enabled: true },
                 { code: "CDC", enabled: true },
+                { code: "QITECH", enabled: true },
                 { code: "QITECH_DTVM", enabled: true }
             ];
 
@@ -88,6 +88,41 @@ class VCTexServices {
             let usedPlayer = null;
             let lastError = null;
             let newPossibleTable = null;
+            const ERROS_OPERACAO = [
+                "Cliente não possui saldo suficiente para realizar a operação (mínimo de R$10,00 para cada parcela).",
+                "A operação não pode ser concluída por política interna: a data da primeira parcela é superior a 24 meses.",
+                "A operação não pode ser concluída por política interna: o cliente não pode antecipar a quantidade mínima de 03 parcelas.",
+                "Saldo insuficiente para realizar a operação.",
+                "A operação não pode ser concluída por política interna: o valor liberado mínimo é maior que o máximo permitido pela tabela.",
+                'O campo "{{nome_do_campo}}" precisa ser "{{formato_necessário}}".',
+                'O campo "{{nomeDoCampo}}" é obrigatório.',
+                "Consulta de saldo ainda em andamento, acompanhe na tela de consultas.",
+                "Não é possível atender este cliente. Política interna: Inelegível a tarifário e seguro.",
+                "Nenhuma tabela de taxas encontrada para o ID informado.",
+                "Saldo insuficiente para realizar uma operação.",
+                "Já existe uma operação de Saque Aniversário em andamento para esse CPF, tente novamente mais tarde.",
+                "Cliente ainda não autorizou para visualizar seu saldo no aplicativo do FGTS.",
+                "Cliente não optante da modalidade saque aniversário.",
+                "A operação não é permitida para a data atual.",
+                "Cliente possui solicitação de retorno para Saque Rescisão em andamento, o que impede operações de Saque Aniversário.",
+                "Foram feitas alterações no cadastro da conta FGTS, impedindo a contratação. Entre em contato com o departamento FGTS da Caixa.",
+                "Há uma operação de confiança em andamento. Por favor, tente novamente mais tarde.",
+                "A quantidade de períodos deve ser maior que zero.",
+                "Número de CPF inválido",
+                "O funcionário não está inscrito no saque aniversário da data atual.",
+                "Operação não permitida antes de <data>.",
+                "Não é possível realizar a operação para o CPF fornecido.",
+                "Operação não permitida devido a problemas pendentes no processo de pagamento do saque aniversário",
+                "Trabalhador com um pedido de retorno referente ao saque por rescisão, que deve ser cancelado pelo próprio trabalhador para habilitar o pedido de garantia.",
+                "Alterações no cadastro da conta do FGTS foram feitas, impedindo a contratação. Por favor, entre em contato com o departamento do FGTS da Caixa.",
+                "Consulta executada com sucesso. O trabalhador NÃO possui saldo disponível para realizar Operações Fiduciárias.",
+                "O trabalhador informado não possui contas no FGTS.",
+                "Instituição fiduciária sem um acordo ativo para a modalidade de operação de confiança.",
+                "A instituição fiduciária não possui a autorização do trabalhador para a operação de confiança.",
+                "Idade Não Atendida: Este produto é destinado a clientes com idades entre <MIN_AGE> e <MAX_AGE> anos.",
+                "Nome digitado possui pouca similaridade com o nome na receita federal. Favor corrigir.",
+                "Data de nascimento divergente da receita federal, favor corrigir."
+            ];
 
             for (const { code, enabled } of players) {
                 // timeout para impedir erro das APIs parceiras'
@@ -120,6 +155,10 @@ class VCTexServices {
                 } catch(err) {
                     console.error(`O player ${code} falhou em concluir a simulacao`);
                     lastError = err;
+
+                    if(ERROS_OPERACAO.includes(err.response?.data?.message)) {
+                        break;
+                    }
                 }
             }
 
@@ -361,7 +400,7 @@ class VCTexServices {
             };
 
             // reagenda a task
-            TaskScheduler.schedule("Verificar propostas do VCTex", () => this.VerificarTodasAsPropostas(), 1800000);
+            TaskScheduler.schedule("Verificar propostas do VCTex", () => this.VerificarTodasAsPropostas(), 600000);
         } catch (err) {
             console.error(`Não foi possivel verificar as propostas da VCTex: ${err}`);
         }
