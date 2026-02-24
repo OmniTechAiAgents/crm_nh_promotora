@@ -1,12 +1,12 @@
 /* Sidebar.css */
 .sidebar {
   width: 240px;
-  background: #0f172a;
+  background: hsl(222, 47%, 11%);
   color: white;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: calc(100vh - 64px); 
+  height: calc(100dvh - 61px); 
   padding: 16px 12px;
 }
 
@@ -35,7 +35,7 @@
 .sidebar-menu a.active {
   color: #ffffff;
   font-weight: bold;
-  font-size: 22px;
+  font-size: 17px;
 }
 
 .sidebar-footer {

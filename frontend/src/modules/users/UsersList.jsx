@@ -92,6 +92,7 @@ export default function UsersList() {
                 <th>Username</th>
                 <th>Perfil</th>
                 <th>Criado em</th>
+                <th>Ações</th>
               </tr>
             </thead>
             <tbody>
