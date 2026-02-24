@@ -289,3 +289,31 @@
 .btn-secundario:hover {
   background: #1f2937;
 }
+
+.lista-ofertas {
+  margin-top: 20px;
+}
+
+.linha-oferta {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.cpf-link {
+  cursor: pointer;
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+.cpf-link:hover {
+  text-decoration: underline;
+}
+
+.paginacao {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}

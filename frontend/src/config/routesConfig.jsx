@@ -3,6 +3,7 @@ import CreateUser from "../pages/CreateUsers";
 import FgtsEsteira from "../modules/fgts/FgtsEsteira";
 import UsersList from "../modules/users/UsersList";
 import AdminFgtsLotePage from "../pages/admin/AdminFgtsLotePage";
+import FgtsOfertasPromotor from "../modules/fgts/FgtsOfertasPromotor";
 
 export const routesConfig = [
   {
@@ -39,6 +40,13 @@ export const routesConfig = [
   permission: "USER_MANAGE",
   showInMenu: true,
   element: <AdminFgtsLotePage />
+},
+{
+  path: "/fgts/ofertas",
+  label: "Minhas Ofertas FGTS",
+  permission: "FGTS_VIEW",
+  showInMenu: true,
+  element: <FgtsOfertasPromotor />
 }
 
 
