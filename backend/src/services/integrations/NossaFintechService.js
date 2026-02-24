@@ -170,6 +170,12 @@ class NossaFintechService {
                 throw new HttpException(msg, 424);
             }
 
+            // tratando erro das parcelas vazias
+            if (responseSimulacao.data.installments.length == 0) {
+                const msg = "Cliente é inelegível pois, o prazo para o primeiro desconto é superior a 24 meses";
+                throw new HttpException(msg, 424);
+            }
+
             let valorTac = null;
             let fees = responseSimulacao?.data.external_contract_fees ?? []
 
