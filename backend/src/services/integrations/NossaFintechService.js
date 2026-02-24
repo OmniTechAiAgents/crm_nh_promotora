@@ -368,7 +368,7 @@ class NossaFintechService {
                 await new Promise(resolve => setTimeout(resolve, 5000));
             };
 
-            TaskScheduler.schedule("Verificar propostas da Nossa fintech", () => this.VerificarTodasAsPropostas(), 1800000);
+            TaskScheduler.schedule("Verificar propostas da Nossa fintech", () => this.VerificarTodasAsPropostas(), 600000);
         } catch (err) {
             console.error(`Não foi possível verificar as propostas da Nossa fintech: ${err}`);
         }
