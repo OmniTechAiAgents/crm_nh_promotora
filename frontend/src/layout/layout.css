@@ -7,6 +7,7 @@ height: 100vh;
 .app-body {
   display: flex;
   flex: 1;
+  overflow: hidden;
 }
 
 
@@ -15,6 +16,7 @@ width: 220px;
 background: #2e7d32;
 color: white;
 padding: 1rem;
+height: 100%;
 }
 
 
@@ -55,6 +57,7 @@ padding: 0 1rem;
 flex: 1;
 padding: 1.5rem;
 background: #f5f7fa;
+overflow-y: auto;
 }
 
 .header {
