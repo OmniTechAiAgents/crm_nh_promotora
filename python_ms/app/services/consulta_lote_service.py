@@ -56,22 +56,43 @@ class consulta_lote_service:
         # Verifica se o cliente já existe no banco de dados da API principal
         for index, row in csv_df.iterrows():
             cpf = remover_mascara_cpf(row['CPF'])
-            nome = row['Cliente']
-            data_nasc = formatar_data(row['Dt Nasc'])
-            celular = row['Celular']
+            nome = None
+            data_nasc = None
+            celular = None
 
             verificar_cliente_existente = enviar_request("GET", "/microservicos/clientes", params={"cpf": cpf}, retornarResponse=True)
 
             if verificar_cliente_existente.status_code == 204:
-                body = {
-                    "cpf": cpf,
-                    "nome": nome,
-                    "data_nasc": data_nasc,
-                    "celular": celular
-                }
-                enviar_request("POST", "/microservicos/clientes", body)
-            
-            # print(f"{counter} - tentando fazer a consulta...")
+                if (
+                    pd.isna(row['Cliente']) or
+                    pd.isna(row['Dt Nasc']) or
+                    pd.isna(row['Celular']) or
+                    row['Cliente'] == "" or
+                    row['Dt Nasc'] == "" or
+                    row['Celular'] == ""
+                ):
+
+                    body = {"cpf": cpf}
+
+                    dadosCliente = enviar_request("POST", "/microservicos/clientes/novavida", body, retornarResponse=True)
+
+                    if dadosCliente:
+                        nome = dadosCliente.json().get("nome")
+                        data_nasc = dadosCliente.json().get("data_nasc")
+                        celular = dadosCliente.json().get("celular")
+                else:
+                    body = {
+                        "cpf": cpf,
+                        "nome": row['Cliente'],
+                        "data_nasc": formatar_data(row['Dt Nasc']),
+                        "celular": row['Celular']
+                    }
+                    enviar_request("POST", "/microservicos/clientes", body)
+
+                    # setando o valor das variaveis
+                    nome: row['Cliente']
+                    data_nasc: formatar_data(row['Dt Nasc'])
+                    celular: row['Celular']
 
             bodyConsulta = {
                 "id_promotor": self.id_promotor,
