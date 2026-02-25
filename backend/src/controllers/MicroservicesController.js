@@ -5,6 +5,7 @@ import ClientesService from "../services/ClientesService.js";
 import { ZodError } from "zod";
 import { ValidarBodyCliente } from "../middleware/ValidarBodyCliente.js";
 import ConsultasLoteService from "../services/ConsultasLoteService.js";
+import NovaVidaService from "../services/integrations/NovaVidaService.js";
 
 class MicroservicesController {
     async Consultar(req, res) {
@@ -73,6 +74,31 @@ class MicroservicesController {
                 });
             }
 
+            if (err instanceof HttpException) {
+                return res.status(err.status).json({ erro: err.message });
+            }
+
+            return res.status(500).json({ erro: err.message });
+        }
+    }
+
+    async RegistrarClienteComNV(req, res) {
+        try {
+            const { cpf } = req.body;
+
+            const clienteExistente = await ClientesService.procurarCpf(cpf);
+            if (clienteExistente) {
+                throw new HttpException("Esse cliente já existe no nosso banco de dados", 409);
+            }
+
+            const clienteNV = await NovaVidaService.BuscarDados(cpf);
+
+            await ClientesService.criarClienteNovaVida(clienteNV, cpf);
+
+            const response = await ClientesService.procurarCpf(cpf);
+
+            return res.status(200).json(response)
+        } catch(err) {
             if (err instanceof HttpException) {
                 return res.status(err.status).json({ erro: err.message });
             }
