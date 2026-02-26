@@ -360,6 +360,16 @@ class NossaFintechService {
 
             await PropostasRepository.create(bodyDB);
 
+            const consulta = await ConsultasFGTSRepository.SearchByFinancialId(data.financialId);
+            const newBodyConsulta = ({
+                ...consulta,
+
+                elegivelProposta: 0,
+                mensagem: "Já foi digitada uma proposta para esse cliente, refaça a simulação se quiser fazer uma nova proposta."
+            })
+
+            await ConsultasFGTSRepository.UpdateByFinancialId(data.financialId, newBodyConsulta);
+
             return;
         } catch (err) {
             if(axios.isAxiosError(err)) {

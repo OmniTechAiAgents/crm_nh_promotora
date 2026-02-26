@@ -73,6 +73,17 @@ class ConsultasFGTSRepository {
             }
         )
     }
+
+    async UpdateByFinancialId(financialId, data) {
+        return Cpfs_individuais.update(
+            data,
+            {
+                where: {
+                    chave: financialId
+                }
+            }
+        )
+    }
 }
 
 export default new ConsultasFGTSRepository();
