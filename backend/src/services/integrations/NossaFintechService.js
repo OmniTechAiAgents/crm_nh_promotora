@@ -205,9 +205,22 @@ class NossaFintechService {
                 elegivelProposta: true
             }
 
-            const retorno = await ConsultasFGTSRepository.Create(bodyDB);
+            const consultaDuplicada = await ConsultasFGTSRepository.SearchDuplicates(bodyDB.cpf, bodyDB.banco, bodyDB.API);
+            if (consultaDuplicada) {
+                const bodyUpdate = ({
+                    id: consultaDuplicada.dataValues.id,
+                                
+                    ...bodyDB
+                })
+            
+                await ConsultasFGTSRepository.Update(consultaDuplicada.dataValues.id, bodyUpdate);
+            
+                const objConsultaDB = await ConsultasFGTSRepository.SearchDuplicates(bodyDB.cpf, bodyDB.banco, bodyDB.API);
+            
+                return objConsultaDB;
+            }
 
-            return retorno;
+            return await ConsultasFGTSRepository.Create(bodyDB);
         } catch (err) {
             let status = 500;
             let message = "Erro inesperado ao realizar a simulação";

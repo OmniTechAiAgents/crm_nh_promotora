@@ -201,9 +201,22 @@ class VCTexServices {
                 elegivelProposta: true
             }
 
-            const retorno = await ConsultasFGTSRepository.Create(response);
+            const consultaDuplicada = await ConsultasFGTSRepository.SearchDuplicates(response.cpf, response.banco, response.API);
+            if (consultaDuplicada) {
+                const bodyUpdate = ({
+                    id: consultaDuplicada.dataValues.id,
+                    
+                    ...response
+                })
 
-            return retorno;
+                await ConsultasFGTSRepository.Update(consultaDuplicada.dataValues.id, bodyUpdate);
+
+                const objConsultaDB = await ConsultasFGTSRepository.SearchDuplicates(response.cpf, response.banco, response.API);
+
+                return objConsultaDB;
+            }
+            
+            return await ConsultasFGTSRepository.Create(response);
         } catch (err) {
             let status = 500;
             let message = "Erro inesperado ao realizar a simulação";
