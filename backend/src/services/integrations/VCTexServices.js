@@ -201,9 +201,22 @@ class VCTexServices {
                 elegivelProposta: true
             }
 
-            const retorno = await ConsultasFGTSRepository.Create(response);
+            const consultaDuplicada = await ConsultasFGTSRepository.SearchDuplicates(response.cpf, response.banco, response.API);
+            if (consultaDuplicada) {
+                const bodyUpdate = ({
+                    id: consultaDuplicada.dataValues.id,
+                    
+                    ...response
+                })
 
-            return retorno;
+                await ConsultasFGTSRepository.Update(consultaDuplicada.dataValues.id, bodyUpdate);
+
+                const objConsultaDB = await ConsultasFGTSRepository.SearchDuplicates(response.cpf, response.banco, response.API);
+
+                return objConsultaDB;
+            }
+            
+            return await ConsultasFGTSRepository.Create(response);
         } catch (err) {
             let status = 500;
             let message = "Erro inesperado ao realizar a simulação";
@@ -331,6 +344,17 @@ class VCTexServices {
             
             // apos verificar o status, passa para recuperar as informacoes com o link de formalizacao
             await this.AtualizarRegistroPropostaDB(response.data.data.proposalcontractNumber, response.data.data.proposalId, userId)
+
+            // apos a proposta ser concluída, muda o status da consulta na tabela "cpfs_individuais"
+            const consulta = await ConsultasFGTSRepository.SearchByFinancialId(data.financialId);
+            const newBodyConsulta = ({
+                ...consulta,
+
+                elegivelProposta: 0,
+                mensagem: "Já foi digitada uma proposta para esse cliente, refaça a simulação se quiser fazer uma nova proposta."
+            })
+
+            await ConsultasFGTSRepository.UpdateByFinancialId(data.financialId, newBodyConsulta);
 
             return true;
         } catch (err) {

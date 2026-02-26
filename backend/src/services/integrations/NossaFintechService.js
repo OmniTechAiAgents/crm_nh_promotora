@@ -205,9 +205,22 @@ class NossaFintechService {
                 elegivelProposta: true
             }
 
-            const retorno = await ConsultasFGTSRepository.Create(bodyDB);
+            const consultaDuplicada = await ConsultasFGTSRepository.SearchDuplicates(bodyDB.cpf, bodyDB.banco, bodyDB.API);
+            if (consultaDuplicada) {
+                const bodyUpdate = ({
+                    id: consultaDuplicada.dataValues.id,
+                                
+                    ...bodyDB
+                })
+            
+                await ConsultasFGTSRepository.Update(consultaDuplicada.dataValues.id, bodyUpdate);
+            
+                const objConsultaDB = await ConsultasFGTSRepository.SearchDuplicates(bodyDB.cpf, bodyDB.banco, bodyDB.API);
+            
+                return objConsultaDB;
+            }
 
-            return retorno;
+            return await ConsultasFGTSRepository.Create(bodyDB);
         } catch (err) {
             let status = 500;
             let message = "Erro inesperado ao realizar a simulação";
@@ -346,6 +359,16 @@ class NossaFintechService {
             })
 
             await PropostasRepository.create(bodyDB);
+
+            const consulta = await ConsultasFGTSRepository.SearchByFinancialId(data.financialId);
+            const newBodyConsulta = ({
+                ...consulta,
+
+                elegivelProposta: 0,
+                mensagem: "Já foi digitada uma proposta para esse cliente, refaça a simulação se quiser fazer uma nova proposta."
+            })
+
+            await ConsultasFGTSRepository.UpdateByFinancialId(data.financialId, newBodyConsulta);
 
             return;
         } catch (err) {

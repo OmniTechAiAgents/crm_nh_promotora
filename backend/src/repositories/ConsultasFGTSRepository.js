@@ -52,6 +52,38 @@ class ConsultasFGTSRepository {
             totalPages: Math.ceil(result.count / limite)
         }
     }
+
+    async SearchDuplicates(cpf, banco, API) {
+        return Cpfs_individuais.findOne({
+            where: {
+                cpf,
+                banco,
+                API
+            }
+        })
+    }
+
+    async Update(id, data) {
+        return Cpfs_individuais.update(
+            data,
+            {
+                where: {
+                    id
+                }
+            }
+        )
+    }
+
+    async UpdateByFinancialId(financialId, data) {
+        return Cpfs_individuais.update(
+            data,
+            {
+                where: {
+                    chave: financialId
+                }
+            }
+        )
+    }
 }
 
 export default new ConsultasFGTSRepository();

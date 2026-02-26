@@ -9,6 +9,7 @@ MicroservicesRoutes.post("/consulta/FGTS", AuthenticateApiKey, MicroservicesCont
 
 MicroservicesRoutes.get("/clientes", AuthenticateApiKey, MicroservicesController.ProcurarClientePorCpf);
 MicroservicesRoutes.post("/clientes", AuthenticateApiKey, MicroservicesController.RegistrarNovoCliente);
+MicroservicesRoutes.post("/clientes/novavida", AuthenticateApiKey, MicroservicesController.RegistrarClienteComNV);
 
 MicroservicesRoutes.patch("/consultas_lote", AuthenticateApiKey, MicroservicesController.EditarRegistroDeConsulta);
 
