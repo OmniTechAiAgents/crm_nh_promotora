@@ -70,8 +70,8 @@ class VCTexServices {
         try {
             // desativar algum se a API for chata com requisicoes enviadas rapidamente
             const players = [
-                { code: "CDC", enabled: true },
                 { code: "QITECH", enabled: true },
+                { code: "CDC", enabled: true },
                 { code: "QITECH_DTVM", enabled: true }
             ];
 
