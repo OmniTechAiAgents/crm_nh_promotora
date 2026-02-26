@@ -1,5 +1,6 @@
 import { useState } from "react";
 import api from "../../api/client";
+import { criarPropostaFGTS } from "../../services/fgtsService";
 import "./fgtsProposta.css";
 
 export default function FgtsProposta({
@@ -98,26 +99,21 @@ export default function FgtsProposta({
 
     console.table(body);
 
-    await api.post(
-      `/propostas/fgts`,
-      body,
-      {
-        params: { financialId },
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    await criarPropostaFGTS(financialId, body);
 
     alert("Proposta criada com sucesso!");
     onSuccess?.();
 
   } catch (err) {
-    console.error(err.response?.data || err);
-    alert(
-      err.response?.data?.msg ||
-      "Erro ao criar proposta"
-    );
+    const status = err.response?.status;
+
+    if (status === 424) {
+      alert(err.response?.data?.msg || "Erro de dependência (424).");
+      return;
+    }
+
+    alert(err.response?.data?.msg || "Erro ao criar proposta");
+
   } finally {
     setLoading(false);
   }

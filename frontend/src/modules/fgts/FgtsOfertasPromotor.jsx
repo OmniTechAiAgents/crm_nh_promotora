@@ -20,7 +20,7 @@ export default function FgtsOfertasPromotor() {
       setLoading(true);
 
       const response = await api.get(
-        `/consultas/FGTS/manual?pagina=${pagina}&limite=25&elegivelOferta=true`
+        `/consultas/FGTS/manual?pagina=${pagina}&limite=25&elegivelProposta=true`
       );
 
       setOfertas(response.data.data || []);

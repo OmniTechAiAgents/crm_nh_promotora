@@ -7,20 +7,43 @@ import "./fgts.css";
 function normalizarCPF(cpfInput) {
   if (!cpfInput) return "";
 
-  // Remove tudo que não é número
   let somenteNumeros = cpfInput.replace(/\D/g, "");
 
-  // Preenche com zeros à esquerda até completar 11 caracteres
   while (somenteNumeros.length < 11) {
     somenteNumeros = "0" + somenteNumeros;
   }
 
-  // Corta se tiver mais de 11 caracteres
   if (somenteNumeros.length > 11) {
     somenteNumeros = somenteNumeros.slice(0, 11);
   }
 
   return somenteNumeros;
+}
+
+// Função utilitária para extrair mensagem de erro corretamente
+function getErrorMessage(error) {
+  const status = error.response?.status;
+  const data = error.response?.data;
+
+  if (status === 401) {
+    return "Sessão expirada. Faça login novamente.";
+  }
+
+  if (!data) {
+    return error.message || "Erro inesperado.";
+  }
+
+  if (typeof data === "string") {
+    return data;
+  }
+
+  return (
+    data.message ||
+    data.motivo ||
+    data.erro ||
+    data.mensagem ||
+    "Erro ao consultar backend."
+  );
 }
 
 export default function FgtsConsulta() {
@@ -37,7 +60,6 @@ export default function FgtsConsulta() {
     try {
       setLoading(true);
 
-      // Busca token salvo no login
       const authData = JSON.parse(localStorage.getItem("auth_data"));
       const token = authData?.token;
 
@@ -49,21 +71,15 @@ export default function FgtsConsulta() {
         return;
       }
 
-      // Requisição ao backend
       const { data } = await api.post(
         "/consultas/FGTS/manual",
         {
           cpf: cpfNormalizado,
           instituicao,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         }
       );
 
-      // FRONT NÃO USA RETORNO TÉCNICO DO BANCO
+      // Definição de status de negócio
       let status = "NAO_ELEGIVEL";
 
       if (data.proposta_id) {
@@ -76,17 +92,11 @@ export default function FgtsConsulta() {
         status,
         cpf: data.cpf,
         instituicaoEscolhida: instituicao,
-
         valorLiquido: data.valor_liquido,
         valorBruto: data.valor_bruto,
-
         anuidades: data.anuidades || [],
-
         propostaId: data.proposta_id || null,
-
-        // CARREGANDO FINANCIALID, ESSENCIAL PARA PRÓXIMA ETAPA
         financialId: data.chave,
-
         motivoErro: data.motivo || null,
       };
 
@@ -95,25 +105,11 @@ export default function FgtsConsulta() {
     } catch (err) {
       console.error("ERRO CONSULTA:", err);
 
-      const status = err.response?.status;
-      const data = err.response?.data;
-
-      let motivoErro = "Erro ao consultar backend";
-
-      if (status === 401) {
-        motivoErro = "Sessão expirada. Faça login novamente.";
-      } else if (data) {
-        if (typeof data === "object") {
-          motivoErro = data.motivo || data.erro || data.mensagem || JSON.stringify(data);
-        } else if (typeof data === "string") {
-          motivoErro = data;
-        }
-      }
-
       setResultado({
         status: "ERRO",
-        motivoErro,
+        motivoErro: getErrorMessage(err),
       });
+
     } finally {
       setLoading(false);
     }
@@ -131,7 +127,7 @@ export default function FgtsConsulta() {
             placeholder="Digite o CPF"
             value={cpf}
             onChange={(e) => setCpf(e.target.value)}
-            maxLength={14} // permite digitar pontos/traços, será normalizado
+            maxLength={14}
           />
         </div>
 
