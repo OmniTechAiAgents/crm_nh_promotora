@@ -92,8 +92,7 @@ export default function FgtsEsteira() {
 
       await api.patch(
         "/propostas/FGTS/cancelar",
-        { proposalId: propostaSelecionada.proposal_id },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { proposalId: propostaSelecionada.proposal_id }
       );
 
       setMostrarConfirmacao(false);

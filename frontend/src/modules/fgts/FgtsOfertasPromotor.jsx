@@ -12,6 +12,7 @@ export default function FgtsOfertasPromotor() {
 
   useEffect(() => {
     buscarOfertas();
+    setOfertaSelecionada(null); // limpa seleção ao trocar página
   }, [pagina]);
 
   const buscarOfertas = async () => {
@@ -19,7 +20,7 @@ export default function FgtsOfertasPromotor() {
       setLoading(true);
 
       const response = await api.get(
-        `/consultas/FGTS/manual?pagina=${pagina}&limite=25&elegivelOferta=true`
+        `/consultas/FGTS/manual?pagina=${pagina}&limite=25&elegivelProposta=true`
       );
 
       setOfertas(response.data.data || []);
@@ -31,7 +32,7 @@ export default function FgtsOfertasPromotor() {
     }
   };
 
-  // Adapter para o formato do Card
+  // Adapter para o formato esperado pelo FgtsResultadoCard
   const adaptarResultado = (item) => {
     return {
       status: item.elegivelProposta ? "ELEGIVEL" : "NAO_ELEGIVEL",
@@ -57,54 +58,69 @@ export default function FgtsOfertasPromotor() {
         <p>Nenhuma oferta encontrada.</p>
       )}
 
-      {/* LISTA */}
-      <div className="lista-ofertas">
-        {ofertas.map((item) => (
-          <div key={item.id} className="linha-oferta">
-            <span
-              className="cpf-link"
-              onClick={() =>
-                setOfertaSelecionada(
-                  ofertaSelecionada?.id === item.id ? null : item
-                )
-              }
+      <div className="fgts-layout">
+        {/* COLUNA ESQUERDA */}
+        <div className="fgts-lista">
+          <div className="lista-ofertas">
+            {ofertas.map((item) => (
+              <div
+                key={item.id}
+                className={`linha-oferta ${
+                  ofertaSelecionada?.id === item.id ? "ativa" : ""
+                }`}
+              >
+                <span
+                  className="cpf-link"
+                  onClick={() =>
+                    setOfertaSelecionada(
+                      ofertaSelecionada?.id === item.id ? null : item
+                    )
+                  }
+                >
+                  {item.cpf}
+                </span>
+
+                <span>
+                  R$ {Number(item.valor_liquido || 0).toFixed(2)}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {/* PAGINAÇÃO */}
+          <div className="paginacao">
+            <button
+              disabled={pagina === 1}
+              onClick={() => setPagina(pagina - 1)}
             >
-              {item.cpf}
-            </span>
+              Anterior
+            </button>
 
             <span>
-              R$ {Number(item.valor_liquido || 0).toFixed(2)}
+              Página {pagina} de {totalPages}
             </span>
+
+            <button
+              disabled={pagina === totalPages}
+              onClick={() => setPagina(pagina + 1)}
+            >
+              Próxima
+            </button>
           </div>
-        ))}
-      </div>
+        </div>
 
-      {/* CARD */}
-      {ofertaSelecionada && (
-        <FgtsResultadoCard
-          resultado={adaptarResultado(ofertaSelecionada)}
-        />
-      )}
-
-      {/* Paginação simples */}
-      <div className="paginacao">
-        <button
-          disabled={pagina === 1}
-          onClick={() => setPagina(pagina - 1)}
-        >
-          Anterior
-        </button>
-
-        <span>
-          Página {pagina} de {totalPages}
-        </span>
-
-        <button
-          disabled={pagina === totalPages}
-          onClick={() => setPagina(pagina + 1)}
-        >
-          Próxima
-        </button>
+        {/* COLUNA DIREITA */}
+        <div className="fgts-detalhe">
+          {ofertaSelecionada ? (
+            <FgtsResultadoCard
+              resultado={adaptarResultado(ofertaSelecionada)}
+            />
+          ) : (
+            <div className="placeholder">
+              <p>Selecione um CPF para visualizar os detalhes</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

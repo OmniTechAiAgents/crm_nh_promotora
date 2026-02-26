@@ -1,31 +1,225 @@
 .users-container {
-  padding: 30px;
+  width: 100%;
+  max-width: 1000px;
+  padding: 20px;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
+.users-container h1 {
+  font-size: 22px;
+  margin-bottom: 20px;
+  color: #1f2937;
+}
+
+/* 🔎 Busca */
 .users-busca {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
-.users-table-card {
-  background: white;
+.users-busca input {
+  flex: 1;
+  min-width: 220px;
+  padding: 12px;
   border-radius: 8px;
-  padding: 20px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  transition: 0.2s ease;
 }
 
+.users-busca input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.users-busca button {
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: none;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s ease;
+  background: linear-gradient(90deg, #26502d, #2e7d32);
+  color: white;
+}
+
+.users-busca button:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* Segundo botão (Limpar) */
+.users-busca button:last-child {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.users-busca button:last-child:hover {
+  background: #d1d5db;
+}
+
+/* 📦 Card da tabela */
+.users-table-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+/* 📊 Tabela */
 .users-table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.users-table th,
-.users-table td {
-  padding: 10px;
-  border-bottom: 1px solid #eee;
+.users-table thead {
+  background: #f9fafb;
+}
+
+.users-table th {
+  padding: 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 1px solid #e5e7eb;
   text-align: center;
 }
 
+.users-table td {
+  padding: 14px;
+  font-size: 14px;
+  color: #4b5563;
+  border-bottom: 1px solid #f3f4f6;
+  text-align: center;
+}
+
+.users-table tr:hover {
+  background: #f9fafb;
+}
+
+/* 🔵 Paginação */
 .active-page {
-  font-weight: bold;
+  background: #2e7d32;
+  color: white;
+  border-radius: 6px;
+  padding: 6px 10px;
+}
+
+/* ✏️ Botão editar */
+.editar-btn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s ease;
+  background: #eff6ff;
+  color: #2e7d32;
+}
+
+.editar-btn:hover {
+  background: #dbeafe;
+}
+
+/* ========================= */
+/* 🔧 ESTILIZAÇÃO DA EDIÇÃO */
+/* ========================= */
+
+.editar-container {
+  width: 100%;
+  max-width: 520px;
+  padding: 20px;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.editar-container h2 {
+  font-size: 20px;
+  margin-bottom: 20px;
+  color: #1f2937;
+}
+
+.editar-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.form-group input,
+.form-group select {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  transition: 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #2e7d32;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+/* Botão salvar padrão sistema */
+.btn-salvar {
+  padding: 14px;
+  border-radius: 10px;
+  border: none;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.2s ease;
+  background: linear-gradient(90deg, #41915b, #2e7d32);
+  color: white;
+}
+
+.btn-salvar:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btn-salvar:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* Loading e mensagem */
+.loading-text {
+  padding: 20px;
+  color: #6b7280;
+}
+
+.mensagem {
+  margin-top: 15px;
+  font-size: 14px;
+  color: #374151;
+}
+
+/* 🎬 Animação padrão */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
