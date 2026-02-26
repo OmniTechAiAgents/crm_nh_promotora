@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import api from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
 import "./Users.css";
+import { useNavigate } from "react-router-dom";
 
 export default function UsersList() {
   const { token } = useAuth();
+  const navigate = useNavigate();
 
   const [usuarios, setUsuarios] = useState([]);
   const [pagina, setPagina] = useState(1);
@@ -18,8 +20,7 @@ export default function UsersList() {
       setLoading(true);
 
       const response = await api.get("/usuarios", {
-        params: { pesquisa, pagina, limite },
-        headers: { Authorization: `Bearer ${token}` },
+        params: { pesquisa, pagina, limite }
       });
 
       setUsuarios(response.data?.data || []);
@@ -46,6 +47,10 @@ export default function UsersList() {
     setPesquisa("");
     setPagina(1);
     fetchUsuarios();
+  }
+
+  function handleEditar(user) {
+    navigate(`/usuarios/${user.id}/editar`);
   }
 
   function renderPagination() {

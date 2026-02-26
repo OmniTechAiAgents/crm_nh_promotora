@@ -29,3 +29,39 @@
 .active-page {
   font-weight: bold;
 }
+
+.editar-container {
+  padding: 20px;
+  max-width: 500px;
+}
+
+.editar-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group input,
+.form-group select {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.btn-salvar {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.loading-text {
+  padding: 20px;
+}
+
+.mensagem {
+  margin-top: 15px;
+}

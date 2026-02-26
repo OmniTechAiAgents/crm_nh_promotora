@@ -3,6 +3,8 @@ import CreateUser from "../pages/CreateUsers";
 import FgtsEsteira from "../modules/fgts/FgtsEsteira";
 import UsersList from "../modules/users/UsersList";
 import AdminFgtsLotePage from "../pages/admin/AdminFgtsLotePage";
+import EditarUsuario from "../modules/users/EditarUsuario";
+
 
 export const routesConfig = [
   {
@@ -39,6 +41,13 @@ export const routesConfig = [
   permission: "USER_MANAGE",
   showInMenu: true,
   element: <AdminFgtsLotePage />
+},
+{
+  path: "/usuarios/editar/:id",
+  label: "Editar Usuário",
+  permission: "USER_MANAGE",
+  showInMenu: false, // importante para não aparecer no menu
+  element: <EditarUsuario />
 }
 
 
