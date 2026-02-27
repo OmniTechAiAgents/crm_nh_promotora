@@ -5,6 +5,7 @@ import UsersList from "../modules/users/UsersList";
 import AdminFgtsLotePage from "../pages/admin/AdminFgtsLotePage";
 import EditarUsuario from "../modules/users/EditarUsuario";
 import FgtsOfertasPromotor from "../modules/fgts/FgtsOfertasPromotor";
+import RegistrarNovoCliente from "../modules/clientes/RegistrarNovoCliente";
 
 
 export const routesConfig = [
@@ -56,6 +57,13 @@ export const routesConfig = [
   permission: "FGTS_VIEW",
   showInMenu: true,
   element: <FgtsOfertasPromotor />
+},
+{
+  path: "/registro-cliente",
+  label: "Registrar novo cliente",
+  permission: "FGTS_VIEW",
+  showInMenu: true,
+  element: <RegistrarNovoCliente />
 }
 
 ];
