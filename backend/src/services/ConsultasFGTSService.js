@@ -12,10 +12,10 @@ class ConsultasFGTSService {
         
             switch (instituicao) {
                 case "VCTex":
-                    resultadoRaw = await VCTexServices.Simulacao(data.cpf, userData.id);
+                    resultadoRaw = await VCTexServices.Simulacao(data.cpf, userData.id, data.id_consulta_lote);
                     break;
                 case "Nossa fintech":
-                    resultadoRaw = await NossaFintechService.Simulacao(data.cpf, userData.id);
+                    resultadoRaw = await NossaFintechService.Simulacao(data.cpf, userData.id, data.id_consulta_lote);
                     break;
                 default:
                     console.error("Instituição não encontrada");

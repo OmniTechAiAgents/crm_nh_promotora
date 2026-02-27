@@ -97,7 +97,8 @@ class consulta_lote_service:
             bodyConsulta = {
                 "id_promotor": self.id_promotor,
                 "cpf": cpf,
-                "instituicao": self.instituicao
+                "instituicao": self.instituicao,
+                "id_consulta_lote": self.id_registro_db
             }
             consulta = enviar_request("POST", "/microservicos/consulta/FGTS", bodyConsulta, retornarResponse=True)
             if consulta.status_code == 200:
