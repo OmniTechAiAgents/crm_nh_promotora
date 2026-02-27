@@ -1,0 +1,28 @@
+.criar-cliente-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 100px;
+    width: 100%;
+    height: 100%;
+}
+
+.input-group-registro-cliente {
+    margin-top: 25px !important;
+}
+
+.input-group-registro-cliente label {
+    font-size: 1.5vw !important;
+    margin-bottom: 0 !important;
+}
+
+.criar-cliente-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.btn-registrar-cliente {
+    margin-top: 15px;
+    align-self: flex-start;
+}

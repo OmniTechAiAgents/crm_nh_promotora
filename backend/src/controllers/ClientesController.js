@@ -1,6 +1,7 @@
 import { ValidarBodyCliente } from "../middleware/ValidarBodyCliente.js";
 import ClientesService from "../services/ClientesService.js";
 import HttpException from "../utils/HttpException.js";
+import { ZodError } from "zod";
 
 class ClientesController {
     async CriarClienteDB(req, res) {
