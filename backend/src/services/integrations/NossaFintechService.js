@@ -68,7 +68,7 @@ class NossaFintechService {
         }
     }
 
-    async Simulacao(cpf, userId) {
+    async Simulacao(cpf, userId, id_consulta_lote) {
         //userUsername
         try {
             const players = [
@@ -202,7 +202,8 @@ class NossaFintechService {
                 banco: usedPlayer,
                 API: "Nossa fintech",
                 mensagem: "Consulta realizada com sucesso!",
-                elegivelProposta: true
+                elegivelProposta: true,
+                id_consulta_lote: id_consulta_lote
             }
 
             const consultaDuplicada = await ConsultasFGTSRepository.SearchDuplicates(bodyDB.cpf, bodyDB.banco, bodyDB.API);
@@ -247,7 +248,8 @@ class NossaFintechService {
                 banco: null,
                 API: "Nossa fintech",
                 mensagem: message,
-                elegivelProposta: false
+                elegivelProposta: false,
+                id_consulta_lote: id_consulta_lote
             };
 
             await ConsultasFGTSRepository.Create(response);

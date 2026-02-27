@@ -66,7 +66,7 @@ class VCTexServices {
         }
     }
 
-    async Simulacao(cpf, userId) {
+    async Simulacao(cpf, userId, id_consulta_lote) {
         try {
             // desativar algum se a API for chata com requisicoes enviadas rapidamente
             const players = [
@@ -198,7 +198,8 @@ class VCTexServices {
                 banco: usedPlayer,
                 API: "VCTex",
                 mensagem: "Consulta realizada com sucesso!",
-                elegivelProposta: true
+                elegivelProposta: true,
+                id_consulta_lote: id_consulta_lote
             }
 
             const consultaDuplicada = await ConsultasFGTSRepository.SearchDuplicates(response.cpf, response.banco, response.API);
@@ -242,7 +243,8 @@ class VCTexServices {
                 banco: null,
                 API: "VCTex",
                 mensagem: message,
-                elegivelProposta: false
+                elegivelProposta: false,
+                id_consulta_lote: id_consulta_lote
             };
 
             await ConsultasFGTSRepository.Create(response);

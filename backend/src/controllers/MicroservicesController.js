@@ -10,7 +10,7 @@ import NovaVidaService from "../services/integrations/NovaVidaService.js";
 class MicroservicesController {
     async Consultar(req, res) {
         try {
-            const { id_promotor, cpf, instituicao } = req.body;
+            const { id_promotor, cpf, instituicao, id_consulta_lote } = req.body;
 
             // recupera todas as informações do promotor a quem foi atribuido a consulta
             const usuario = await AuthService.BuscarUsuarioPorId(id_promotor);
@@ -20,7 +20,8 @@ class MicroservicesController {
 
             const bodyConsulta = ({
                 cpf: cpf,
-                instituicao: instituicao
+                instituicao: instituicao,
+                id_consulta_lote: id_consulta_lote
             })
 
             // chama a função de consulta FGTS no service de FGTS
