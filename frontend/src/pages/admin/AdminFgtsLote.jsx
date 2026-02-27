@@ -178,6 +178,13 @@ export default function AdminFgtsLote() {
           <p><strong>Admin:</strong> {detalhe.admin?.username}</p>
           <p><strong>Promotor:</strong> {detalhe.promotor?.username}</p>
 
+          <br />
+          <h3>Detalhes financeiros do lote</h3>
+          <p><strong>Qtd. clientes elegiveis:</strong> {detalhe.resumo.quantidade}</p>
+          <p><strong>Saldo total:</strong> R${detalhe.resumo.saldoTotal}</p>
+          <p><strong>Valor bruto total:</strong> R${detalhe.resumo.valorBrutoTotal}</p>
+          <p><strong>Valor líquido total:</strong> R${detalhe.resumo.valorLiquidoTotal}</p>
+
           <button
             className="btn-admin"
             style={{ marginTop: 15 }}
