@@ -39,7 +39,40 @@ class ConsultasLoteService {
 
             const result = await ConsultasLoteRepository.SearchPagination(pesquisa, limit, offset);
 
-            return result;
+            const newData = result.data.map((lote) => {
+
+                const loteJson = lote.toJSON();
+
+                const consultas = loteJson.consultas || [];
+
+                const resumo = consultas.reduce((acc, consulta) => {
+
+                    acc.quantidade += 1;
+                    acc.saldoTotal += Number(consulta.saldo) || 0;
+                    acc.valorBrutoTotal += Number(consulta.valor_bruto) || 0;
+                    acc.valorLiquidoTotal += Number(consulta.valor_liquido) || 0;
+
+                    return acc;
+
+                }, {
+                    quantidade: 0,
+                    saldoTotal: 0,
+                    valorBrutoTotal: 0,
+                    valorLiquidoTotal: 0
+                });
+
+                delete loteJson.consultas;
+
+                return {
+                    ...loteJson,
+                    resumo
+                };
+            });
+
+            return {
+                ...result,
+                data: newData
+            };
         } catch(err) {
             throw err;
         }

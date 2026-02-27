@@ -1,5 +1,6 @@
 import Consultas_lote from "../models/Consultas_lote.js";
 import Usuario from "../models/Usuario.js";
+import Cpfs_individuais from "../models/Cpfs_individuais.js";
 
 class ConsultasLoteRepository {
     async create(data) {
@@ -48,6 +49,14 @@ class ConsultasLoteRepository {
                     model: Usuario,
                     as: 'promotor',
                     attributes: { exclude: ['password'] }
+                },
+                {
+                    model: Cpfs_individuais,
+                    as: 'consultas',
+                    where: {
+                        elegivelProposta: 1
+                    },
+                    required: false // MUITO importante
                 }
             ],
             limit: limite,
