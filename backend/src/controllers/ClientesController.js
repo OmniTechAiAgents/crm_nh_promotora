@@ -43,13 +43,9 @@ class ClientesController {
         try {
             const cpf = req.query.cpf;
 
-            console.log(cpf);
-
             const resultBuscaCliente = await ClientesService.procurarCpf(cpf); 
             if (!resultBuscaCliente || resultBuscaCliente?.length === 0) {
                 const dadosCliente = await NovaVidaService.BuscarDados(cpf);
-            
-                console.log(dadosCliente)
 
                 if(dadosCliente.CONSULTA == "Não Autorizado") {
                     throw new HttpException("Não foi possível recuperar os dados do cliente na API do Nova Vida, será necessário fazer o cadastro do cliente manualmente.", 424);

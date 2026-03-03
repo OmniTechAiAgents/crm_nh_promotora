@@ -3,6 +3,8 @@ import api from "../../api/client";
 import FgtsResultadoCard from "./FgtsResultadoCard";
 import React from "react";
 import "./fgts.css";
+import Modal from "../../components/Modal";
+import ModalCliente from "../clientes/ModalCliente";
 
 export default function FgtsOfertasPromotor() {
   const [ofertas, setOfertas] = useState([]);
@@ -10,6 +12,8 @@ export default function FgtsOfertasPromotor() {
   const [ofertaSelecionada, setOfertaSelecionada] = useState(null);
   const [pagina, setPagina] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [openModal, setOpenModal] = useState(false);
+  const [cpfSelecionado, setCpfSelecionado] = useState(null);
 
   useEffect(() => {
     buscarOfertas();
@@ -59,6 +63,13 @@ export default function FgtsOfertasPromotor() {
         <p>Nenhuma oferta encontrada.</p>
       )}
 
+      <Modal
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        >
+          <ModalCliente cpf={cpfSelecionado} />
+      </Modal>
+
       <div className="fgts-layout">
         <table className="tabela-ofertas">
               <thead>
@@ -99,7 +110,15 @@ export default function FgtsOfertasPromotor() {
                         Criar proposta
                       </button>
 
-                      <button className="btn-acoes-oferta btn-info-cliente">Info. cliente</button>
+                      <button 
+                        className="btn-acoes-oferta btn-info-cliente"
+                        onClick={() => {
+                            setOpenModal(true)
+                            setCpfSelecionado(item.cpf)
+                          }}
+                        >
+                          Info. cliente
+                        </button>
                     </td>
                   </tr>
 
