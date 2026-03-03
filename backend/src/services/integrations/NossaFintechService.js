@@ -270,7 +270,7 @@ class NossaFintechService {
             if (!resultBuscaCliente || resultBuscaCliente?.length === 0) {
                 const dadosCliente = await NovaVidaService.BuscarDados(data.cpf);
 
-                if(dadosCliente.CONSULTA = "Não Autorizado") {
+                if(dadosCliente.CONSULTA == "Não Autorizado") {
                     throw new HttpException("Não foi possível recuperar os dados do cliente na API do Nova Vida, será necessário fazer o cadastro do cliente manualmente.", 424);
                 }
 
