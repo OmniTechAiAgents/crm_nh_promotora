@@ -172,29 +172,34 @@ export default function AdminFgtsLote() {
 
       {/* MODAL DETALHE */}
       {detalhe && (
-        <div className="admin-card" style={{ marginTop: 30 }}>
-          <h3>Detalhes do Lote #{detalhe.id}</h3>
-          <p><strong>Status:</strong> {detalhe.status}</p>
-          <p><strong>Mensagem:</strong> {detalhe.mensagem}</p>
-          <p><strong>Arquivo:</strong> {detalhe.local_path}</p>
-          <p><strong>Admin:</strong> {detalhe.admin?.username}</p>
-          <p><strong>Promotor:</strong> {detalhe.promotor?.username}</p>
+        <>
+          <div className="overlay" onClick={() => setDetalhe(null)}></div>
+          <div className="admin-modal-fgts-lote" style={{ marginTop: 30 }}>
+            <h3>Detalhes do Lote #{detalhe.id}</h3>
 
-          <br />
-          <h3>Detalhes financeiros do lote</h3>
-          <p><strong>Qtd. clientes elegiveis:</strong> {detalhe.resumo.quantidade}</p>
-          <p><strong>Saldo total:</strong> R${detalhe.resumo.saldoTotal}</p>
-          <p><strong>Valor bruto total:</strong> R${detalhe.resumo.valorBrutoTotal}</p>
-          <p><strong>Valor líquido total:</strong> R${detalhe.resumo.valorLiquidoTotal}</p>
+            <br />
+            <p><strong>Status:</strong> {detalhe.status}</p>
+            <p><strong>Mensagem:</strong> {detalhe.mensagem}</p>
+            <p><strong>Arquivo:</strong> {detalhe.local_path}</p>
+            <p><strong>Admin:</strong> {detalhe.admin?.username}</p>
+            <p><strong>Promotor:</strong> {detalhe.promotor?.username}</p>
 
-          <button
-            className="btn-admin"
-            style={{ marginTop: 15 }}
-            onClick={() => setDetalhe(null)}
-          >
-            Fechar
-          </button>
-        </div>
+            <br />
+            <h3>Detalhes financeiros do lote</h3>
+            <p><strong>Qtd. clientes elegiveis:</strong> {detalhe.resumo.quantidade}</p>
+            <p><strong>Saldo total:</strong> R${detalhe.resumo.saldoTotal}</p>
+            <p><strong>Valor bruto total:</strong> R${detalhe.resumo.valorBrutoTotal}</p>
+            <p><strong>Valor líquido total:</strong> R${detalhe.resumo.valorLiquidoTotal}</p>
+
+            <button
+              className="btn-admin"
+              style={{ marginTop: 15 }}
+              onClick={() => setDetalhe(null)}
+            >
+              Fechar
+            </button>
+          </div>
+        </>
       )}
     </div>
   );

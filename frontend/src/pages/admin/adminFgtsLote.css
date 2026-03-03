@@ -144,3 +144,26 @@
 .admin-status-card.error-count {
   border-left: 5px solid #c62828;
 }
+
+/* Modal de detalhes da consulta em lote */
+.overlay {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.196);
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+}
+
+.admin-modal-fgts-lote {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 25px;
+  border-radius: 5px;
+  width: 30%;
+}
