@@ -3,6 +3,10 @@
   max-width: 520px;
   padding: 10px;
   animation: fadeIn 0.3s ease-in-out;
+  background-color: white;
+  padding: 25px;
+  padding-top: 50px;
+  border-radius: 5px;
 }
 
 .proposta-header {
