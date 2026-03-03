@@ -90,68 +90,69 @@ export default function AdminUploadFgtsLote({ onSuccess }) {
 
       <div className="admin-form">
 
-  {/* Linha 1 - Arquivo + Botão */}
-  <div className="admin-row">
-    <div className="admin-input-group">
-      <label>Arquivo CSV</label>
-      <input
-        type="file"
-        accept=".csv"
-        onChange={(e) => setFile(e.target.files[0])}
-      />
-    </div>
+        {/* Linha 1 - Arquivo + Botão */}
+        <div className="admin-row">
+          <div className="admin-input-group">
+            <label>Arquivo CSV</label>
+            <input
+              type="file"
+              accept=".csv"
+              onChange={(e) => setFile(e.target.files[0])}
+              className="update-csv-input"
+            />
+          </div>
 
-    <button
-      className="btn-admin"
-      onClick={handleUpload}
-      disabled={loading}
-    >
-      {loading ? "Enviando..." : "Enviar CSV"}
-    </button>
-  </div>
+          <button
+            className="btn-admin"
+            onClick={handleUpload}
+            disabled={loading}
+          >
+            {loading ? "Enviando..." : "Enviar CSV"}
+          </button>
+        </div>
 
-  {/* Promotor + Instituição lado a lado */}
-  <div className="admin-row">
-    <div className="admin-input-group">
-      <label>Selecionar Promotor</label>
-      <select
-        value={idPromotor}
-        onChange={(e) => setIdPromotor(e.target.value)}
-      >
-        <option value="">Selecione</option>
-        {usuarios.map((usuario) => (
-          <option key={usuario.id} value={usuario.id}>
-            {usuario.username}
-          </option>
-        ))}
-      </select>
-    </div>
+        {/* Promotor + Instituição lado a lado */}
+        <div className="admin-row">
+          <div className="admin-input-group">
+            <label>Selecionar Promotor</label>
+            <select
+              value={idPromotor}
+              onChange={(e) => setIdPromotor(e.target.value)}
+            >
+              <option value="">Selecione</option>
+              {usuarios.map((usuario) => (
+                <option key={usuario.id} value={usuario.id}>
+                  {usuario.username}
+                </option>
+              ))}
+            </select>
+          </div>
 
-    <div className="admin-input-group">
-      <label>Instituição</label>
-      <select
-        value={instituicao}
-        onChange={(e) => setInstituicao(e.target.value)}
-      >
-        <option value="VCTex">VCTex</option>
-        <option value="Nossa fintech">Nossa Fintech</option>
-      </select>
-    </div>
-  </div>
+          <div className="admin-input-group">
+            <label>Instituição</label>
+            <select
+              value={instituicao}
+              onChange={(e) => setInstituicao(e.target.value)}
+            >
+              <option value="VCTex">VCTex</option>
+              <option value="Nossa fintech">Nossa Fintech</option>
+            </select>
+          </div>
+        </div>
 
-  {mensagem && (
-    <div className="admin-card success">
-      {mensagem}
-    </div>
-  )}
+        {mensagem && (
+          <div className="admin-card success">
+            {mensagem}
+          </div>
+        )}
 
-  {erro && (
-    <div className="admin-card error">
-      {erro}
-    </div>
-  )}
+        {erro && (
+          <div className="admin-card error">
+            {erro}
+          </div>
+        )}
 
-</div>
+      </div>
     </div>
   );
 }

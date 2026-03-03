@@ -291,28 +291,100 @@
 }
 
 .fgts-layout {
-  display: grid;
-  grid-template-columns: 380px 1fr;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   gap: 24px;
   margin-top: 20px;
 }
 
-.fgts-lista {
-  border-right: 1px solid #eee;
-  padding-right: 16px;
-  max-height: 75vh;
-  display: flex;
-  flex-direction: column;
+.tabela-ofertas {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
 }
 
-.lista-ofertas {
-  overflow-y: auto;
-  flex: 1;
+.tabela-ofertas thead {
+  background: #f9fafb;
+}
+
+.tabela-ofertas th {
+  padding: 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: center;
+}
+
+.tabela-ofertas td {
+  padding: 14px;
+  font-size: 14px;
+  color: #4b5563;
+  border-bottom: 1px solid #f3f4f6;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.tabela-ofertas tr:hover {
+  background: #f9fafb;
+}
+
+.btn-acoes-oferta {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.btn-criar-proposta {
+  background: #2e7d32;
+  color: #eff6ff;
+}
+
+.btn-criar-proposta:hover {
+  background-color: #42ab47;
+  transition: 0.3s ease background-color;
+}
+
+.btn-info-cliente {
+  margin-left: 5px;
+  background: #2e6e7d;
+  color: #eff6ff;
+}
+
+.btn-info-cliente:hover {
+  background-color: #42aba8;
+  transition: 0.3s ease background-color;
+}
+
+.expand-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  overflow: hidden;
+  transform-origin: top;
+  transition: 
+    transform 0.3s ease,
+    opacity 0.2s ease,
+    max-height 0.3s ease;
+}
+
+.linha-expandida.fechada .expand-wrapper {
+  transform: scaleY(0.9);
+  opacity: 0;
+  max-height: 0;
+}
+
+.linha-expandida.aberta .expand-wrapper {
+  transform: scaleY(1);
+  opacity: 1;
+  max-height: 1000px; /* valor alto suficiente */
 }
 
 .linha-oferta {
-  display: flex;
-  justify-content: space-between;
   padding: 12px;
   cursor: pointer;
   border-radius: 8px;
