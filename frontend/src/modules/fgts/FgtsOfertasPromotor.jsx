@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../../api/client";
 import FgtsResultadoCard from "./FgtsResultadoCard";
+import React from "react";
 import "./fgts.css";
 
 export default function FgtsOfertasPromotor() {
@@ -59,33 +60,64 @@ export default function FgtsOfertasPromotor() {
       )}
 
       <div className="fgts-layout">
-        {/* COLUNA ESQUERDA */}
-        <div className="fgts-lista">
-          <div className="lista-ofertas">
-            {ofertas.map((item) => (
-              <div
-                key={item.id}
-                className={`linha-oferta ${
-                  ofertaSelecionada?.id === item.id ? "ativa" : ""
-                }`}
-              >
-                <span
-                  className="cpf-link"
-                  onClick={() =>
-                    setOfertaSelecionada(
-                      ofertaSelecionada?.id === item.id ? null : item
-                    )
-                  }
-                >
-                  {item.cpf}
-                </span>
+        <table className="tabela-ofertas">
+              <thead>
+                <tr>
+                  <th>CPF</th>
+                  <th>Valor</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
 
-                <span>
-                  R$ {Number(item.valor_liquido || 0).toFixed(2)}
-                </span>
-              </div>
-            ))}
-          </div>
+            <tbody>
+              {ofertas.map((item) => (
+                <React.Fragment key={item.id}>
+                   <tr
+                    className={`linha-oferta ${
+                      ofertaSelecionada?.id === item.id ? "ativa" : ""
+                    }`}
+                  >
+                    <td className="cpf-link">
+                      {item.cpf}
+                    </td>
+
+                    <td>
+                      {Number(item.valor_liquido || 0).toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                      })}
+                    </td>
+
+                    <td>
+                      <button 
+                        className="btn-acoes-oferta btn-criar-proposta"
+                        onClick={() =>
+                          setOfertaSelecionada(
+                            ofertaSelecionada?.id === item.id ? null : item
+                          )
+                        }>
+                        Criar proposta
+                      </button>
+
+                      <button className="btn-acoes-oferta btn-info-cliente">Info. cliente</button>
+                    </td>
+                  </tr>
+
+                  <tr
+                    className={`linha-expandida ${
+                      ofertaSelecionada?.id === item.id ? "aberta" : "fechada"
+                    }`}
+                  >
+                    <td colSpan={3}>
+                      <div className="expand-wrapper">
+                        <FgtsResultadoCard resultado={adaptarResultado(item)} />
+                      </div>
+                    </td>
+                  </tr>
+                </React.Fragment>
+              ))}
+            </tbody>
+          </table>
 
           {/* PAGINAÇÃO */}
           <div className="paginacao">
@@ -107,20 +139,6 @@ export default function FgtsOfertasPromotor() {
               Próxima
             </button>
           </div>
-        </div>
-
-        {/* COLUNA DIREITA */}
-        <div className="fgts-detalhe">
-          {ofertaSelecionada ? (
-            <FgtsResultadoCard
-              resultado={adaptarResultado(ofertaSelecionada)}
-            />
-          ) : (
-            <div className="placeholder">
-              <p>Selecione um CPF para visualizar os detalhes</p>
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );
