@@ -60,7 +60,7 @@ export default function AdminFgtsLote() {
       <h2 className="admin-title">Consultas FGTS em Lote</h2>
 
       {/* FILTRO */}
-      <div className="admin-input-group" style={{ marginBottom: 20 }}>
+      <div className="admin-input-group busca-fgts-lote" style={{ marginBottom: 20 }}>
         <label>Buscar</label>
         <input
           type="text"
@@ -74,76 +74,78 @@ export default function AdminFgtsLote() {
       </div>
 
       {/* CONTADORES */}
-      <div style={{ display: "flex", gap: 20, marginBottom: 20 }}>
-        <div className="admin-card success">
+      <section className="admin-status-card-group">
+        <div className="admin-status-card success-count">
           Concluídos: {countStatus("concluido")}
         </div>
-        <div className="admin-card error">
+        <div className="admin-status-card error-count">
           Erro: {countStatus("erro")}
         </div>
-      </div>
+      </section>
 
       {loading && <p>Carregando...</p>}
 
       {/* LISTAGEM */}
-      {lotes.map((lote) => (
-        <div key={lote.id} className="admin-card">
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <strong>{lote.instituicao}</strong>
+      <section className="lista-fgts-lote">
+        {lotes.map((lote) => (
+          <div key={lote.id} className="admin-card">
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <strong>{lote.instituicao}</strong>
 
-            <span
-              className={`badge ${
-                lote.status === "concluido"
-                  ? "verde"
-                  : lote.status === "erro"
-                  ? "vermelho"
-                  : "cinza"
-              }`}
+              <span
+                className={`badge ${
+                  lote.status === "concluido"
+                    ? "verde"
+                    : lote.status === "erro"
+                    ? "vermelho"
+                    : "cinza"
+                }`}
+              >
+                {lote.status}
+              </span>
+            </div>
+
+            <p style={{ fontSize: 13, marginTop: 6 }}>
+              Promotor: <strong>{lote.promotor?.username}</strong>
+            </p>
+
+            <p style={{ fontSize: 13 }}>
+              Criado em:{" "}
+              {new Date(lote.createdAt).toLocaleString("pt-BR")}
+            </p>
+
+            <div
+              style={{
+                marginTop: 15,
+                display: "flex",
+                gap: 10,
+                flexWrap: "wrap",
+              }}
             >
-              {lote.status}
-            </span>
+              <button
+                className="btn-secundario"
+                onClick={() => setDetalhe(lote)}
+              >
+                Ver detalhes
+              </button>
+
+              <button
+                className="btn-admin"
+                onClick={() => handleReenviar(lote.id)}
+              >
+                Reenviar
+              </button>
+
+              <button
+                className="btn-secundario"
+                onClick={() => handleExcluir(lote.id)}
+              >
+                Excluir
+              </button>
+            </div>
           </div>
-
-          <p style={{ fontSize: 13, marginTop: 6 }}>
-            Promotor: <strong>{lote.promotor?.username}</strong>
-          </p>
-
-          <p style={{ fontSize: 13 }}>
-            Criado em:{" "}
-            {new Date(lote.createdAt).toLocaleString("pt-BR")}
-          </p>
-
-          <div
-            style={{
-              marginTop: 15,
-              display: "flex",
-              gap: 10,
-              flexWrap: "wrap",
-            }}
-          >
-            <button
-              className="btn-secundario"
-              onClick={() => setDetalhe(lote)}
-            >
-              Ver detalhes
-            </button>
-
-            <button
-              className="btn-admin"
-              onClick={() => handleReenviar(lote.id)}
-            >
-              Reenviar
-            </button>
-
-            <button
-              className="btn-secundario"
-              onClick={() => handleExcluir(lote.id)}
-            >
-              Excluir
-            </button>
-          </div>
-        </div>
-      ))}
+        ))}
+      </section>
 
       {/* PAGINAÇÃO */}
       <div style={{ marginTop: 20, display: "flex", gap: 10 }}>
