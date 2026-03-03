@@ -8,3 +8,7 @@
     padding-top: 50px;
     border-radius: 5px;
 }
+
+.info-cliente-container h3 {
+    text-align: center;
+}
