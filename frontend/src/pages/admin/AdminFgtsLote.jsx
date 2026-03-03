@@ -32,26 +32,6 @@ export default function AdminFgtsLote() {
     }
   };
 
-  const handleExcluir = async (id) => {
-    if (!window.confirm("Deseja realmente excluir este lote?")) return;
-
-    try {
-      await api.delete(`/consultas/FGTS/lote/${id}`);
-      fetchLotes();
-    } catch (err) {
-      alert("Erro ao excluir.");
-    }
-  };
-
-  const handleReenviar = async (id) => {
-    try {
-      await api.post(`/consultas/FGTS/lote/${id}/reenviar`);
-      fetchLotes();
-    } catch (err) {
-      alert("Erro ao reenviar.");
-    }
-  };
-
   const countStatus = (status) =>
     lotes.filter((l) => l.status === status).length;
 
@@ -127,20 +107,6 @@ export default function AdminFgtsLote() {
                 onClick={() => setDetalhe(lote)}
               >
                 Ver detalhes
-              </button>
-
-              <button
-                className="btn-admin"
-                onClick={() => handleReenviar(lote.id)}
-              >
-                Reenviar
-              </button>
-
-              <button
-                className="btn-secundario"
-                onClick={() => handleExcluir(lote.id)}
-              >
-                Excluir
               </button>
             </div>
           </div>
