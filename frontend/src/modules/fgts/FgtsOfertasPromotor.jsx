@@ -42,7 +42,7 @@ export default function FgtsOfertasPromotor() {
     return {
       status: item.elegivelProposta ? "ELEGIVEL" : "NAO_ELEGIVEL",
       valorLiquido: item.valor_liquido,
-      instituicaoEscolhida: item.banco,
+      instituicaoEscolhida: item.API,
       anuidades: item.anuidades?.map((a) => ({
         dueDate: a.due_date,
         amount: a.total_amount,
