@@ -108,11 +108,11 @@ export default function FgtsProposta({
     const status = err.response?.status;
 
     if (status === 424) {
-      alert(err.response?.data?.msg || "Erro de dependência (424).");
+      alert(err.response?.data?.erro ? `Erro ao criar proposta: ${err.response?.data?.erro}` : "Erro desconhecido de dependencia (424), chame um administrador.");
       return;
     }
 
-    alert(err.response?.data?.msg || "Erro ao criar proposta");
+    alert(err.response?.data?.erro || "Erro desconhecido ao criar proposta");
 
   } finally {
     setLoading(false);
