@@ -5,6 +5,7 @@ import { ZodError } from "zod";
 import { ValidarBodyConsultaEmLote } from "../middleware/ValidarBodyConsultaEmLote.js";
 import ConsultasLoteService from "../services/ConsultasLoteService.js";
 import AuthService from "../services/AuthService.js";
+import { ValidarBodyReatribuicaoConsultaLote } from "../middleware/VerificarBodyReatribuicaoConsultaLote.js";
 
 class ConsultasFGTSController {
     async FazerConsulta (req, res) {
@@ -120,6 +121,30 @@ class ConsultasFGTSController {
             return res.status(200).json( response );
         } catch(err) {
             console.error(err)
+
+            if (err instanceof ZodError) {
+                return res.status(400).json({
+                    erro: err.issues[0].message
+                });
+            }
+
+            if (err instanceof HttpException) {
+                return res.status(err.status).json({ erro: err.message });
+            }
+
+            return res.status(500).json({ erro: err.message });
+        }
+    }
+
+    async RetribuirConsultasEmLote (req, res) {
+        try {
+            const { id_consulta_lote, id_novo_promotor } = ValidarBodyReatribuicaoConsultaLote.parse(req.body);
+
+            await ConsultasLoteService.ReatribuirConsultaLote(id_consulta_lote, id_novo_promotor);
+
+            return res.status(200).json({ msg: "Todas as consultas em lote foram reatribuídas com sucesso." });
+        } catch (err) {
+            // console.error(err)
 
             if (err instanceof ZodError) {
                 return res.status(400).json({

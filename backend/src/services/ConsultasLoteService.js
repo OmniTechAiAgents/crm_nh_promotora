@@ -1,6 +1,8 @@
 import ConsultasLoteRepository from "../repositories/ConsultasLoteRepository.js";
 import HttpException from "../utils/HttpException.js";
 import { PublisherRabbitMQ } from "../utils/PublisherRabbitMQ.js";
+import AuthRepository from "../repositories/AuthRepository.js";
+import ConsultasFGTSRepository from "../repositories/ConsultasFGTSRepository.js";
 
 
 class ConsultasLoteService {
@@ -74,6 +76,25 @@ class ConsultasLoteService {
                 data: newData
             };
         } catch(err) {
+            throw err;
+        }
+    }
+
+    async ReatribuirConsultaLote(id_consulta_lote, id_promotor) {
+        try {
+            // verifica a existencia da consulta em lote e do promotor
+            const consultaLoteExiste = await ConsultasLoteRepository.findOneConsultaById(id_consulta_lote);
+            if (!consultaLoteExiste) throw new HttpException("Não existe nenhuma consulta em lote com esse id", 404);
+            const promotorExiste = await AuthRepository.findOneById(id_promotor)
+            if (!promotorExiste) throw new HttpException("Não existe nenhum promotor com esse id.", 404);
+
+
+            // reatribui todas as consultas na tabela "cpfs_individuais"
+            await ConsultasFGTSRepository.UpdatePromotorIdByConsultaLoteId(id_consulta_lote, id_promotor);
+
+            // reatribui o registro de consulta lote na tabela "consultas_lote"
+            await ConsultasLoteRepository.UpdateUsuarioIdConsultaLote(id_consulta_lote, id_promotor);
+        } catch (err) {
             throw err;
         }
     }
