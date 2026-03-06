@@ -69,6 +69,19 @@ class ConsultasLoteRepository {
             totalPages: Math.ceil(result.count / limite)
         }
     }
+
+
+    // reatribuição de lote
+    async UpdateUsuarioIdConsultaLote(id, id_promotor) {
+        return Consultas_lote.update(
+            {id_promotor},
+            {
+                where: {
+                    id: id
+                }
+            }
+        )
+    }
 }
 
 export default new ConsultasLoteRepository();

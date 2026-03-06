@@ -16,5 +16,6 @@ ConsultasRoutes.post("/CLT/manual", AuthenticationToken, ConsultasCLTController.
 // parte automatizada (consuta em lote)
 ConsultasRoutes.post("/FGTS/lote", AuthenticationToken, AuthorizeRoles('admin'), uploadCsv.single("file"), ConsultasFGTSController.IniciarConsultaEmLote);
 ConsultasRoutes.get("/FGTS/lote", AuthenticationToken, AuthorizeRoles('admin'), ConsultasFGTSController.RecuperarConsultasEmLote);
+ConsultasRoutes.patch("/FGTS/lote/reatribuir", AuthenticationToken, AuthorizeRoles('admin'), ConsultasFGTSController.RetribuirConsultasEmLote);
 
 export default ConsultasRoutes;

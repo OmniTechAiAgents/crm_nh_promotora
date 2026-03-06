@@ -84,6 +84,19 @@ class ConsultasFGTSRepository {
             }
         )
     }
+
+
+    // reatribuição de lote
+    async UpdatePromotorIdByConsultaLoteId(id_consulta_lote, usuario_id) {
+        return Cpfs_individuais.update(
+            {usuario_id},
+            {
+                where: {
+                    id_consulta_lote: id_consulta_lote
+                }
+            }
+        )
+    }
 }
 
 export default new ConsultasFGTSRepository();
