@@ -10,7 +10,7 @@ class PresencaBankService {
 
     async Autenticar() {
         try {
-            const retorno = await TokenAPIsRepository.findOneByNameAndType("presenca", "clt");
+            const retorno = await TokenAPIsRepository.findOneByNameAndType("presencaBank", "clt");
 
             if (retorno) {
                 const status = IsTokenExpired(retorno.dataValues.updatedAt, retorno.dataValues.expires);
