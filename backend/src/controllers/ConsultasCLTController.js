@@ -19,11 +19,11 @@ class ConsultasCLTController {
         }
     }
 
-    async ConsultarVinculo(req, res) {
+    async ConsultarVinculoMargemTabela(req, res) {
         try {
             const dados = ValidarBodyConsultaCLT.parse(req.body);
 
-            const response = await ConsultasCLTService.ConsultarVinculo(dados.cpf, dados.instituicao);
+            const response = await ConsultasCLTService.ConsultarVinculoMargemTabela(dados.cpf, dados.instituicao);
 
             return res.status(200).json(response);
         } catch (err) {

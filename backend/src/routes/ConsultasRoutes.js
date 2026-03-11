@@ -13,7 +13,7 @@ ConsultasRoutes.get("/FGTS/manual", AuthenticationToken, ConsultasFGTSController
 ConsultasRoutes.post("/FGTS/manual", AuthenticationToken, ConsultasFGTSController.FazerConsulta);
 
 ConsultasRoutes.post("/CLT/gerarAutorizacaoDataPrev", AuthenticationToken, ConsultasCLTController.GerarTermoAutorizacaoDataPrev);
-ConsultasRoutes.post("/CLT/consultarVinculos", AuthenticationToken, ConsultasCLTController.ConsultarVinculo);
+ConsultasRoutes.post("/CLT/consultarVinculosMargemTabela", AuthenticationToken, ConsultasCLTController.ConsultarVinculoMargemTabela);
 
 // parte automatizada (consuta em lote)
 ConsultasRoutes.post("/FGTS/lote", AuthenticationToken, AuthorizeRoles('admin'), uploadCsv.single("file"), ConsultasFGTSController.IniciarConsultaEmLote);

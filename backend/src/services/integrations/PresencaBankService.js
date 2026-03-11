@@ -110,7 +110,7 @@ class PresencaBankService {
         }
     }
 
-    async ConsultarVinculo(cpf) {
+    async ConsultarVinculoMargemTabela(cpf) {
         try {
             const requestData = ({cpf})
 

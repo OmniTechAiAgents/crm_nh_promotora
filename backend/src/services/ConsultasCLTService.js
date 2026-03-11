@@ -22,14 +22,14 @@ class ConsultasCLTService {
         }
     }
 
-    async ConsultarVinculo(cpf, instituicao) {
+    async ConsultarVinculoMargemTabela(cpf, instituicao) {
         try {
             let response;
 
             // decide para qual API vai mandar
             switch (instituicao){
                 case "Presenca bank":
-                    response = await PresencaBankService.ConsultarVinculo(cpf);
+                    response = await PresencaBankService.ConsultarVinculoMargemTabela(cpf);
                     break;
                 default: 
                     throw new HttpException("Instituição não encontrada", 404);
