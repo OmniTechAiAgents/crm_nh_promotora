@@ -96,14 +96,41 @@ class PresencaBankService {
 
             return response.data;
         } catch (err) {
-            console.log(err.response.data)
-
             let status = 500;
             let message = "Erro inesperado ao realizar a simulação";
             
             if (axios.isAxiosError(err)) {
                 status = 424;
-                message = err.response?.data?.message ?? message;
+                message = err.response?.data?.result ?? message;
+            } else if (err instanceof Error) {
+                message = err.message;
+            }
+
+            throw new HttpException(message, status);
+        }
+    }
+
+    async ConsultarVinculo(cpf) {
+        try {
+            const requestData = ({cpf})
+
+            const response = await axios.post(`${process.env.presencaBank_baseURL}/v3/operacoes/consignado-privado/consultar-vinculos`,
+                requestData,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                    }
+                }
+            );
+
+            return response.data;
+        } catch (err) {
+            let status = 500;
+            let message = "Erro inesperado ao realizar a simulação";
+            
+            if (axios.isAxiosError(err)) {
+                status = 424;
+                message = err.response?.data?.result ?? message;
             } else if (err instanceof Error) {
                 message = err.message;
             }

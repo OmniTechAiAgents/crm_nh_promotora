@@ -21,6 +21,25 @@ class ConsultasCLTService {
             throw err;
         }
     }
+
+    async ConsultarVinculo(cpf, instituicao) {
+        try {
+            let response;
+
+            // decide para qual API vai mandar
+            switch (instituicao){
+                case "Presenca bank":
+                    response = await PresencaBankService.ConsultarVinculo(cpf);
+                    break;
+                default: 
+                    throw new HttpException("Instituição não encontrada", 404);
+            }
+
+            return response;
+        } catch(err) {
+            throw err;
+        }
+    }
 }
 
 export default new ConsultasCLTService();
