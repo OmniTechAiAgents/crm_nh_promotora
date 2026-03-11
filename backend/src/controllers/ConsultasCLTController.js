@@ -1,32 +1,20 @@
+import { ValidarBodyConsultaCLT } from "../middleware/ValidarBodyConsultaCLT.js";
 import ConsultasCLTService from "../services/ConsultasCLTService.js";
-import VerifyCpfMask from "../utils/VerifyCpfMask.js";
+import HttpException from "../utils/HttpException.js";
 
 class ConsultasCLTController {
-    async FazerConsulta(req, res) {
+    async GerarTermoAutorizacaoDataPrev(req, res) {
         try {
-            const { instituicao, cpf, prazo, valorParcela, valorDesembolso, valorSeguro, tabela } = req.body;
-            // OBS: instituicao é a API que vai ser usada para fazer a consulta
+            const dados = ValidarBodyConsultaCLT.parse(req.body);
 
-            if (!cpf || VerifyCpfMask(cpf)) {
-                return res.status(400).json({
-                    erro: "CPF inválido. Envie apenas números."
-                });
+            const response = await ConsultasCLTService.GerarTermoAutorizacaoDataPrev(dados.cpf, dados.instituicao);
+
+            return res.status(200).json(response);
+        } catch(err) {
+            if (err instanceof HttpException) {
+                return res.status(err.status).json({ erro: err.message })
             }
 
-            const objConsulta = {
-                instituicao,
-                cpf,
-                prazo,
-                valorParcela,
-                valorDesembolso,
-                valorSeguro,
-                tabela
-            };
-
-            ConsultasCLTService.FazerConsulta(objConsulta);
-
-            return res.status(200).json({ msg: "dados recebidos com sucesso" });
-        } catch(err) {
             return res.status(500).json({ erro: err.message });
         }
     }
