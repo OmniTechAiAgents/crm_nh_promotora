@@ -11,6 +11,7 @@ import VCTexServices from './services/integrations/VCTexServices.js';
 import NovaVidaService from './services/integrations/NovaVidaService.js';
 import C6Service from './services/integrations/C6Service.js';
 import NossaFintechService from './services/integrations/NossaFintechService.js';
+import PresencaBankService from './services/integrations/PresencaBankService.js';
 import cors from "cors";
 import { seedISPBs } from './utils/seedISPBs.js';
 import { connectRabbit } from './config/rabbitMQ.js';
@@ -51,6 +52,9 @@ async function bootstrap() {
 
         await NossaFintechService.Autenticar();
         console.log("✅ Token NossaFintech carregado e agendamento ativo")
+
+        await PresencaBankService.Autenticar();
+        console.log("✅ Token PresençaBank carregado e agendamento ativo")
 
         // DESATIVADO POR ENQUANTO JA QUE O MODULO DA C6 AINDA N ESTA SENDO UTILIZADO
         // await C6Service.Autenticar();
