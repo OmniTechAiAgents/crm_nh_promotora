@@ -112,18 +112,151 @@ class PresencaBankService {
 
     async ConsultarVinculoMargemTabela(cpf) {
         try {
-            const requestData = ({cpf})
-
-            const response = await axios.post(`${process.env.presencaBank_baseURL}/v3/operacoes/consignado-privado/consultar-vinculos`,
-                requestData,
+            // consultando vinculos
+            const requestDataVinculos = ({cpf})
+            const responseVinculos = await axios.post(`${process.env.presencaBank_baseURL}/v3/operacoes/consignado-privado/consultar-vinculos`,
+                requestDataVinculos,
                 {
                     headers: {
                         'Authorization': `Bearer ${this.accessToken}`,
                     }
                 }
             );
+            const listaResponseVinculos = responseVinculos.data.id;
+            console.log(listaResponseVinculos)
 
-            return response.data;
+            if (!listaResponseVinculos || listaResponseVinculos.length == 0) {
+                throw new HttpException("O end-point de consulta de vinculos não retornou as informações necessárias", 424);
+            }
+
+            const resultadoFinal = [];
+
+            for(const item of listaResponseVinculos) {
+                await new Promise(resolve => setTimeout(resolve, 5000));
+
+                console.log(`Fazendo operação com a matrícula: ${item.matricula}`);
+
+                // consultando margem
+                const requestDataMargem = ({
+                    cpf: item.cpf,
+                    matricula: item.matricula,
+                    cnpj: item.numeroInscricaoEmpregador
+                })
+                const responseMargem = await axios.post(`${process.env.presencaBank_baseURL}/v3/operacoes/consignado-privado/consultar-margem`,
+                    requestDataMargem,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${this.accessToken}`,
+                        }
+                    }
+                )
+                
+                const margem = responseMargem.data;
+
+                if (!margem) {
+                    throw new HttpException(
+                        "O end-point de consulta de margem não retornou as informações necessárias",
+                        424
+                    );
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 5000));
+
+                // consultando tabelas elegíveis
+                const requestDataTabelas = ({
+                    tomador: {
+                        telefone: {
+                            ddd: "011",
+                            numero: "999999999"
+                        },
+                        cpf: item.cpf,
+                        nome: "JOÃO PEDRO DA SILVA",
+                        dataNascimento: responseMargem.data.dataNascimento,
+                        nomeMae: responseMargem.data.nomeMae,
+                        email: "example@gmail.com",
+                        sexo: responseMargem.data.sexo,
+                        vinculoEmpregaticio: {
+                            cnpjEmpregador: responseMargem.data.cnpjEmpregador,
+                            registroEmpregaticio: responseMargem.data.registroEmpregaticio,
+                        },
+                        dadosBancarios: {
+                            codigoBanco: "001",
+                            agencia: "1852",
+                            conta: "27197",
+                            digitoConta: "4",
+                            formaCredito: "1"
+                        },
+                        endereco: {
+                            cep: "",
+                            rua: "",
+                            numero: "",
+                            complemento: "",
+                            cidade: "",
+                            estado: "",
+                            bairro: ""
+                        }
+                    },
+                    proposta: {
+                        valorSolicitado: 0,
+                        quantidadeParcelas: 0,
+                        produtoId: 28,
+                        valorParcela: responseMargem.data.valorMargemDisponivel
+                    },
+                    documentos: []
+                })
+
+                const responseTabelasElegiveis = await axios.post(`${process.env.presencaBank_baseURL}/v5/operacoes/simulacao/disponiveis`,
+                    requestDataTabelas,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${this.accessToken}`,
+                        }
+                    }
+                )
+
+                const tabelas = responseTabelasElegiveis.data;
+
+                if (!tabelas || tabelas.length === 0) {
+                    throw new HttpException(
+                        "O end-point de consulta de tabelas elegíveis não retornou as informações necessárias",
+                        424
+                    );
+                }
+
+                // FORMATANDO TABELAS
+
+                const tabelasFormatadas = tabelas.map(tabela => ({
+                    id_tabela: tabela.id,
+                    nome: tabela.nome,
+                    prazo: tabela.prazo,
+                    taxaJuros: tabela.taxaJuros,
+                    valorLiberado: tabela.valorLiberado,
+                    tipoCredito: {
+                        nome: tabela.tipoCredito?.name,
+                        id: tabela.tipoCredito?.id
+                    },
+                    type: tabela.type,
+                    valorParcela: tabela.valorParcela
+                }));
+
+                // OBJETO FINAL
+
+                resultadoFinal.push({
+                    cpf: item.cpf,
+                    cnpjEmpregador: margem.cnpjEmpregador,
+                    matricula: item.matricula,
+                    dataAdmissao: margem.dataAdmissao,
+                    valorMargemAvaliavel: margem.valorMargemDisponivel,
+                    valorBaseMargem: margem.valorMargemBase,
+                    valorTotalVencimentos: margem.valorTotalDevido,
+                    nomeMae: margem.nomeMae,
+                    sexo: margem.sexo,
+                    tabelasElegiveis: tabelasFormatadas
+                });
+            }
+
+            return resultadoFinal;
+
         } catch (err) {
             let status = 500;
             let message = "Erro inesperado ao realizar a simulação";
