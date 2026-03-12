@@ -123,7 +123,6 @@ class PresencaBankService {
                 }
             );
             const listaResponseVinculos = responseVinculos.data.id;
-            console.log(listaResponseVinculos)
 
             if (!listaResponseVinculos || listaResponseVinculos.length == 0) {
                 throw new HttpException("O end-point de consulta de vinculos não retornou as informações necessárias", 424);
@@ -150,7 +149,7 @@ class PresencaBankService {
                         }
                     }
                 )
-                
+
                 const margem = responseMargem.data;
 
                 if (!margem) {
