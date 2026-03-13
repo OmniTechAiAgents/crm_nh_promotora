@@ -270,6 +270,26 @@ class PresencaBankService {
             throw new HttpException(message, status);
         }
     }
+
+    async DigitarProposta(dados, userId) {
+        try {
+            console.log(dados);
+            console.log(userId);
+        } catch(err) {
+            if(axios.isAxiosError(err)) {
+                const status = 424;
+                const message = err.response?.data?.message || "Erro desconhecido.";
+
+                throw new HttpException(message, status);
+            }
+
+            if(err instanceof HttpException) {
+                throw new HttpException(err.message, err.status);
+            }
+
+            throw new HttpException(err.message, 500);
+        }
+    }
 }
 
 export default new PresencaBankService();

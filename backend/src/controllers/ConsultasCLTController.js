@@ -11,6 +11,12 @@ class ConsultasCLTController {
 
             return res.status(200).json(response);
         } catch(err) {
+            if (err instanceof ZodError) {
+                return res.status(400).json({
+                    erro: err.issues[0].message
+                });
+            }
+            
             if (err instanceof HttpException) {
                 return res.status(err.status).json({ erro: err.message })
             }
@@ -27,6 +33,12 @@ class ConsultasCLTController {
 
             return res.status(200).json(response);
         } catch (err) {
+            if (err instanceof ZodError) {
+                return res.status(400).json({
+                    erro: err.issues[0].message
+                });
+            }
+
             if (err instanceof HttpException) {
                 return res.status(err.status).json({ erro: err.message })
             }
