@@ -1,6 +1,7 @@
 import { ValidarBodyConsultaCLT } from "../middleware/ValidarBodyConsultaCLT.js";
 import ConsultasCLTService from "../services/ConsultasCLTService.js";
 import HttpException from "../utils/HttpException.js";
+import { ZodError } from "zod";
 
 class ConsultasCLTController {
     async GerarTermoAutorizacaoDataPrev(req, res) {

@@ -314,13 +314,13 @@ class PresencaBankService {
                         formaCredito: dados.accountType
                     },
                     endereco: {
-                        cep: "99999999",
-                        rua: "Rua exemplo",
-                        numero: "999",
+                        cep: "01002010",
+                        rua: "Rua Líbero Badaró",
+                        numero: "346",
                         complemento: "",
-                        cidade: "Santo André",
+                        cidade: "São Paulo",
                         estado: "SP",
-                        bairro: "Bairro exemplo 123"
+                        bairro: "Centro"
                     }
                 },
                 proposta: {
@@ -343,18 +343,18 @@ class PresencaBankService {
 
             console.log(response.data);
         } catch(err) {
-            if(axios.isAxiosError(err)) {
-                const status = 424;
-                const message = err.response?.data?.message || "Erro desconhecido.";
-
-                throw new HttpException(message, status);
+            console.log(err.response.data)
+            let status = !err.status ? 500 : err.status;
+            let message = "Erro inesperado ao realizar a simulação";
+            
+            if (axios.isAxiosError(err)) {
+                status = 424;
+                message = err.response?.data?.result ?? message;
+            } else if (err instanceof Error) {
+                message = err.message;
             }
 
-            if(err instanceof HttpException) {
-                throw new HttpException(err.message, err.status);
-            }
-
-            throw new HttpException(err.message, 500);
+            throw new HttpException(message, status);
         }
     }
 }
