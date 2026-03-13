@@ -5,6 +5,7 @@ import TaskScheduler from '../../utils/TaskScheduler.js';
 import ClientesService from '../ClientesService.js';
 import NovaVidaService from './NovaVidaService.js';
 import HttpException from '../../utils/HttpException.js';
+import PropostasCLTRepository from '../../repositories/PropostasCLTRepository.js';
 
 class PresencaBankService {
     constructor() {
@@ -340,8 +341,44 @@ class PresencaBankService {
                     }
                 }
             )
+            const proposalId = response.data.id;
+            if (!proposalId || proposalId.length == 0) {
+                throw new HttpException("O servidor não retornou um id de proposta válido.", 424);
+            }
 
-            console.log(response.data);
+            // recuperando dados da proposta 
+            await new Promise(resolve => setTimeout(resolve, 5000));
+
+            const bodyPropostaRetorno = await axios.get(`${process.env.presencaBank_baseURL}/operacoes/${proposalId}/detalhe`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                    }
+                }
+            )
+
+            if (!bodyPropostaRetorno.data || bodyPropostaRetorno.data.length == 0) {
+                throw new HttpException("O servidor não retornou um body de proposta válido.", 424);
+            }
+
+            const bodyDB = ({
+                nome_tabela: bodyPropostaRetorno.data.nomeTabela,
+                id_proposta: bodyPropostaRetorno.data.id,
+                usuario_id: userId,
+                qtd_parcelas: bodyPropostaRetorno.data.quantidadeParcelas,
+                valor_parcelas: bodyPropostaRetorno.data.valorParcela,
+                taxa_juros_mensal: bodyPropostaRetorno.data.taxaJurosMensal,
+                valor_solicitado: bodyPropostaRetorno.data.valorSolicitado,
+                valor_liberado: bodyPropostaRetorno.data.valorLiberado,
+                status_nome: bodyPropostaRetorno.data.status.name,
+                status_id: bodyPropostaRetorno.data.status.id,
+                produto_nome: bodyPropostaRetorno.data.produto.name,
+                produto_id: bodyPropostaRetorno.data.produto.id,
+                status_historicos: bodyPropostaRetorno.data.statusHistoricos,
+                verificar: 1
+            });
+
+            return await PropostasCLTRepository.create(bodyDB)
         } catch(err) {
             console.log(err.response.data)
             let status = !err.status ? 500 : err.status;
