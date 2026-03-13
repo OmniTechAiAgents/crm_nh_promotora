@@ -131,7 +131,7 @@ class PresencaBankService {
             const resultadoFinal = [];
 
             for(const item of listaResponseVinculos) {
-                await new Promise(resolve => setTimeout(resolve, 5000));
+                await new Promise(resolve => setTimeout(resolve, 2000));
 
                 console.log(`Fazendo operação com a matrícula: ${item.matricula}`);
 
@@ -159,7 +159,7 @@ class PresencaBankService {
                     );
                 }
                 
-                await new Promise(resolve => setTimeout(resolve, 5000));
+                await new Promise(resolve => setTimeout(resolve, 2000));
 
                 // consultando tabelas elegíveis
                 const requestDataTabelas = ({
@@ -243,7 +243,7 @@ class PresencaBankService {
                 resultadoFinal.push({
                     cpf: item.cpf,
                     cnpjEmpregador: margem.cnpjEmpregador,
-                    matricula: item.matricula,
+                    registroEmpregaticio: margem.registroEmpregaticio,
                     dataAdmissao: margem.dataAdmissao,
                     valorMargemAvaliavel: margem.valorMargemDisponivel,
                     valorBaseMargem: margem.valorMargemBase,
@@ -273,8 +273,75 @@ class PresencaBankService {
 
     async DigitarProposta(dados, userId) {
         try {
-            console.log(dados);
-            console.log(userId);
+            // tentando recuperar dados do cliente
+            const resultBuscaCliente = await ClientesService.procurarCpf(dados.cpf); 
+            if (!resultBuscaCliente || resultBuscaCliente?.length === 0) {
+                const dadosCliente = await NovaVidaService.BuscarDados(dados.cpf);
+            
+                if(dadosCliente.CONSULTA == "Não Autorizado") {
+                    throw new HttpException("Não foi possível recuperar os dados do cliente na API do Nova Vida, será necessário fazer o cadastro do cliente manualmente.", 424);
+                }
+
+                await ClientesService.criarClienteNovaVida(dadosCliente, dados.cpf);
+            }
+            
+            const cliente = await ClientesService.procurarCpf(dados.cpf);
+            const cliente_ddd = cliente.dataValues.celular.slice(0, 2);
+            const cliente_celular = cliente.dataValues.celular.slice(2);
+
+            const reqBody = ({
+                type: "credito-privado-bpn",
+                tomador: {
+                    cpf: dados.cpf,
+                    nome: cliente.dataValues.nome,
+                    telefone: {
+                        ddd: cliente_ddd,
+                        numero: cliente_celular
+                    },
+                    dataNascimento: cliente.dataValues.data_nasc,
+                    email: "example@gmail.com",
+                    sexo: dados.sexo,
+                    nomeMae: dados.nomeMae,
+                    vinculoEmpregaticio: {
+                        cnpjEmpregador: dados.cnpjEmpregador,
+                        registroEmpregaticio: dados.registroEmpregaticio,
+                    },
+                    dadosBancarios: {
+                        codigoBanco: dados.bankCode,
+                        agencia: dados.branchNumber,
+                        conta: dados.accountNumber,
+                        digitoConta: dados.accountDigit,
+                        formaCredito: dados.accountType
+                    },
+                    endereco: {
+                        cep: "99999999",
+                        rua: "Rua exemplo",
+                        numero: "999",
+                        complemento: "",
+                        cidade: "Santo André",
+                        estado: "SP",
+                        bairro: "Bairro exemplo 123"
+                    }
+                },
+                proposta: {
+                    valorSolicitado: 0,
+                    quantidadeParcelas: dados.qtdParcelas,
+                    produtoId: 28,
+                    valorParcela: dados.valorParcelas,
+                    tabelaId: dados.tabelaId
+                }
+            })
+
+            const response = await axios.post(`${process.env.presencaBank_baseURL}/v3/operacoes`,
+                reqBody,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                    }
+                }
+            )
+
+            console.log(response.data);
         } catch(err) {
             if(axios.isAxiosError(err)) {
                 const status = 424;
