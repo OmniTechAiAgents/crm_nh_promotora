@@ -136,9 +136,12 @@ class PresencaBankService {
 
                 console.log(`Fazendo operação com a matrícula: ${item.matricula}`);
 
+                const cpfTratado = String(cpf).padStart(11, '0');
+                console.log(cpfTratado)
+
                 // consultando margem
                 const requestDataMargem = ({
-                    cpf: item.cpf,
+                    cpf: cpfTratado,
                     matricula: item.matricula,
                     cnpj: item.numeroInscricaoEmpregador
                 })
@@ -162,6 +165,12 @@ class PresencaBankService {
                 
                 await new Promise(resolve => setTimeout(resolve, 2000));
 
+                if(responseMargem.data.valorMargemDisponivel == 0) {
+                    throw new HttpException("O cliente não possui margem disponível para proposta", 424);
+                } else if(responseMargem.data.valorMargemDisponivel < 60) {
+                    throw new HttpException("O cliente não possui o valor mínimo de margem para proposta (R$60,00)", 424);
+                }
+
                 // consultando tabelas elegíveis
                 const requestDataTabelas = ({
                     tomador: {
@@ -169,7 +178,7 @@ class PresencaBankService {
                             ddd: "011",
                             numero: "999999999"
                         },
-                        cpf: item.cpf,
+                        cpf: cpfTratado,
                         nome: "JOÃO PEDRO DA SILVA",
                         dataNascimento: responseMargem.data.dataNascimento,
                         nomeMae: responseMargem.data.nomeMae,
@@ -242,7 +251,7 @@ class PresencaBankService {
                 // OBJETO FINAL
 
                 resultadoFinal.push({
-                    cpf: item.cpf,
+                    cpf: cpfTratado,
                     cnpjEmpregador: margem.cnpjEmpregador,
                     registroEmpregaticio: margem.registroEmpregaticio,
                     dataAdmissao: margem.dataAdmissao,
@@ -258,12 +267,14 @@ class PresencaBankService {
             return resultadoFinal;
 
         } catch (err) {
+            // console.error(err.response)
+
             let status = !err.status ? 500 : err.status;
             let message = "Erro inesperado ao realizar a simulação";
             
             if (axios.isAxiosError(err)) {
                 status = 424;
-                message = err.response?.data?.result ?? message;
+                message = err.response?.data?.result ?? err.response?.data?.errors?.[0] ?? message;
             } else if (err instanceof Error) {
                 message = err.message;
             }

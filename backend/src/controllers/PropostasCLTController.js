@@ -10,7 +10,7 @@ class PropostasCLTController {
 
             await PropostasCLTService.DigitarProposta(dados, dados.instituicao, req.user);
 
-            return res.status(200).json({ msg: "Proposta criada con sucesso!" })
+            return res.status(200).json({ msg: "Proposta criada com sucesso!" })
         } catch (err) {
             console.log(err)
 
