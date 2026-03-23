@@ -11,7 +11,9 @@ const ConsultasRoutes = express.Router();
 // parte manual
 ConsultasRoutes.get("/FGTS/manual", AuthenticationToken, ConsultasFGTSController.RecuperarConsultas);
 ConsultasRoutes.post("/FGTS/manual", AuthenticationToken, ConsultasFGTSController.FazerConsulta);
-ConsultasRoutes.post("/CLT/manual", AuthenticationToken, ConsultasCLTController.FazerConsulta);
+
+ConsultasRoutes.post("/CLT/gerarAutorizacaoDataPrev", AuthenticationToken, ConsultasCLTController.GerarTermoAutorizacaoDataPrev);
+ConsultasRoutes.post("/CLT/consultarVinculosMargemTabela", AuthenticationToken, ConsultasCLTController.ConsultarVinculoMargemTabela);
 
 // parte automatizada (consuta em lote)
 ConsultasRoutes.post("/FGTS/lote", AuthenticationToken, AuthorizeRoles('admin'), uploadCsv.single("file"), ConsultasFGTSController.IniciarConsultaEmLote);
