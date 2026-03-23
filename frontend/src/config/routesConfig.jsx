@@ -6,6 +6,7 @@ import AdminFgtsLotePage from "../pages/admin/AdminFgtsLotePage";
 import EditarUsuario from "../modules/users/EditarUsuario";
 import FgtsOfertasPromotor from "../modules/fgts/FgtsOfertasPromotor";
 import RegistrarNovoCliente from "../modules/clientes/RegistrarNovoCliente";
+import CltConsulta from "../modules/clt/CltConsulta";
 
 
 export const routesConfig = [
@@ -15,6 +16,13 @@ export const routesConfig = [
     permission: "FGTS_VIEW",
     showInMenu: true,
     element: <FgtsConsulta />
+  },
+  {
+    path: "/clt",
+    label: "Consultar CLT",
+    permission: "FGTS_VIEW",
+    showInMenu: true,
+    element: <CltConsulta />
   },
   {
     path: "/registro",
