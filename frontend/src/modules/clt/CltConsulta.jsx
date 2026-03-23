@@ -81,18 +81,13 @@ export default function CltConsulta() {
                 }
             );
 
-            // Definição de status de negócio
-            let status = "ELEGIVEL";
+            const ofertasTratadas = data.map(vinculo => ({
+                status: "ELEGIVEL",
+                ...vinculo
+            }));
 
-            const ofertaTratada = {
-                status,
-
-                ...data
-            }
-
-            console.log("chegou na hr de enviar para o card")
             // mandando o resultado para o card ainda sem tratar
-            setResultado(ofertaTratada);
+            setResultado(ofertasTratadas);
         } catch (err) {
             // console.error("ERRO CONSULTA: ", err);
 
@@ -154,7 +149,14 @@ export default function CltConsulta() {
             </div>
         
             {/* RESULTADO */}
-            {resultado && <CltResultadoCard resultado={resultado} />}
+            {resultado && Array.isArray(resultado) ? (
+                resultado.map((item) => (
+                    // Enviando matricula como key para não bagunçar o mapping
+                    <CltResultadoCard key={item.matricula} resultado={item} />
+                ))
+            ) : (
+                resultado && <CltResultadoCard resultado={resultado} />
+            )}
         </div>
     );
 }
