@@ -452,6 +452,10 @@
     cursor: pointer;
 }
 
+.tabelas-disponiveis-card {
+    margin-top: 15px;
+}
+
 @keyframes surgirSuave {
     0% {
         opacity: 0;

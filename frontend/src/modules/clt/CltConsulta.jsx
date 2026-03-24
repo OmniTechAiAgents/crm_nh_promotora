@@ -85,6 +85,9 @@ export default function CltConsulta() {
 
             const ofertasTratadas = data.map(vinculo => ({
                 status: "ELEGIVEL",
+                instituicaoEscolhida: instituicao,
+                
+                // mandando o body de retorno direto já que são filtrados no back-end
                 ...vinculo
             }));
 

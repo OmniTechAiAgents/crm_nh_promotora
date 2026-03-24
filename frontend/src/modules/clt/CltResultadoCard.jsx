@@ -12,12 +12,12 @@ export default function CltResultadoCard({ resultado }) {
     // aqui ficaria o const que captura os dados da props "resultado"
     const {
         status,
-        valorLiquido,
+        valorMargemAvaliavel,
         instituicaoEscolhida,
-        anuidades = [],
+        cnpjEmpregador,
+        tabelasElegiveis = [],
         cpf,
         motivoErro,
-        financialId,
     } = resultado;
 
 
@@ -26,41 +26,69 @@ export default function CltResultadoCard({ resultado }) {
         return data.split("-").reverse().join("/");
     };
 
+    // Formata números para o padrão BRL (R$ 1.234,56)
+    const formatarMoeda = (valor) => {
+        return new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+        }).format(valor || 0);
+    };
+
     // ---------- CARD OFERTA DISPONÍVEL ----------
     if (status === "ELEGIVEL" && !propostaDigitada) {
         return (
             <>
                 <div className="card oferta">
                     <div className="card-header verde">
-                        ✔ Oferta Disponível
+                        ✔ Vínculo Elegível
                     </div>
     
                     <div className="card-body">
                         <p>Cliente vai receber:</p>
     
                         <h1>
-                            R$ {Number(valorLiquido || 0).toFixed(2)}
+                            R$ {Number(valorMargemAvaliavel || 0).toFixed(2)}
                         </h1>
     
                         <p>
                             Instituição:{" "}
                             <strong>{instituicaoEscolhida}</strong>
                         </p>
+
+                        <p>
+                            CNPJ empregador:{" "}
+                            <strong>{cnpjEmpregador}</strong>
+                        </p>
     
-                        <details>
-                            <summary>Ver parcelas do FGTS</summary>
-    
-                            {anuidades.length > 0 ? (
-                                anuidades.map((a, i) => (
-                                <div key={i} className="linha-parcela">
-                                    <span>{formatarData(a.dueDate)}</span>
-                                    <span>
-                                    R$ {Number(a.amount || 0).toFixed(2)}
+                        <details className="tabelas-disponiveis-card">
+                            <summary>Ver tabelas disponíveis</summary>
+
+                            {tabelasElegiveis && tabelasElegiveis.length > 0 ? (
+                                tabelasElegiveis.map((tabela) => (
+                                <div 
+                                    key={tabela.id_tabela} 
+                                    className="linha-parcela" 
+                                    style={{ display: 'flex', flexDirection: 'column', gap: '4px', paddingBottom: '12px', borderBottom: '1px solid #eee' }}
+                                >
+                                    {/* Linha 1: Nome da Tabela em destaque */}
+                                    <span style={{ fontWeight: '600', color: '#333' }}>
+                                        {tabela.nome}
                                     </span>
+                                    
+                                    {/* Linha 2: Valores organizados lado a lado */}
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', color: '#555' }}>
+                                        <span>
+                                            <strong>Liberado:</strong> <span style={{ color: '#2e7d32' }}>{formatarMoeda(tabela.valorLiberado)}</span>
+                                        </span>
+                                        
+                                        <span>
+                                            <strong>Parcela:</strong> {tabela.prazo}x de {formatarMoeda(tabela.valorParcela)}
+                                        </span>
+                                    </div>
                                 </div>
                                 ))
                             ) : (
-                                <div>Nenhuma anuidade disponível</div>
+                                <div>Nenhuma tabela disponível</div>
                             )}
                         </details>
     
