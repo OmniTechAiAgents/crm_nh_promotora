@@ -97,8 +97,9 @@ class PresencaBankService {
 
             return response.data;
         } catch (err) {
+            // console.log(err)
             let status = !err.status ? 500 : err.status;
-            let message = "Erro inesperado ao realizar a simulação";
+            let message = `Erro inesperado ao realizar a simulação: ${err}`;
             
             if (axios.isAxiosError(err)) {
                 status = 424;
@@ -397,7 +398,7 @@ class PresencaBankService {
             
             if (axios.isAxiosError(err)) {
                 status = 424;
-                message = err.response?.data?.result ?? message;
+                message = err.response?.data?.result ?? err.response?.data?.errors[0] ?? message;
             } else if (err instanceof Error) {
                 message = err.message;
             }
