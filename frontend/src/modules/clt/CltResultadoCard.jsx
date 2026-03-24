@@ -34,6 +34,16 @@ export default function CltResultadoCard({ resultado }) {
         }).format(valor || 0);
     };
 
+    let tabelaDestaque = null;
+
+    if (tabelasElegiveis && tabelasElegiveis.length > 0) {
+        const tabela36 = tabelasElegiveis.find(tabela => tabela.prazo === 36);
+        tabelaDestaque = tabela36 ? tabela36 : tabelasElegiveis[0];
+    }
+
+    // Pega o valor liberado da tabela escolhida, ou 0 se der ruim
+    const valorParaReceber = tabelaDestaque ? tabelaDestaque.valorLiberado : 0;
+
     // ---------- CARD OFERTA DISPONÍVEL ----------
     if (status === "ELEGIVEL" && !propostaDigitada) {
         return (
@@ -46,8 +56,8 @@ export default function CltResultadoCard({ resultado }) {
                     <div className="card-body">
                         <p>Cliente vai receber:</p>
     
-                        <h1>
-                            R$ {Number(valorMargemAvaliavel || 0).toFixed(2)}
+                        <h1 style={{ color: '#2e7d32' }}>
+                            {formatarMoeda(valorParaReceber)}
                         </h1>
     
                         <p>
@@ -61,7 +71,7 @@ export default function CltResultadoCard({ resultado }) {
                         </p>
     
                         <details className="tabelas-disponiveis-card">
-                            <summary>Ver tabelas disponíveis</summary>
+                            <summary style={{ cursor: "pointer" }}>Ver tabelas disponíveis</summary>
 
                             {tabelasElegiveis && tabelasElegiveis.length > 0 ? (
                                 tabelasElegiveis.map((tabela) => (
