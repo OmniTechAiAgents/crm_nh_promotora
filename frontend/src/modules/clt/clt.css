@@ -428,7 +428,37 @@
 
 .div-cards-result {
     display: inline-flex;
-    /* background-color: red; */
     width: 100%;
     justify-content: space-around;
+}
+
+.div-btn-gerar-link-dp {
+    display: inline-flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.label-copiado {
+    display: inline-flex;
+    align-items: center;
+    background-color: #333333;
+    color: #ffffff;
+    animation: surgirSuave 0.3s ease-out forwards;
+}
+
+.label-copiado:hover {
+    background-color: #333333;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+@keyframes surgirSuave {
+    0% {
+        opacity: 0;
+        transform: translateY(5px); /* Começa um pouquinho mais pra baixo */
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0); /* Termina na posição e opacidade originais */
+    }
 }

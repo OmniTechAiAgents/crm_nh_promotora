@@ -23,7 +23,7 @@ function normalizarCPF(cpfInput) {
 // Função utilitária para extrair mensagem de erro corretamente
 function getErrorMessage(error) {
   const status = error.response?.status;
-  const data = error.response?.data;
+  const data = error.response?.data?.erro;
 
   if (status === 401) {
     return "Sessão expirada. Faça login novamente.";
@@ -51,6 +51,8 @@ export default function CltConsulta() {
     const [instituicao, setInstituicao] = useState("Presenca bank");
     const [resultado, setResultado] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [loadingDP, setLoadingDP] = useState(false);
+    const [textoCopiado, setTextoCopiado] = useState(false);
 
     const consultar = async () => {
         setResultado(null);
@@ -89,8 +91,6 @@ export default function CltConsulta() {
             // mandando o resultado para o card ainda sem tratar
             setResultado(ofertasTratadas);
         } catch (err) {
-            console.log(err);
-
             // captura uma possível proposta inelegível
             if (err.status === 424) {
                 setResultado({
@@ -108,6 +108,52 @@ export default function CltConsulta() {
         }
     };
 
+    const gerarLinkAutorizacaoDataPrev = async () => {
+        const cpfNormalizado = normalizarCPF(cpf);
+
+        try {
+            setLoadingDP(true);
+
+            const authData = JSON.parse(localStorage.getItem("auth_data"));
+            const token = authData?.token;
+
+            if (!token) {
+                alert("Sessão expirada, faça login novamente.");
+                return;
+            }
+
+            const {data} = await api.post(
+                "/consultas/CLT/gerarAutorizacaoDataPrev",
+                {
+                    cpf: cpfNormalizado,
+                    instituicao
+                }
+            );
+
+            console.log(data.shortUrl);
+
+            // lidando com a copia do link
+            try {
+                await navigator.clipboard.writeText(data.shortUrl);
+
+                setTextoCopiado(true);
+
+                // dps de 2 segundos some a msg
+                setTimeout(() => {
+                    setTextoCopiado(false);
+                }, 3000);
+            } catch (err) {
+                console.error("Erro ao tentar copiar para a área de transferência: ", err);
+                alert(`Não foi possível copiar o texto, aqui está o link: ${data.shortUrl}`);
+            }
+        } catch(err) {
+            const msgError = getErrorMessage(err);
+            alert(msgError)
+        } finally {
+            setLoadingDP(false);
+        }
+    }
+
     return (
         <div className="consulta-container-clt">
             <h2>Consulta & Proposta CLT</h2>
@@ -124,13 +170,27 @@ export default function CltConsulta() {
                 />
             </div>
         
-            <button
-                className="btn-consultar"
-                onClick={consultar}
-                disabled={loading}
-            >
-                {loading ? "Consultando..." : "Consultar"}
-            </button>
+                <button
+                    className="btn-consultar"
+                    onClick={consultar}
+                    disabled={loading}
+                >
+                    {loading ? "Consultando..." : "Consultar"}
+                </button>
+
+                <div className="div-btn-gerar-link-dp">
+                    <button
+                        className="btn-consultar"
+                        onClick={gerarLinkAutorizacaoDataPrev}
+                        disabled={loadingDP}
+                    >
+                        {loadingDP ? "Gerando..." : "Gerar link de autorização dataprev"}
+                    </button>
+
+                    {textoCopiado ? (
+                        <label className="btn-consultar label-copiado">Copiado!</label>
+                    ) : ""}
+                </div>
             </div>
         
             {/* INSTITUIÇÕES */}

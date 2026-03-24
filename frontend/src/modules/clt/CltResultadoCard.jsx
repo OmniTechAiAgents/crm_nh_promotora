@@ -26,8 +26,6 @@ export default function CltResultadoCard({ resultado }) {
         return data.split("-").reverse().join("/");
     };
 
-
-
     // ---------- CARD OFERTA DISPONÍVEL ----------
     if (status === "ELEGIVEL" && !propostaDigitada) {
         return (
