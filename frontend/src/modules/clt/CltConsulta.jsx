@@ -89,7 +89,7 @@ export default function CltConsulta() {
             // mandando o resultado para o card ainda sem tratar
             setResultado(ofertasTratadas);
         } catch (err) {
-            // console.error("ERRO CONSULTA: ", err);
+            console.log(err);
 
             // captura uma possível proposta inelegível
             if (err.status === 424) {
@@ -109,7 +109,7 @@ export default function CltConsulta() {
     };
 
     return (
-        <div className="consulta-container">
+        <div className="consulta-container-clt">
             <h2>Consulta & Proposta CLT</h2>
         
             {/* CPF + BOTÃO */}
@@ -149,14 +149,20 @@ export default function CltConsulta() {
             </div>
         
             {/* RESULTADO */}
-            {resultado && Array.isArray(resultado) ? (
-                resultado.map((item) => (
-                    // Enviando matricula como key para não bagunçar o mapping
-                    <CltResultadoCard key={item.matricula} resultado={item} />
-                ))
-            ) : (
-                resultado && <CltResultadoCard resultado={resultado} />
-            )}
+            <div className="result-vinculos">
+                <h2>Vínculos empregatícios</h2>
+
+                <div className="div-cards-result">
+                    {resultado && Array.isArray(resultado) ? (
+                        resultado.map((item) => (
+                            // Enviando matricula como key para não bagunçar o mapping
+                            <CltResultadoCard key={item.matricula} resultado={item} />
+                        ))
+                    ) : (
+                        resultado && <CltResultadoCard resultado={resultado} />
+                    )}
+                </div>
+            </div>
         </div>
     );
 }

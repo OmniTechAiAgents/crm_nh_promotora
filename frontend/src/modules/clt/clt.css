@@ -1,6 +1,6 @@
-.consulta-container {
+.consulta-container-clt {
   padding: 30px;
-  max-width: 720px;
+  max-width: 100%;
 }
   
   /* LINHA CPF + BOTÃO */
@@ -417,4 +417,18 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.result-vinculos {
+    display: flex;
+    flex-direction: column;
+    margin-top: 25px;
+    width: 100%;
+}
+
+.div-cards-result {
+    display: inline-flex;
+    /* background-color: red; */
+    width: 100%;
+    justify-content: space-around;
 }
