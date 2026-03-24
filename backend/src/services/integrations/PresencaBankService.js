@@ -398,7 +398,7 @@ class PresencaBankService {
             
             if (axios.isAxiosError(err)) {
                 status = 424;
-                message = err.response?.data?.result ?? message;
+                message = err.response?.data?.result ?? err.response?.data?.errors[0] ?? message;
             } else if (err instanceof Error) {
                 message = err.message;
             }

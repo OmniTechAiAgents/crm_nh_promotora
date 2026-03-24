@@ -1,6 +1,7 @@
 import { useState } from "react";
 import api from "../../api/client";
 import "./CltProposta.css";
+import { criarPropostaCLT } from "../../services/cltService";
 
 const formatarMoeda = (valor) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -68,19 +69,20 @@ export default function CltProposta({
                 tabelaId: objTabelaSelecionada.id_tabela
             }
 
-            console.log(body)
+            // console.log(body)
+            await criarPropostaCLT(body);
+
+            alert("Proposta criada com sucesso!");
+            onSuccess?.();
         } catch (err) {
-            console.log("erro ao criar o body de proposta");
-            console.error(err);
+            const status = err.response?.status;
 
-            // const status = err.response?.status;
+            if (status === 424) {
+                alert(err.response?.data?.erro ? `Erro ao criar proposta: ${err.response?.data?.erro}` : "Erro desconhecido de dependencia (424), chame um administrador.");
+                return;
+            }
 
-            // if (status === 424) {
-            //     alert(err.response?.data?.erro ? `Erro ao criar proposta: ${err.response?.data?.erro}` : "Erro desconhecido de dependencia (424), chame um administrador.");
-            //     return;
-            // }
-
-            // alert(err.response?.data?.erro || "Erro desconhecido ao criar proposta");
+            alert(err.response?.data?.erro || "Erro desconhecido ao criar proposta");
 
         } finally {
             setLoading(false);
