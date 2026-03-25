@@ -371,9 +371,13 @@ class PresencaBankService {
 
             if (!bodyPropostaRetorno.data || bodyPropostaRetorno.data.length == 0) {
                 throw new HttpException("O servidor não retornou um body de proposta válido.", 424);
-            }
+            };
 
             const bodyDB = ({
+                nome: cliente.dataValues.nome,
+                cpf: dados.cpf,
+                cel: cliente.dataValues.celular,
+                data_nascimento: cliente.dataValues.data_nasc,
                 nome_tabela: bodyPropostaRetorno.data.nomeTabela,
                 id_proposta: bodyPropostaRetorno.data.id,
                 usuario_id: userId,

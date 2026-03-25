@@ -10,6 +10,22 @@ const Tabela_propostas_CLT = db.define(
             primaryKey: true,
             autoIncrement: true,
         },
+        nome: {
+            type: DataTypes.STRING(100),
+            allowNull: false
+        },
+        cpf: {
+            type: DataTypes.STRING(11),
+            allowNull: false,
+        },
+        cel: {
+            type: DataTypes.STRING(15),
+            allowNull: false
+        },
+        data_nascimento: {
+            type: DataTypes.DATE,
+            allowNull: true
+        },
         nome_tabela: {
             type: DataTypes.STRING,
             allowNull: false
