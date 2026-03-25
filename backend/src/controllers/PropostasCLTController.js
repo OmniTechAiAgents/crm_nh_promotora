@@ -27,6 +27,30 @@ class PropostasCLTController {
             return res.status(500).json({ erro: err.message });
         }
     }
+
+    async RecuperarPropostas (req, res) {
+        try {
+            const pesquisa = req.query.pesquisa;
+            const page = parseInt(req.query.pagina) || 1;
+            const limit = parseInt(req.query.limite) || 10;
+
+            const response = await PropostasCLTService.RecuperarPropostas(pesquisa, page, limit, req.user);
+
+            if (!response.data || response.data.length == 0) {
+                return res.status(204).send();
+            }
+
+            return res.status(200).send();
+        } catch (err) {
+            console.log(err)
+
+            if (err instanceof HttpException) {
+                return res.status(err.status).json({ erro: err.message });
+            }
+
+            return res.status(500).json({ erro: err.message });
+        }
+    }
 }
 
 export default new PropostasCLTController();
