@@ -1,3 +1,4 @@
+import PropostasCLTRepository from "../repositories/PropostasCLTRepository.js";
 import HttpException from "../utils/HttpException.js";
 import PresencaBankService from "./integrations/PresencaBankService.js";
 
@@ -16,6 +17,21 @@ class PropostasCLTService {
             
             return response;
         } catch (err) {
+            throw err;
+        }
+    }
+
+    async RecuperarPropostas(pesquisa, page, limit, userData) {
+        try {
+            const offset = (page - 1) * limit;
+
+            // se for promotor, filtra para apenas as propostas dele, se for adm, pega todas as propostas
+            const filtroUserId = userData.role == "promotor" ? userData.id : null;
+
+            const result = await PropostasCLTRepository.SearchPagination(pesquisa, limit, offset, filtroUserId);
+
+            return result
+        } catch(err) {
             throw err;
         }
     }

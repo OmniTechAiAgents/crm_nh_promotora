@@ -18,6 +18,7 @@ export default function CltProposta({
     cnpjEmpregador,
     registroEmpregaticio,
     tabelasDisponíveis,
+    valorMargemAvaliavel,
     onSuccess,
 }) {
     // CONTA
@@ -65,7 +66,7 @@ export default function CltProposta({
                 cnpjEmpregador,
                 registroEmpregaticio,
                 qtdParcelas: objTabelaSelecionada.prazo,
-                valorParcelas: objTabelaSelecionada.valorLiberado,
+                valorParcelas: valorMargemAvaliavel,
                 tabelaId: objTabelaSelecionada.id_tabela
             }
 
