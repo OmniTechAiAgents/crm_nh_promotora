@@ -40,7 +40,7 @@ class PropostasCLTController {
                 return res.status(204).send();
             }
 
-            return res.status(200).send();
+            return res.status(200).json( response );
         } catch (err) {
             console.log(err)
 
