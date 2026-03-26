@@ -16,6 +16,7 @@ import cors from "cors";
 import { seedISPBs } from './utils/seedISPBs.js';
 import { connectRabbit } from './config/rabbitMQ.js';
 import MicroservicesRoutes from './routes/MicroservicesRoutes.js';
+import V8CLTService from './services/integrations/V8CLTService.js';
 
 const app = express();
 
@@ -55,6 +56,9 @@ async function bootstrap() {
 
         await PresencaBankService.Autenticar();
         console.log("✅ Token PresençaBank carregado e agendamento ativo")
+
+        await V8CLTService.Autenticar();
+        console.log("✅ Token V8-CLT carregado e agendamento ativo")
 
         // DESATIVADO POR ENQUANTO JA QUE O MODULO DA C6 AINDA N ESTA SENDO UTILIZADO
         // await C6Service.Autenticar();
