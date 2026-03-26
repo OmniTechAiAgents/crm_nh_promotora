@@ -129,6 +129,7 @@ export default function CltResultadoCard({ resultado }) {
                     cnpjEmpregador={cnpjEmpregador}
                     registroEmpregaticio={registroEmpregaticio}
                     tabelasDisponíveis={tabelasElegiveis}
+                    valorMargemAvaliavel={valorMargemAvaliavel}
 
                     onSuccess={() => {
                         setOpenModal(false);
@@ -137,6 +138,29 @@ export default function CltResultadoCard({ resultado }) {
                 />
             </Modal>
           </>
+        );
+    }
+
+    // oferta digitada com sucesso
+    if (status === "ELEGIVEL" && propostaDigitada) {
+        return (
+            <div className="card consumido">
+                <div className="card-header cinza">
+                    ✔ Proposta Digitada
+                </div>
+                <div className="card-body">
+                    <p>
+                        Esta oferta foi utilizada para geração de proposta.
+                    </p>
+
+                    <button
+                        className="btn-secundario"
+                        onClick={() => (alert("Função ainda não implementada..."))}
+                    >
+                        Ir para Esteira de Propostas
+                    </button>
+                </div>
+            </div>
         );
     }
 
