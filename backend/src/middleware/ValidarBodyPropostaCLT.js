@@ -5,21 +5,21 @@ export const ValidarBodyPropostaCLT = z
     .object({
         // informações que o usuário vai ter q digitar
         instituicao: z.enum(["Presenca bank", "v8"]),
-        bankCode: z.string(),
+        bankCode: z.string().optional(),
         accountType: z.enum([
             "corrente", 
             "poupanca"
-            ]),
-        accountNumber: z.string(),
-        accountDigit: z.string(),
-        branchNumber: z.string(),
+            ]).optional(),
+        accountNumber: z.string().optional(),
+        accountDigit: z.string().optional(),
+        branchNumber: z.string().optional(),
 
         // informações sobre a proposta vinda dos end-points anteriores
         cpf: z.string(),
         sexo: z.string(),
-        nomeMae: z.string(),
-        cnpjEmpregador: z.string(),
-        registroEmpregaticio: z.string(),
+        nomeMae: z.string().optional(),
+        cnpjEmpregador: z.string().optional(),
+        registroEmpregaticio: z.string().optional(),
 
         qtdParcelas: z.number().int(),
         valorParcelas: z.number(),

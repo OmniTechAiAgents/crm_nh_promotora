@@ -5,6 +5,7 @@ import TaskScheduler from "../../utils/TaskScheduler.js";
 import ClientesService from '../ClientesService.js';
 import NovaVidaService from './NovaVidaService.js';
 import HttpException from '../../utils/HttpException.js';
+import PropostasCLTRepository from '../../repositories/PropostasCLTRepository.js';
 
 class V8CLTService {
     constructor() {
@@ -68,6 +69,8 @@ class V8CLTService {
         try {
             const idTermo = await this.#verificarERecuperarIdTermoConsentimento(cpf);
 
+            await new Promise(resolve => setTimeout(resolve, 3000));
+
             await this.#aprovaAutorizacaoTermo(idTermo);
 
             // roda um while para ficar verificando o estado até dar "REJECTED" ou "SUCCESS"
@@ -82,6 +85,8 @@ class V8CLTService {
                 } else if(objTermo.status == "REJECTED") {
                     throw new HttpException(`Não foi possível realizar a consulta: ${objTermo.description}`, 424);
                 }
+
+                await new Promise(resolve => setTimeout(resolve, 2000));
             }
 
             const tabelasDisponiveis = await this.#recuperarTabelasDisponiveis();
@@ -92,7 +97,7 @@ class V8CLTService {
                 cnpjEmpregador: null,
                 matricula: null,
                 dataAdmissao: null,
-                valorMargemAvaliavel: objTermo.availableMarginValue,
+                valorMargemAvaliavel: parseFloat(objTermo.availableMarginValue),
                 valorBaseMargem: null,
                 valorTotalVencimentos: null,
                 nomeMae: "MARIA DA SILVA",
@@ -190,10 +195,28 @@ class V8CLTService {
 
             const responseProposta = await this.#digitarUmaProposta(bodyProposta);
 
-            return ({
-                msg: "Proposta criada com sucesso.",
-                data: responseProposta
+            const bodyDB = ({
+                nome: cliente.dataValues.nome,
+                cpf: dados.cpf,
+                cel: cliente.dataValues.celular,
+                data_nascimento: cliente.dataValues.data_nasc,
+                nome_tabela: `${simulacao.simulation_config_slug} - ${simulacao.number_of_installments}x`,
+                id_proposta: responseProposta.id,
+                usuario_id: userId,
+                qtd_parcelas: simulacao.number_of_installments,
+                valor_parcelas: simulacao.installment_value,
+                taxa_juros_mensal: simulacao.monthly_interest_rate,
+                valor_solicitado: simulacao.operation_amount,
+                valor_liberado: simulacao.disbursed_issue_amount,
+                status_nome: "",
+                status_id : "",
+                produto_nome: "",
+                produto_id: null,
+                status_historicos: null,
+                verificar: 1
             })
+
+            return await PropostasCLTRepository.create(bodyDB);
         } catch(err) {
             console.log(err)
             let status = !err.status ? 500 : err.status;
@@ -238,6 +261,9 @@ class V8CLTService {
             })
             if (response.data?.data[0]?.id) return response.data?.data[0]?.id;
             
+            // timeout top
+            await new Promise(resolve => setTimeout(resolve, 5000));
+
             // se não existir, recupera pelo end-point 1
             const resultBuscaCliente = await ClientesService.procurarCpf(cpf); 
             if (!resultBuscaCliente || resultBuscaCliente?.length === 0) {
