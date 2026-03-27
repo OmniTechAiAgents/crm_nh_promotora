@@ -124,6 +124,99 @@ class V8CLTService {
         }
     }
 
+    async SimularECriarProposta(dados, userId) {
+        try {
+            // simula a proposta
+            const simulacao = await this.#simularUmaProposta(
+                dados.idTermo,
+                dados.tabelaId,
+                dados.valorParcelas,
+                dados.qtdParcelas
+            )
+
+            // recuperando dados do cliente
+            const resultBuscaCliente = await ClientesService.procurarCpf(dados.cpf); 
+            if (!resultBuscaCliente || resultBuscaCliente?.length === 0) {
+                const dadosCliente = await NovaVidaService.BuscarDados(dados.cpf);
+            
+                if(dadosCliente.CONSULTA == "Não Autorizado") {
+                    throw new HttpException("Não foi possível recuperar os dados do cliente na API do Nova Vida, será necessário fazer o cadastro do cliente manualmente.", 424);
+                }
+
+                await ClientesService.criarClienteNovaVida(dadosCliente, dados.cpf);
+            }
+            const cliente = await ClientesService.procurarCpf(dados.cpf);
+            const cliente_ddd = cliente.dataValues.celular.slice(0, 2);
+            const cliente_celular = cliente.dataValues.celular.slice(2);
+
+            const bodyProposta = ({
+                borrower: {
+                    name: cliente.dataValues.nome,
+                    email: "example@gmail.com",
+                    phone: {
+                        area_code: cliente_ddd,
+                        country_code: "55",
+                        number: cliente_celular
+                    },
+                    political_exposition: false,
+                    address: {
+                        city: "São Paulo",
+                        state: "SP",
+                        number: "346",
+                        street: "Rua Líbero Badaró",
+                        complement: "",
+                        postal_code: "01002010",
+                        neighborhood: "Centro"
+                    },
+                    birth_date: cliente.dataValues.data_nasc,
+                    mother_name: "MARIA DA SILVA",
+                    nationality: "brazilian",
+                    document_issuer: "SSP",
+                    gender: "male",
+                    person_type: "natural",
+                    marital_status: "single",
+                    individual_document_number: dados.cpf,
+                    document_identification_date: "2025-09-16",
+                    document_identification_type: "rg",
+                    document_identification_number: "string",
+                    bank: {
+                        transfer_method: "pix",
+                        pix_key: dados.cpf,
+                        pix_key_type: "cpf"
+                    }
+                },
+                simulation_id: simulacao.id_simulation
+            })
+
+            const responseProposta = await this.#digitarUmaProposta(bodyProposta);
+
+            return ({
+                msg: "Proposta criada com sucesso.",
+                data: responseProposta
+            })
+        } catch(err) {
+            console.log(err)
+            let status = !err.status ? 500 : err.status;
+            let message = `Erro inesperado ao realizar a simulação: ${err}`;
+            
+            if (axios.isAxiosError(err)) {
+                status = 424;
+                
+                if (err.response?.status === 429) {
+                    // Mensagem personalizada para o limite de requisições
+                    message = "O limite de requisições ao serviço de autorização foi excedido. Tente novamente em alguns instantes.";
+                } else {
+                    // Caso contrário, tenta pegar o 'result' ou o 'title' da API, senão mantém a default
+                    message = err.response?.data?.result ?? err.response?.data?.title ?? message;
+                }
+            } else if (err instanceof Error) {
+                message = err.message;
+            }
+
+            throw new HttpException(message, status);
+        }
+    }
+
     // funções internas (tem end-points demais para fazer tudo em uma função)
     async #verificarERecuperarIdTermoConsentimento(cpf) {
         try {
@@ -253,6 +346,48 @@ class V8CLTService {
             })
 
             return response?.data?.configs;
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    async #simularUmaProposta(idTermo, idTabela, valorParcela, qtdParcelas) {
+        try {
+            const body = ({
+                consult_id: idTermo,
+                config_id: idTabela,
+                installment_face_value: valorParcela,
+                number_of_installments: qtdParcelas,
+                provider: "QI"
+            })
+
+            const response = await axios.post(`${process.env.v8_baseURL}/private-consignment/simulation`, 
+                body,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                    }
+                }
+            )
+
+            return response.data;
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    async #digitarUmaProposta(bodyProposal) {
+        try {
+            const response = await axios.post(`${process.env.v8_baseURL}/private-consignment/operation`, 
+                bodyProposal,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                    }
+                }
+            )
+
+            return response.data;
         } catch (err) {
             throw err;
         }
