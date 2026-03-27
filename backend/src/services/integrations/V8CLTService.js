@@ -88,6 +88,7 @@ class V8CLTService {
 
             const bodyRetorno = ({
                 cpf,
+                idTermo: idTermo,
                 cnpjEmpregador: null,
                 matricula: null,
                 dataAdmissao: null,
