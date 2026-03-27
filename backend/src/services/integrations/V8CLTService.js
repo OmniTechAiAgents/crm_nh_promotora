@@ -84,8 +84,22 @@ class V8CLTService {
                 }
             }
 
-            
-            return objTermo;
+            const tabelasDisponiveis = await this.#recuperarTabelasDisponiveis();
+
+            const bodyRetorno = ({
+                cpf,
+                cnpjEmpregador: null,
+                matricula: null,
+                dataAdmissao: null,
+                valorMargemAvaliavel: objTermo.availableMarginValue,
+                valorBaseMargem: null,
+                valorTotalVencimentos: null,
+                nomeMae: "MARIA DA SILVA",
+                sexo: "M",
+                tabelasElegiveis : tabelasDisponiveis
+            })
+
+            return bodyRetorno;
         } catch (err) {
             // console.log(err)
             let status = !err.status ? 500 : err.status;
@@ -224,6 +238,20 @@ class V8CLTService {
             } else {
                 throw new HttpException("O registro do usuário do usuário não foi encontrado no end-point de verificação de termo.", 424);
             };
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    async #recuperarTabelasDisponiveis() {
+        try {
+            const response = await axios.get(`${process.env.v8_baseURL}/private-consignment/simulation/configs`, {
+                headers: {
+                    'Authorization': `Bearer ${this.accessToken}`,
+                },
+            })
+
+            return response?.data?.configs;
         } catch (err) {
             throw err;
         }
