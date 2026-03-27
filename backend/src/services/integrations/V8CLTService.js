@@ -68,7 +68,24 @@ class V8CLTService {
         try {
             const idTermo = await this.#verificarERecuperarIdTermoConsentimento(cpf);
 
-            return idTermo
+            await this.#aprovaAutorizacaoTermo(idTermo);
+
+            // roda um while para ficar verificando o estado até dar "REJECTED" ou "SUCCESS"
+            let flag = true;
+            let objTermo;
+
+            while (flag) {
+                objTermo = await this.#verificarEstadoAutorizacaoTermo(cpf);
+
+                if (objTermo.status == "SUCCESS") {
+                    flag = false;
+                } else if(objTermo.status == "REJECTED") {
+                    throw new HttpException(`Não foi possível realizar a consulta: ${objTermo.description}`, 424);
+                }
+            }
+
+            
+            return objTermo;
         } catch (err) {
             // console.log(err)
             let status = !err.status ? 500 : err.status;
@@ -76,7 +93,14 @@ class V8CLTService {
             
             if (axios.isAxiosError(err)) {
                 status = 424;
-                message = err.response?.data?.result ?? message;
+                
+                if (err.response?.status === 429) {
+                    // Mensagem personalizada para o limite de requisições
+                    message = "O limite de requisições ao serviço de autorização foi excedido. Tente novamente em alguns instantes.";
+                } else {
+                    // Caso contrário, tenta pegar o 'result' ou o 'title' da API, senão mantém a default
+                    message = err.response?.data?.result ?? err.response?.data?.title ?? message;
+                }
             } else if (err instanceof Error) {
                 message = err.message;
             }
@@ -146,6 +170,61 @@ class V8CLTService {
             return responseTermo?.data?.id;
         } catch (err) {
             console.log(err);
+            throw err;
+        }
+    }
+
+    async #aprovaAutorizacaoTermo(idTermo) {
+        try {
+            await axios.post(`${process.env.v8_baseURL}/private-consignment/consult/${idTermo}/authorize`, {
+                headers: {
+                    'Authorization': `Bearer ${this.accessToken}`,
+                }
+            })
+        } catch (err) {
+            // console.log(err)
+            const errorResponse = err.response;
+
+            // verifica se o termo já não está aprovado
+            const isAlreadyApproved = 
+                errorResponse?.status === 400 && 
+                errorResponse.data?.type === 'consult_already_approved';
+
+            if (isAlreadyApproved) {
+                return
+            };
+            
+            const message = errorResponse?.data?.title || "Erro ao aprovar termo";
+            const status = errorResponse?.status || 500;
+
+            throw new HttpException(message, status);
+        }
+    }
+
+    async #verificarEstadoAutorizacaoTermo(cpf) {
+        try {
+            const endDateAtual = new Date().toISOString().split('.')[0] + 'Z';
+
+            const response = await axios.get(`${process.env.v8_baseURL}/private-consignment/consult`, {
+                headers: {
+                    'Authorization': `Bearer ${this.accessToken}`,
+                },
+                params: {
+                    startDate: '2026-03-25T00:00:00Z',
+                    endDate: endDateAtual,
+                    limit: 5,
+                    page: 1,
+                    provider: "QI",
+                    search: cpf
+                }
+            })
+
+            if (response.data?.data[0]?.id) {
+                return response.data?.data[0]
+            } else {
+                throw new HttpException("O registro do usuário do usuário não foi encontrado no end-point de verificação de termo.", 424);
+            };
+        } catch (err) {
             throw err;
         }
     }
