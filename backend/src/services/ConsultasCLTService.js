@@ -1,6 +1,7 @@
 import axios from 'axios';
 import HttpException from "../utils/HttpException.js";
 import PresencaBankService from './integrations/PresencaBankService.js';
+import V8CLTService from './integrations/V8CLTService.js';
 
 class ConsultasCLTService {
     async GerarTermoAutorizacaoDataPrev(cpf, instituicao) {
@@ -30,6 +31,9 @@ class ConsultasCLTService {
             switch (instituicao){
                 case "Presenca bank":
                     response = await PresencaBankService.ConsultarVinculoMargemTabela(cpf);
+                    break;
+                case "v8":
+                    response = await V8CLTService.GerarTermoSimularOperacao(cpf);
                     break;
                 default: 
                     throw new HttpException("Instituição não encontrada", 404);

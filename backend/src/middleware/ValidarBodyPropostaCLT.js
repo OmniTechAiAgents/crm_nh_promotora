@@ -4,28 +4,47 @@ import VerifyCpfMask from '../utils/VerifyCpfMask.js';
 export const ValidarBodyPropostaCLT = z
     .object({
         // informações que o usuário vai ter q digitar
-        instituicao: z.enum(["Presenca bank"]),
-        bankCode: z.string(),
+        instituicao: z.enum(["Presenca bank", "v8"]),
+        bankCode: z.string().optional(),
         accountType: z.enum([
             "corrente", 
             "poupanca"
-            ]),
-        accountNumber: z.string(),
-        accountDigit: z.string(),
-        branchNumber: z.string(),
+            ]).optional(),
+        accountNumber: z.string().optional(),
+        accountDigit: z.string().optional(),
+        branchNumber: z.string().optional(),
 
         // informações sobre a proposta vinda dos end-points anteriores
         cpf: z.string(),
         sexo: z.string(),
-        nomeMae: z.string(),
-        cnpjEmpregador: z.string(),
-        registroEmpregaticio: z.string(),
+        nomeMae: z.string().optional(),
+        cnpjEmpregador: z.string().optional(),
+        registroEmpregaticio: z.string().optional(),
 
         qtdParcelas: z.number().int(),
         valorParcelas: z.number(),
-        tabelaId: z.number().int()
+        tabelaId: z.number().int().or(z.string()),
+
+        // informações que são necessárias para o v8 funcionar
+        idTermo: z.string(),
+        pixKey: z.string().optional(),
+        pixKeyType: z.enum([
+            "chave_aleatoria", 
+            "email", 
+            "telefone", 
+            "cpf"
+        ]).optional()
     })
     .superRefine((data, ctx) => {
+        const recebePix = data.pixKey || data.pixKeyType;
+
+        if (data.instituicao == "Presenca bank" && recebePix) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "A instiuição 'Presenca bank' não suporta operações com pix."
+            })
+        }
+
         if (!data.cpf || VerifyCpfMask(data.cpf)) {
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
@@ -44,6 +63,25 @@ export const ValidarBodyPropostaCLT = z
                     break;
                 default:
                     break
+            }
+        }
+
+        if (data.instituicao == "v8") {
+            switch (data.pixKeyType) {
+                case "chave_aleatoria":
+                    data.pixKeyType = "chave aleatória"
+                    break;
+                case "email":
+                    data.pixKeyType = "email"
+                    break;
+                case "telefone":
+                    data.pixKeyType = "phone"
+                    break;
+                case "cpf":
+                    data.pixKeyType = "cpf"
+                    break;
+                default:
+                    break;
             }
         }
 

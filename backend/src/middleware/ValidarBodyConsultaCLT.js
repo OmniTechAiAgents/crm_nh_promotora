@@ -5,7 +5,7 @@ export const ValidarBodyConsultaCLT = z
     .object({
         cpf: z.string(),
 
-        instituicao: z.enum(["Presenca bank"])
+        instituicao: z.enum(["Presenca bank", "v8"])
     })
     .superRefine((data, ctx) => {
         if (!data.cpf || VerifyCpfMask(data.cpf)) {

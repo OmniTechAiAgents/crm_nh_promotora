@@ -6,6 +6,9 @@ import ClientesService from '../ClientesService.js';
 import NovaVidaService from './NovaVidaService.js';
 import HttpException from '../../utils/HttpException.js';
 import PropostasCLTRepository from '../../repositories/PropostasCLTRepository.js';
+import curlirize from "axios-curlirize";
+
+// curlirize(axios);
 
 class PresencaBankService {
     constructor() {

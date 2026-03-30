@@ -8,6 +8,7 @@
   "dependencies": {
     "amqplib": "^0.10.9",
     "axios": "^1.13.2",
+    "axios-curlirize": "^2.0.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "express": "^4.22.1",
