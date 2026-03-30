@@ -195,6 +195,13 @@ class V8CLTService {
 
             const responseProposta = await this.#digitarUmaProposta(bodyProposta);
 
+            // esse é o exato ponto onde eu vou ter q tentar capturar o erro do timeout
+            // dps de capturar o erro eu vou ter q mandar uma request para a rota q retorna a lista de propostas tentando buscar por essa em quasão
+            // ideia: tentar usar o cpf e a data como filtro
+
+            await new Promise(resolve => setTimeout(resolve, 5000));
+            const dadosProposta = await this.#buscarInformacoesProposta(responseProposta.id);
+
             const bodyDB = ({
                 nome: cliente.dataValues.nome,
                 cpf: dados.cpf,
@@ -202,13 +209,16 @@ class V8CLTService {
                 data_nascimento: cliente.dataValues.data_nasc,
                 nome_tabela: `${simulacao.simulation_config_slug} - ${simulacao.number_of_installments}x`,
                 id_proposta: responseProposta.id,
+                link_form: responseProposta.formalization_url,
+                contrato: dadosProposta.contract_url,
+                numero_contrato: dadosProposta.contract_number,
                 usuario_id: userId,
                 qtd_parcelas: simulacao.number_of_installments,
                 valor_parcelas: simulacao.installment_value,
                 taxa_juros_mensal: simulacao.monthly_interest_rate,
                 valor_solicitado: simulacao.operation_amount,
                 valor_liberado: simulacao.disbursed_issue_amount,
-                status_nome: "",
+                status_nome: dadosProposta.status,
                 status_id : "",
                 produto_nome: "",
                 produto_id: null,
@@ -217,10 +227,6 @@ class V8CLTService {
             })
 
             return await PropostasCLTRepository.create(bodyDB);
-
-            // talvez aqui seja necessário alguns fixes:
-            // aquele bgld o timeout pelo v8, talvez seja necessário usar os end-points de GET
-            // para puxar o id da proposta e mais alguma informação que possa ser necessária
         } catch(err) {
             console.log(err)
             let status = !err.status ? 500 : err.status;
@@ -418,6 +424,21 @@ class V8CLTService {
             )
 
             return response.data;
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    async #buscarInformacoesProposta(id_proposta) {
+        try {
+            const response = await axios.get(`${process.env.v8_baseURL}/private-consignment/operation/${id_proposta}`, {
+                headers: {
+                    'Authorization': `Bearer ${this.accessToken}`,
+                },
+            })
+
+            // retorna todos os dados do body caso forem necessários
+            return response?.data;
         } catch (err) {
             throw err;
         }

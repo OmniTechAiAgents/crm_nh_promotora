@@ -34,6 +34,18 @@ const Tabela_propostas_CLT = db.define(
             type: DataTypes.STRING,
             allowNull: false
         },
+        link_form: {
+            type: DataTypes.STRING(1024),
+            allowNull: true
+        },
+        contrato: {
+            type: DataTypes.TEXT,
+            allowNull: true
+        },
+        numero_contrato: {
+            type: DataTypes.STRING(60),
+            allowNull: true
+        },
         usuario_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
