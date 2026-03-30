@@ -217,6 +217,10 @@ class V8CLTService {
             })
 
             return await PropostasCLTRepository.create(bodyDB);
+
+            // talvez aqui seja necessário alguns fixes:
+            // aquele bgld o timeout pelo v8, talvez seja necessário usar os end-points de GET
+            // para puxar o id da proposta e mais alguma informação que possa ser necessária
         } catch(err) {
             console.log(err)
             let status = !err.status ? 500 : err.status;
