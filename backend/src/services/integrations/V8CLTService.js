@@ -105,7 +105,8 @@ class V8CLTService {
                 tabelasElegiveis : tabelasDisponiveis
             })
 
-            return bodyRetorno;
+            // colocando dentro de uma array para ficar no padrão do presença
+            return [bodyRetorno];
         } catch (err) {
             // console.log(err)
             let status = !err.status ? 500 : err.status;
