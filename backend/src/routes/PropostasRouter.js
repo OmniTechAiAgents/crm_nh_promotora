@@ -11,6 +11,7 @@ PropostasRoutes.get("/FGTS", AuthenticationToken, PropostasFGTSController.Recupe
 PropostasRoutes.patch("/FGTS/cancelar", AuthenticationToken, PropostasFGTSController.CancelarProposta);
 PropostasRoutes.patch("/FGTS/verificar", AuthenticationToken, PropostasFGTSController.VerificarProposta);
 
+PropostasRoutes.post('/CLT/simular', AuthenticationToken, PropostasCLTController.SimularProposta);
 PropostasRoutes.post('/CLT', AuthenticationToken, PropostasCLTController.DigitarPropostas);
 PropostasRoutes.get('/CLT', AuthenticationToken, PropostasCLTController.RecuperarPropostas);
 
