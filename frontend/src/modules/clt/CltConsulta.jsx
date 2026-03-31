@@ -50,7 +50,9 @@ export default function CltConsulta() {
     const [cpf, setCpf] = useState("");
     const [instituicao, setInstituicao] = useState("Presenca bank");
     const [resultado, setResultado] = useState(null);
+    const [resultadoSimulacao, setResultadoSimulacao] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [loadingSimulacao, setLoadingSimulacao] = useState(false);
     const [loadingDP, setLoadingDP] = useState(false);
     const [textoCopiado, setTextoCopiado] = useState(false);
     const [tabelaSelecionada, setTabelaSelecionada] = useState("");
@@ -60,6 +62,7 @@ export default function CltConsulta() {
 
     const consultar = async () => {
         setResultado(null);
+        setResultadoSimulacao(null);
         setTabelaSelecionada("");
 
         const cpfNormalizado = normalizarCPF(cpf);
@@ -104,25 +107,108 @@ export default function CltConsulta() {
                 const tabelas = ofertasTratadas[0].tabelasElegiveis;
                 setTabelasDisponiveis(tabelas);
                 
-                console.log("Tabelas encontradas:", tabelas);
+                // console.log("Tabelas encontradas:", tabelas);
             }
         } catch (err) {
             // captura uma possível proposta inelegível
-            if (err.status === 424) {
-                setResultado({
-                    status: "NAO_ELEGIVEL",
-                    motivoErro: getErrorMessage(err)
-                });
-            } else {
-                setResultado({
-                    status: "ERRO",
-                    motivoErro: getErrorMessage(err)
-                });
+            if (instituicao == "v8") {
+                if (err.status === 424) {
+                    setResultadoSimulacao({
+                        status: "NAO_ELEGIVEL",
+                        motivoErro: getErrorMessage(err)
+                    });
+                } else {
+                    setResultadoSimulacao({
+                        status: "ERRO",
+                        motivoErro: getErrorMessage(err)
+                    });
+                }
+            } else if (instituicao == "Presenca bank") {
+                if (err.status === 424) {
+                    setResultado({
+                        status: "NAO_ELEGIVEL",
+                        motivoErro: getErrorMessage(err)
+                    });
+                } else {
+                    setResultado({
+                        status: "ERRO",
+                        motivoErro: getErrorMessage(err)
+                    });
+                }
             }
         } finally {
             setLoading(false);
         }
     };
+
+    const gerarSimulacao = async () => {
+        setResultadoSimulacao(null);
+
+        try {
+            setLoadingSimulacao(true);
+
+            const authData = JSON.parse(localStorage.getItem("auth_data"));
+            const token = authData?.token;
+
+            // verifica token do usuário
+            if (!token) {
+                setResultado({
+                    status: "ERRO",
+                    motivoErro: "Sessão expirada. Faça login novamente."
+                });
+                return;
+            }
+
+            const bodySimulacao = ({
+                instituicao,
+                idTermo: resultado[0].idTermo,
+                tabelaId: tabelaSelecionada,
+                valorParcelas: resultado[0].valorMargemAvaliavel,
+                qtdParcelas: parseInt(prazoSelecionado)
+            })
+
+            const { data } = await api.post(
+                "/propostas/CLT/simular",
+                bodySimulacao
+            );
+
+            const ofertasTratadas = ({
+                status: "ELEGIVEL",
+                instituicaoEscolhida: instituicao,
+                valorMargemAvaliavel: data.valor_parcelas,
+                cpf: resultado[0].cpf,
+                sexo: resultado[0].sexo,
+                nomeMae: resultado[0].nomeMae,
+
+                // parte do v8 em si
+                tabelaId: data.id_tabela,
+                simulacaoId: data.id_simulacao,
+                nomeTabela: data.nome_tabela,
+                taxaJurosMensal: data.taxa_juros_mensal,
+                valorSolicitado: data.valor_solicitado,
+                valorLiberado: data.valor_liberado,
+                qtdParcelas: data.qtd_parcelas
+            });
+
+            // console.log(ofertasTratadas)
+            setResultadoSimulacao(ofertasTratadas)
+        } catch (err) {
+            // captura uma possível proposta inelegível
+            if (err.status === 424) {
+                setResultadoSimulacao({
+                    status: "NAO_ELEGIVEL",
+                    motivoErro: getErrorMessage(err)
+                });
+            } else {
+                setResultadoSimulacao({
+                    status: "ERRO",
+                    motivoErro: getErrorMessage(err)
+                });
+            }
+        } finally {
+            setLoadingSimulacao(false);
+        }
+    }
 
     const gerarLinkAutorizacaoDataPrev = async () => {
         const cpfNormalizado = normalizarCPF(cpf);
@@ -259,7 +345,7 @@ export default function CltConsulta() {
                                 <option value="">{loading ? "Carregando..." : "Realize a consulta"}</option>
                             ) : (
                                 <>
-                                    <option value="">Selecione uma opção</option>
+                                    <option value="">Selecione a tabela</option>
                                     {tabelasDisponiveis.map((tabela) => (
                                         <option key={tabela.id} value={tabela.id}>
                                             {tabela.slug}
@@ -293,9 +379,10 @@ export default function CltConsulta() {
 
                         <button
                                 className="btn-consultar"
-                                disabled={resultado == null}
+                                disabled={resultado == null || loadingSimulacao}
+                                onClick={gerarSimulacao}
                             >
-                                Simular
+                                {loadingSimulacao ? "Carregando..." : "Simular"}
                             </button>
                     </div>
                 ) 
@@ -335,33 +422,43 @@ export default function CltConsulta() {
             </div>
         
             {/* RESULTADO */}
-            {/* mudando o resultado a depender da instituicao */}
-            {instituicao == "Presenca bank" ? (
-                <div className="result-vinculos">
-                    <h2>
-                        {instituicao == "Presenca bank" ? (
-                            "Vínculos empregatícios"
-                        ) : instituicao == "v8" ? (
-                            "Ofertas disponíveis"
-                        ) : ""}
+            <div className="result-vinculos">
+                <h2>
+                    {instituicao == "Presenca bank" ? (
+                        "Vínculos empregatícios"
+                    ) : instituicao == "v8" ? (
+                        "Ofertas disponíveis"
+                    ) : ""}
                             
-                    </h2>
+                </h2>
 
-                    <div className="div-cards-result">
-                        {resultado && Array.isArray(resultado) ? (
-                            resultado.map((item) => (
-                                // Enviando matricula como key para não bagunçar o mapping
-                                <CltResultadoCard key={item.matricula} resultado={item} />
-                           ))
-                        ) : (
-                            resultado && <CltResultadoCard resultado={resultado} />
-                        )}
-                    </div>
-                </div>
+                    {instituicao == "Presenca bank" ? (
+                        <div className="div-cards-result">
+                            {resultado && Array.isArray(resultado) ? (
+                                resultado.map((item) => (
+                                    // Enviando matricula como key para não bagunçar o mapping
+                                    <CltResultadoCard key={item.matricula} resultado={item} />
+                            ))
+                            ) : (
+                                resultado && <CltResultadoCard resultado={resultado} />
+                            )}
+                        </div>
+                    ) : instituicao == "v8" ? (
+                        <div className="div-cards-result">
+                            {resultadoSimulacao && Array.isArray(resultadoSimulacao) ? (
+                                resultadoSimulacao.map((item) => (
+                                    // Enviando matricula como key para não bagunçar o mapping
+                                    <CltResultadoCard key={item.matricula} resultado={item} />
+                            ))
+                            ) : (
+                                resultadoSimulacao && <CltResultadoCard resultado={resultadoSimulacao} />
+                            )}
+                        </div>
+                    ) : 
+                        ("")
+                    }
                 
-            ) : instituicao == "v8" ? (
-                ""
-            ) : ""}
+            </div>
         </div>
     );
 }

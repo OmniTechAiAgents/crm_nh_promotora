@@ -23,6 +23,15 @@ export default function CltResultadoCard({ resultado }) {
         nomeMae,
         registroEmpregaticio,
         motivoErro,
+
+        // parte do v8
+        tabelaId,
+        simulacaoId,
+        nomeTabela,
+        taxaJurosMensal,
+        valorSolicitado,
+        valorLiberado,
+        qtdParcelas
     } = resultado;
 
 
@@ -49,8 +58,8 @@ export default function CltResultadoCard({ resultado }) {
     // Pega o valor liberado da tabela escolhida, ou 0 se der ruim
     const valorParaReceber = tabelaDestaque ? tabelaDestaque.valorLiberado : 0;
 
-    // ---------- CARD OFERTA DISPONÍVEL ----------
-    if (status === "ELEGIVEL" && !propostaDigitada) {
+    // ---------- CARD OFERTA DISPONÍVEL PRESENÇA ----------
+    if (status === "ELEGIVEL" && !propostaDigitada && instituicaoEscolhida == "Presenca bank") {
         return (
             <>
                 <div className="card oferta">
@@ -106,6 +115,80 @@ export default function CltResultadoCard({ resultado }) {
                                 <div>Nenhuma tabela disponível</div>
                             )}
                         </details>
+    
+                    <button
+                        className="btn-principal"
+                        onClick={() => setOpenModal(true)}
+                    >
+                    Digitar Proposta
+                    </button>
+                </div>
+            </div>
+    
+            {/* ---------- MODAL ---------- */}
+            <Modal
+                open={openModal}
+                onClose={() => setOpenModal(false)}
+            >
+                <CltProposta 
+                    instituicao={instituicaoEscolhida}
+                    cpf={cpf}
+                    sexo={sexo}
+                    nomeMae={nomeMae}
+                    cnpjEmpregador={cnpjEmpregador}
+                    registroEmpregaticio={registroEmpregaticio}
+                    tabelasDisponíveis={tabelasElegiveis}
+                    valorMargemAvaliavel={valorMargemAvaliavel}
+
+                    onSuccess={() => {
+                        setOpenModal(false);
+                        setPropostaDigitada(true);
+                    }}
+                />
+            </Modal>
+          </>
+        );
+    }
+
+    // ---------- CARD OFERTA DISPONÍVEL V8 -----------
+    if (status === "ELEGIVEL" && !propostaDigitada && instituicaoEscolhida == "v8") {
+        return (
+            <>
+                <div className="card oferta">
+                    <div className="card-header verde">
+                        ✔ Oferta Disponível
+                    </div>
+    
+                    <div className="card-body">
+                        <p>Cliente vai receber:</p>
+    
+                        <h1 style={{ color: '#2e7d32' }}>
+                            {formatarMoeda(valorLiberado)}
+                        </h1>
+    
+                        <p>
+                            Instituição:{" "}
+                            <strong>{instituicaoEscolhida}</strong>
+                        </p>
+    
+                        <p style={{ marginTop: "15px" }}>
+                            Tabela selecionada: <br />
+
+                            <span style={{ fontWeight: '600', color: '#333', fontSize: "14px" }}>
+                                        {nomeTabela}
+                                    </span>
+                                    
+                                    {/* Linha 2: Valores organizados lado a lado */}
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', color: '#555' }}>
+                                        <span>
+                                            <strong>Liberado:</strong> <span style={{ color: '#2e7d32' }}>{formatarMoeda(valorLiberado)}</span>
+                                        </span>
+                                        
+                                        <span>
+                                            <strong>Parcela:</strong> {qtdParcelas}x de {formatarMoeda(valorMargemAvaliavel)}
+                                        </span>
+                                    </div>
+                        </p>
     
                     <button
                         className="btn-principal"
