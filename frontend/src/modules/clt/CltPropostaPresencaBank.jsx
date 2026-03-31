@@ -10,7 +10,7 @@ const formatarMoeda = (valor) => {
     }).format(valor || 0);
 };
 
-export default function CltProposta({
+export default function CltPropostaPresencaBank({
     instituicao,
     cpf,
     sexo,

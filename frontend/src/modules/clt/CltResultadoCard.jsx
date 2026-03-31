@@ -1,7 +1,8 @@
 import { useState } from "react";
 import "./clt.css";
-import CltProposta from "./CltProposta";
+import CltPropostaPresencaBank from "./CltPropostaPresencaBank";
 import Modal from "../../components/Modal";
+import CltPropostaV8 from "./CltPropostaV8";
 
 export default function CltResultadoCard({ resultado }) {
     const [openModal, setOpenModal] = useState(false);
@@ -23,6 +24,15 @@ export default function CltResultadoCard({ resultado }) {
         nomeMae,
         registroEmpregaticio,
         motivoErro,
+
+        // parte do v8
+        tabelaId,
+        simulacaoId,
+        nomeTabela,
+        taxaJurosMensal,
+        valorSolicitado,
+        valorLiberado,
+        qtdParcelas
     } = resultado;
 
 
@@ -49,8 +59,8 @@ export default function CltResultadoCard({ resultado }) {
     // Pega o valor liberado da tabela escolhida, ou 0 se der ruim
     const valorParaReceber = tabelaDestaque ? tabelaDestaque.valorLiberado : 0;
 
-    // ---------- CARD OFERTA DISPONÍVEL ----------
-    if (status === "ELEGIVEL" && !propostaDigitada) {
+    // ---------- CARD OFERTA DISPONÍVEL PRESENÇA ----------
+    if (status === "ELEGIVEL" && !propostaDigitada && instituicaoEscolhida == "Presenca bank") {
         return (
             <>
                 <div className="card oferta">
@@ -121,7 +131,7 @@ export default function CltResultadoCard({ resultado }) {
                 open={openModal}
                 onClose={() => setOpenModal(false)}
             >
-                <CltProposta 
+                <CltPropostaPresencaBank
                     instituicao={instituicaoEscolhida}
                     cpf={cpf}
                     sexo={sexo}
@@ -130,6 +140,83 @@ export default function CltResultadoCard({ resultado }) {
                     registroEmpregaticio={registroEmpregaticio}
                     tabelasDisponíveis={tabelasElegiveis}
                     valorMargemAvaliavel={valorMargemAvaliavel}
+
+                    onSuccess={() => {
+                        setOpenModal(false);
+                        setPropostaDigitada(true);
+                    }}
+                />
+            </Modal>
+          </>
+        );
+    }
+
+    // ---------- CARD OFERTA DISPONÍVEL V8 -----------
+    if (status === "ELEGIVEL" && !propostaDigitada && instituicaoEscolhida == "v8") {
+        return (
+            <>
+                <div className="card oferta">
+                    <div className="card-header verde">
+                        ✔ Oferta Disponível
+                    </div>
+    
+                    <div className="card-body">
+                        <p>Cliente vai receber:</p>
+    
+                        <h1 style={{ color: '#2e7d32' }}>
+                            {formatarMoeda(valorLiberado)}
+                        </h1>
+    
+                        <p>
+                            Instituição:{" "}
+                            <strong>{instituicaoEscolhida}</strong>
+                        </p>
+    
+                        <p style={{ marginTop: "15px" }}>
+                            Tabela selecionada: <br />
+
+                            <span style={{ fontWeight: '600', color: '#333', fontSize: "14px" }}>
+                                        {nomeTabela}
+                                    </span>
+                                    
+                                    {/* Linha 2: Valores organizados lado a lado */}
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', color: '#555' }}>
+                                        <span>
+                                            <strong>Liberado:</strong> <span style={{ color: '#2e7d32' }}>{formatarMoeda(valorLiberado)}</span>
+                                        </span>
+                                        
+                                        <span>
+                                            <strong>Parcela:</strong> {qtdParcelas}x de {formatarMoeda(valorMargemAvaliavel)}
+                                        </span>
+                                    </div>
+                        </p>
+    
+                    <button
+                        className="btn-principal"
+                        onClick={() => setOpenModal(true)}
+                    >
+                    Digitar Proposta
+                    </button>
+                </div>
+            </div>
+    
+            {/* ---------- MODAL ---------- */}
+            <Modal
+                open={openModal}
+                onClose={() => setOpenModal(false)}
+            >
+                <CltPropostaV8 
+                    instituicao={instituicaoEscolhida}
+                    cpf={cpf}
+                    sexo={sexo}
+                    qtdParcelas={qtdParcelas}
+                    valorParcelas={valorMargemAvaliavel}
+                    tabelaId={tabelaId}
+                    simulacaoId={simulacaoId}
+                    nomeTabela={nomeTabela}
+                    taxaJurosMensal={taxaJurosMensal}
+                    valorSolicitado={valorSolicitado}
+                    valorLiberado={valorLiberado}
 
                     onSuccess={() => {
                         setOpenModal(false);

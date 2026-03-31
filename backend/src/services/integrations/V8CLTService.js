@@ -80,7 +80,7 @@ class V8CLTService {
             while (flag) {
                 objTermo = await this.#verificarEstadoAutorizacaoTermo(cpf);
 
-                if (objTermo.status == "SUCCESS") {
+                if (objTermo.status == "SUCCESS" || objTermo.status == "CONSENT_APPROVED") {
                     flag = false;
                 } else if(objTermo.status == "REJECTED") {
                     throw new HttpException(`Não foi possível realizar a consulta: ${objTermo.description}`, 424);
@@ -108,7 +108,7 @@ class V8CLTService {
             // colocando dentro de uma array para ficar no padrão do presença
             return [bodyRetorno];
         } catch (err) {
-            // console.log(err)
+            console.log(err)
             let status = !err.status ? 500 : err.status;
             let message = `Erro inesperado ao realizar a simulação: ${err}`;
             
