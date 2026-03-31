@@ -4,6 +4,24 @@ import PresencaBankService from "./integrations/PresencaBankService.js";
 import V8CLTService from "./integrations/V8CLTService.js";
 
 class PropostasCLTService {
+    async SimularProposta(data, instituicao) {
+        try {
+            let response;
+
+            switch (instituicao) {
+                case "v8":
+                    response = await V8CLTService.SimularProposta(data);
+                    break;
+                default:
+                    throw new HttpException("Instituição não encontrada", 404);
+            }
+
+            return response;
+        } catch(err) {
+            throw err;
+        }
+    }
+
     async DigitarProposta(data, instituicao, userData) {
         try {
             let response;
@@ -13,7 +31,7 @@ class PropostasCLTService {
                     response = await PresencaBankService.DigitarProposta(data, userData.id);
                     break;
                 case "v8":
-                    response = await V8CLTService.SimularECriarProposta(data, userData.id);
+                    response = await V8CLTService.DigitarProposta(data, userData.id);
                     break;
                 default:
                     throw new HttpException("Instituição não encontrada", 404);

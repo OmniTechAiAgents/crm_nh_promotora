@@ -10,6 +10,13 @@ export const ValidarBodyPropostaCLT = z
             "corrente", 
             "poupanca"
             ]).optional(),
+            pixKey: z.string().optional(),
+        pixKeyType: z.enum([
+            "chave_aleatoria", 
+            "email", 
+            "telefone", 
+            "cpf"
+        ]).optional(),
         accountNumber: z.string().optional(),
         accountDigit: z.string().optional(),
         branchNumber: z.string().optional(),
@@ -26,14 +33,11 @@ export const ValidarBodyPropostaCLT = z
         tabelaId: z.number().int().or(z.string()),
 
         // informações que são necessárias para o v8 funcionar
-        idTermo: z.string(),
-        pixKey: z.string().optional(),
-        pixKeyType: z.enum([
-            "chave_aleatoria", 
-            "email", 
-            "telefone", 
-            "cpf"
-        ]).optional()
+        simulacaoId: z.string().optional(),
+        nomeTabela: z.string().optional(),
+        taxaJurosMensal: z.number().optional(),
+        valorSolicitado: z.number().optional(),
+        valorLiberado: z.number().optional()
     })
     .superRefine((data, ctx) => {
         const recebePix = data.pixKey || data.pixKeyType;

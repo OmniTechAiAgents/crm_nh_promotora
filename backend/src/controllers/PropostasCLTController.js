@@ -2,6 +2,7 @@ import PropostasCLTService from "../services/PropostasCLTService.js";
 import { ZodError } from "zod";
 import HttpException from "../utils/HttpException.js";
 import { ValidarBodyPropostaCLT } from "../middleware/ValidarBodyPropostaCLT.js";
+import { ValidarBodySimulacaoCLT } from "../middleware/ValidarBodySimulacaoCLT.js";
 
 class PropostasCLTController {
     async DigitarPropostas (req, res) {
@@ -11,6 +12,30 @@ class PropostasCLTController {
             await PropostasCLTService.DigitarProposta(dados, dados.instituicao, req.user);
 
             return res.status(200).json({ msg: "Proposta criada com sucesso!" })
+        } catch (err) {
+            console.log(err)
+
+            if (err instanceof ZodError) {
+                return res.status(400).json({
+                    erro: err.issues[0].message
+                });
+            }
+
+            if (err instanceof HttpException) {
+                return res.status(err.status).json({ erro: err.message })
+            }
+
+            return res.status(500).json({ erro: err.message });
+        }
+    }
+
+    async SimularProposta(req, res) {
+        try {
+            const dados = ValidarBodySimulacaoCLT.parse(req.body);
+
+            const response = await PropostasCLTService.SimularProposta(dados, dados.instituicao);
+
+            return res.status(200).json(response);
         } catch (err) {
             console.log(err)
 

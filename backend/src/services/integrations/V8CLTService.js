@@ -105,7 +105,8 @@ class V8CLTService {
                 tabelasElegiveis : tabelasDisponiveis
             })
 
-            return bodyRetorno;
+            // colocando dentro de uma array para ficar no padrão do presença
+            return [bodyRetorno];
         } catch (err) {
             // console.log(err)
             let status = !err.status ? 500 : err.status;
@@ -129,9 +130,8 @@ class V8CLTService {
         }
     }
 
-    async SimularECriarProposta(dados, userId) {
+    async SimularProposta(dados) {
         try {
-            // simula a proposta
             const simulacao = await this.#simularUmaProposta(
                 dados.idTermo,
                 dados.tabelaId,
@@ -139,6 +139,44 @@ class V8CLTService {
                 dados.qtdParcelas
             )
 
+            const bodyRetorno = ({
+                id_simulacao: simulacao.id_simulation,
+                valor_total: simulacao.disbursement_amount,
+                id_tabela: simulacao.simulation_config_id,
+                nome_tabela: simulacao.simulation_config_slug,
+                qtd_parcelas: simulacao.number_of_installments,
+                valor_parcelas: simulacao.installment_value,
+                taxa_juros_mensal: simulacao.monthly_interest_rate,
+                valor_solicitado: simulacao.operation_amount,
+                valor_liberado: simulacao.disbursed_issue_amount,
+            })
+
+            return bodyRetorno;
+        } catch (err) {
+            console.log(err)
+            let status = !err.status ? 500 : err.status;
+            let message = `Erro inesperado ao realizar a simulação: ${err}`;
+            
+            if (axios.isAxiosError(err)) {
+                status = 424;
+                
+                if (err.response?.status === 429) {
+                    // Mensagem personalizada para o limite de requisições
+                    message = "O limite de requisições ao serviço de autorização foi excedido. Tente novamente em alguns instantes.";
+                } else {
+                    // Caso contrário, tenta pegar o 'result' ou o 'title' da API, senão mantém a default
+                    message = err.response?.data?.result ?? err.response?.data?.title ?? message;
+                }
+            } else if (err instanceof Error) {
+                message = err.message;
+            }
+
+            throw new HttpException(message, status);
+        }
+    }
+
+    async DigitarProposta(dados, userId) {
+        try {
             // recuperando dados do cliente
             const resultBuscaCliente = await ClientesService.procurarCpf(dados.cpf); 
             if (!resultBuscaCliente || resultBuscaCliente?.length === 0) {
@@ -190,7 +228,7 @@ class V8CLTService {
                         pix_key_type: "cpf"
                     }
                 },
-                simulation_id: simulacao.id_simulation
+                simulation_id: dados.simulacaoId
             })
 
             const responseProposta = await this.#digitarUmaProposta(bodyProposta);
@@ -207,17 +245,17 @@ class V8CLTService {
                 cpf: dados.cpf,
                 cel: cliente.dataValues.celular,
                 data_nascimento: cliente.dataValues.data_nasc,
-                nome_tabela: `${simulacao.simulation_config_slug} - ${simulacao.number_of_installments}x`,
+                nome_tabela: dados.nomeTabela,
                 id_proposta: responseProposta.id,
                 link_form: responseProposta.formalization_url,
                 contrato: dadosProposta.contract_url,
                 numero_contrato: dadosProposta.contract_number,
                 usuario_id: userId,
-                qtd_parcelas: simulacao.number_of_installments,
-                valor_parcelas: simulacao.installment_value,
-                taxa_juros_mensal: simulacao.monthly_interest_rate,
-                valor_solicitado: simulacao.operation_amount,
-                valor_liberado: simulacao.disbursed_issue_amount,
+                qtd_parcelas: dados.qtdParcelas,
+                valor_parcelas: dados.valorParcelas,
+                taxa_juros_mensal: dados.taxaJurosMensal,
+                valor_solicitado: dados.valorSolicitado,
+                valor_liberado: dados.valorLiberado,
                 status_nome: dadosProposta.status,
                 status_id : "",
                 produto_nome: "",
