@@ -1,7 +1,8 @@
 import { useState } from "react";
 import "./clt.css";
-import CltProposta from "./CltProposta";
+import CltPropostaPresencaBank from "./CltPropostaPresencaBank";
 import Modal from "../../components/Modal";
+import CltPropostaV8 from "./CltPropostaV8";
 
 export default function CltResultadoCard({ resultado }) {
     const [openModal, setOpenModal] = useState(false);
@@ -130,7 +131,7 @@ export default function CltResultadoCard({ resultado }) {
                 open={openModal}
                 onClose={() => setOpenModal(false)}
             >
-                <CltProposta 
+                <CltPropostaPresencaBank
                     instituicao={instituicaoEscolhida}
                     cpf={cpf}
                     sexo={sexo}
@@ -204,15 +205,18 @@ export default function CltResultadoCard({ resultado }) {
                 open={openModal}
                 onClose={() => setOpenModal(false)}
             >
-                <CltProposta 
+                <CltPropostaV8 
                     instituicao={instituicaoEscolhida}
                     cpf={cpf}
                     sexo={sexo}
-                    nomeMae={nomeMae}
-                    cnpjEmpregador={cnpjEmpregador}
-                    registroEmpregaticio={registroEmpregaticio}
-                    tabelasDisponíveis={tabelasElegiveis}
-                    valorMargemAvaliavel={valorMargemAvaliavel}
+                    qtdParcelas={qtdParcelas}
+                    valorParcelas={valorMargemAvaliavel}
+                    tabelaId={tabelaId}
+                    simulacaoId={simulacaoId}
+                    nomeTabela={nomeTabela}
+                    taxaJurosMensal={taxaJurosMensal}
+                    valorSolicitado={valorSolicitado}
+                    valorLiberado={valorLiberado}
 
                     onSuccess={() => {
                         setOpenModal(false);
