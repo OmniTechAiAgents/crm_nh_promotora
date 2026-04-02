@@ -36,7 +36,6 @@ export default function CltPropostaV8({
     const [branchNumber, setBranchNumber] = useState("");
     const [accountNumber, setAccountNumber] = useState("");
     const [accountDigit, setAccountDigit] = useState("");
-    const [accountType, setAccountType] = useState("");
 
     const [loading, setLoading] = useState(false);
     const [erros, setErros] = useState({});
@@ -55,8 +54,8 @@ export default function CltPropostaV8({
 
             const body = {
                 instituicao,
-                pix_key_type: pixKeyType,
-                pix_key: pixKey,
+                pixKeyType: pixKeyType == "" ? null : pixKeyType,
+                pixKey: pixKey == "" ? null : pixKey,
                 cpf,
                 sexo,
                 qtdParcelas,
@@ -68,17 +67,13 @@ export default function CltPropostaV8({
                 valorSolicitado,
                 valorLiberado,
 
-                // informações bancárias, AINDA NÃO IMPLEMENTADO
-                // bankCode,
-                // accountType,
-                // accountNumber,
-                // accountDigit,
-                // branchNumber,
+                bankCode: bankCode == "" ? null : bankCode,
+                accountNumber: accountNumber == "" ? null : accountNumber,
+                accountDigit: accountDigit == "" ? null : accountDigit,
+                branchNumber: branchNumber == "" ? null : branchNumber,
             }
 
-            if(formaRecebimento == "CONTA") {
-                throw new Error("Erro ao gerar proposta: Função de proposta via dados bancários ainda não foi implementado.")
-            }
+            console.log(body)
 
             await criarPropostaCLT(body);
 
@@ -163,15 +158,6 @@ export default function CltPropostaV8({
                 <input placeholder="Agência" value={branchNumber} onChange={(e) => setBranchNumber(e.target.value)} />
                 <input placeholder="Conta" value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)} />
                 <input placeholder="Dígito" value={accountDigit} onChange={(e) => setAccountDigit(e.target.value)} />
-
-                <select
-                    value={accountType}
-                    onChange={(e) => setAccountType(e.target.value)}
-                >
-                    <option value="">Selecione o tipo de conta</option>
-                    <option value="corrente">Corrente</option>
-                    <option value="poupanca">Poupança</option>
-                </select>
             </div>
             )}
 

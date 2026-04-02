@@ -159,6 +159,11 @@ export default function CltConsulta() {
                 return;
             }
 
+            // colocando validaçao rápida
+            if (!resultado[0].idTermo || !tabelaSelecionada || !resultado[0].valorMargemAvaliavel || !prazoSelecionado) {
+                throw new Error("O v8 não retornou alguma informação necessária para prosseguir.")
+            }
+
             const bodySimulacao = ({
                 instituicao,
                 idTermo: resultado[0].idTermo,
