@@ -72,7 +72,7 @@ class NossaFintechService {
         //userUsername
         try {
             const players = [
-                { code: "qi", table: 101 , enabled: true },
+                { code: "qi", table: 104 , enabled: true },
                 { code: "bmp", table: 106, enabled: false }
             ];
 

@@ -191,6 +191,12 @@ class V8CLTService {
             const cliente = await ClientesService.procurarCpf(dados.cpf);
             const cliente_ddd = cliente.dataValues.celular.slice(0, 2);
             const cliente_celular = cliente.dataValues.celular.slice(2);
+            let bancoEscolhido = null;
+
+            if (dados.bankCode) {
+                bancoEscolhido = await this.#buscarBancoPorCodigo(dados.bankCode);
+            }
+            
 
             const bodyProposta = ({
                 borrower: {
@@ -222,14 +228,23 @@ class V8CLTService {
                     document_identification_date: "2025-09-16",
                     document_identification_type: "rg",
                     document_identification_number: "string",
-                    bank: {
+                    bank: dados.pixKey ? {
                         transfer_method: "pix",
-                        pix_key: dados.cpf,
-                        pix_key_type: "cpf"
+                        pix_key: dados.pixKey,
+                        pix_key_type: dados.pixKeyType,
+                    } : {
+                        transfer_method: "ted",
+                        bank_id: bancoEscolhido?.id,
+                        bank_code: dados.bankCode,
+                        account_digit: dados.accountDigit,
+                        branch_number: dados.branchNumber,
+                        account_number: dados.accountNumber,
                     }
                 },
                 simulation_id: dados.simulacaoId
             })
+
+            console.log(bodyProposta);
 
             const responseProposta = await this.#digitarUmaProposta(bodyProposta);
 
@@ -477,6 +492,29 @@ class V8CLTService {
 
             // retorna todos os dados do body caso forem necessários
             return response?.data;
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    async #buscarBancoPorCodigo(codigoBanco) {
+        try {
+            const response = await axios.get(`${process.env.v8_baseURL}/banks`, {
+                headers: {
+                    'Authorization': `Bearer ${this.accessToken}`,
+                },
+            });
+
+            const bancos = response.data.data;
+
+            const bancoEncontrado = bancos.find(banco => banco.code === String(codigoBanco));
+
+            if (!bancoEncontrado) {
+                throw new HttpException(`Banco com o código '${codigoBanco}' não foi encontrado no sistema v8.`, 424);
+            }
+
+            return bancoEncontrado;
+
         } catch (err) {
             throw err;
         }
