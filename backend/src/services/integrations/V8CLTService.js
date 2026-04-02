@@ -228,26 +228,17 @@ class V8CLTService {
                     document_identification_date: "2025-09-16",
                     document_identification_type: "rg",
                     document_identification_number: "string",
-                    borrower_bank: dados.pixKey ? {
+                    bank: dados.pixKey ? {
                         transfer_method: "pix",
                         pix_key: dados.pixKey,
                         pix_key_type: dados.pixKeyType,
-                        bank_id: "",
-                        bank_code: "",
-                        account_digit: "",
-                        branch_number: "",
-                        account_number: "",
-                        percentage_receivable: 100
                     } : {
-                        transfer_method: "transfer",
-                        pix_key: "",
-                        pix_key_type: "",
+                        transfer_method: "ted",
                         bank_id: bancoEscolhido?.id,
                         bank_code: dados.bankCode,
                         account_digit: dados.accountDigit,
                         branch_number: dados.branchNumber,
                         account_number: dados.accountNumber,
-                        percentage_receivable: 100
                     }
                 },
                 simulation_id: dados.simulacaoId
