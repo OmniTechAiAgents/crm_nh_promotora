@@ -39,6 +39,36 @@ class PropostasCLTRepository {
             totalPages: Math.ceil(result.count / limite)
         }
     }
+
+    async findOneByProposalId(proposalId) {
+        return Tabela_propostas_CLT.findOne({
+            where: {
+                id_proposta: proposalId
+            }
+        })
+    }
+
+    async updateByProposalId(proposalId, data) {
+        return Tabela_propostas_CLT.update(
+            data,
+            {
+                where: {
+                    id_proposta: proposalId
+                }
+            }
+        );
+    }
+
+    async findAllParaVerificar(instituicao) {
+        return Tabela_propostas_CLT.findAll({
+            where: {
+                API: instituicao,
+                verificar: true
+            },
+            attributes: ['id_proposta'],
+            raw: true
+        });
+    }
 }
 
 export default new PropostasCLTRepository();

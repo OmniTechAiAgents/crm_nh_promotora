@@ -304,6 +304,22 @@ class V8CLTService {
         }
     }
 
+    async VerificarTodasAsPropostas() {
+        try {
+            const propostasParaVerificar = await PropostasCLTRepository.findAllParaVerificar("V8");
+
+            for (const { id_proposta } of propostasParaVerificar) {
+                await this.#verificarUmEAtualizarRegistroPropostaDB(id_proposta);
+
+                await new Promise(resolve => setTimeout(resolve, 5000));
+            };
+
+            TaskScheduler.schedule("Verificar propostas do V8CLT", () => this.VerificarTodasAsPropostas(), 600000);
+        } catch(err) {
+            console.error(`Não foi possível verificar as propostas do V8 CLT: ${err}`);
+        }
+    }
+
     // funções internas (tem end-points demais para fazer tudo em uma função)
     async #verificarERecuperarIdTermoConsentimento(cpf) {
         try {
@@ -519,6 +535,47 @@ class V8CLTService {
         } catch (err) {
             throw err;
         }
+    }
+
+    async #verificarUmEAtualizarRegistroPropostaDB(proposalId) {
+        try {
+            const STATUS_FINALIZADOS = new Set([
+                "paid",
+                "canceled",
+                "refunded"
+            ]);
+
+            // recupera todas as informações da proposta, incluindo o status dela
+            const proposalData = await axios.get(`${process.env.v8_baseURL}/private-consignment/operation/${proposalId}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                    },
+                }
+            );
+
+            const verificar = !STATUS_FINALIZADOS.has(proposalData.data.status);
+
+            const propostaDB = await PropostasCLTRepository.findOneByProposalId(proposalId);
+
+            // monta o body com as novas informações atualizadas, porém armazenando apenas o que interessa
+            const dadosAtualizados = {
+                ...propostaDB,
+
+                // por algum motivo, o "contract_url" é o msm q link form nesse end-point
+                link_form: proposalData?.data?.contract_url,
+                status_nome: proposalData?.data?.status,
+                verificar
+            }
+
+            return await PropostasCLTRepository.updateByProposalId(proposalId, dadosAtualizados);
+        } catch(err) {
+            throw err;
+        }
+    }
+
+    getToken() {
+        return this.accessToken;
     }
 }
 
