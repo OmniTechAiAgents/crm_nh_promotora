@@ -242,7 +242,7 @@ export default function CltResultadoCard({ resultado }) {
 
                     <button
                         className="btn-secundario"
-                        onClick={() => (alert("Função ainda não implementada..."))}
+                        onClick={() => (window.location.href = "/clt/esteira")}
                     >
                         Ir para Esteira de Propostas
                     </button>

@@ -7,6 +7,7 @@ import EditarUsuario from "../modules/users/EditarUsuario";
 import FgtsOfertasPromotor from "../modules/fgts/FgtsOfertasPromotor";
 import RegistrarNovoCliente from "../modules/clientes/RegistrarNovoCliente";
 import CltConsulta from "../modules/clt/CltConsulta";
+import CltEsteira from "../modules/clt/CltEsteira";
 
 
 export const routesConfig = [
@@ -37,6 +38,13 @@ export const routesConfig = [
   permission: "FGTS_VIEW",
   showInMenu: true,
   element: <FgtsEsteira />
+},
+{
+  path: "/clt/esteira",
+  label: "Esteira CLT",
+  permission: "FGTS_VIEW",
+  showInMenu: true,
+  element: <CltEsteira />
 },
 {
   path: "/usuarios",
