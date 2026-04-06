@@ -394,7 +394,8 @@ class PresencaBankService {
                 produto_nome: bodyPropostaRetorno.data.produto.name,
                 produto_id: bodyPropostaRetorno.data.produto.id,
                 status_historicos: bodyPropostaRetorno.data.statusHistoricos,
-                verificar: 1
+                verificar: 1,
+                API: "Presenca bank"
             });
 
             return await PropostasCLTRepository.create(bodyDB)
