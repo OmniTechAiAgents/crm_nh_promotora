@@ -175,7 +175,8 @@ export default function CltEsteira() {
                     <td>R$ {proposta.valor_liberado}</td>
                     <td>{proposta.status_nome}</td>
 
-                    <td className="link-coluna">
+                    {/* função para simplificar o link e deixar o site mais bonito */}
+                    {/* <td className="link-coluna">
                         {proposta.link_form ? (
                             <span
                             className={`link-formalizacao ${
@@ -193,6 +194,27 @@ export default function CltEsteira() {
                         ) : (
                             "-"
                         )}
+                    </td> */}
+
+                    <td className="link-coluna">
+                      {proposta.link_form ? (
+                        <span
+                          className={`link-formalizacao ${
+                            linksClicados.includes(proposta.id)
+                              ? "link-visitado"
+                              : ""
+                          }`}
+                          onClick={() =>
+                            handleCopy(proposta.link_form, proposta.id)
+                          }
+                        >
+                          {copiadoId === proposta.id
+                            ? "Copiado!"
+                            : proposta.link_form}
+                        </span>
+                      ) : (
+                        "-"
+                      )}
                     </td>
 
                     <td>
