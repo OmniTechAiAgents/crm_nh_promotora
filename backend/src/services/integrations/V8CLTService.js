@@ -276,7 +276,8 @@ class V8CLTService {
                 produto_nome: "",
                 produto_id: null,
                 status_historicos: null,
-                verificar: 1
+                verificar: 1,
+                API: "V8"
             })
 
             return await PropostasCLTRepository.create(bodyDB);

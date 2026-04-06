@@ -101,6 +101,10 @@ const Tabela_propostas_CLT = db.define(
             type: DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: true,
+        },
+        API: {
+            type: DataTypes.STRING(50),
+            allowNull: false
         }
     },
     {
