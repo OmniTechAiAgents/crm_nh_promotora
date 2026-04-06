@@ -107,7 +107,7 @@ export default function FgtsResultadoCard({ resultado }) {
 
           <button
             className="btn-secundario"
-            onClick={() => (window.location.href = "/esteira-propostas")}
+            onClick={() => (window.location.href = "/fgts/esteira")}
           >
             Ir para Esteira de Propostas
           </button>
