@@ -78,6 +78,11 @@ async function bootstrap() {
             await NossaFintechService.VerificarTodasAsPropostas();
             console.log("✅ Todas as propostas pendentes da Nossa fintech foram verificadas");
         }
+
+        if(V8CLTService.getToken() != null) {
+            await V8CLTService.VerificarTodasAsPropostas();
+            console.log("✅ Todas as propostas pendentes do V8CLT foram verificadas");
+        }
         
     } catch (err) {
         console.error("❌ Falha Crítica na inicialização:");

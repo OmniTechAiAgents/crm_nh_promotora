@@ -79,11 +79,17 @@ class V8CLTService {
 
             while (flag) {
                 objTermo = await this.#verificarEstadoAutorizacaoTermo(cpf);
+                console.log(objTermo)
 
-                if (objTermo.status == "SUCCESS" || objTermo.status == "CONSENT_APPROVED") {
-                    flag = false;
-                } else if(objTermo.status == "REJECTED") {
+                if (objTermo.status == "REJECTED") {
                     throw new HttpException(`Não foi possível realizar a consulta: ${objTermo.description}`, 424);
+                } else if (
+                    (objTermo.status == "WAITING_CONSULT" || objTermo.status == "CONSENT_APPROVED") 
+                    && !objTermo.availableMarginValue
+                ) {
+                    throw new HttpException("Requisição aceita, porém API parceira está aguardando a consulta.", 422);
+                } else if (objTermo.status == "SUCCESS" || objTermo.status == "CONSENT_APPROVED") {
+                    flag = false;
                 }
 
                 await new Promise(resolve => setTimeout(resolve, 2000));
@@ -108,7 +114,7 @@ class V8CLTService {
             // colocando dentro de uma array para ficar no padrão do presença
             return [bodyRetorno];
         } catch (err) {
-            console.log(err)
+            // console.log(err)
             let status = !err.status ? 500 : err.status;
             let message = `Erro inesperado ao realizar a simulação: ${err}`;
             
@@ -153,7 +159,7 @@ class V8CLTService {
 
             return bodyRetorno;
         } catch (err) {
-            console.log(err)
+            // console.log(err)
             let status = !err.status ? 500 : err.status;
             let message = `Erro inesperado ao realizar a simulação: ${err}`;
             
@@ -277,10 +283,59 @@ class V8CLTService {
                 produto_id: null,
                 status_historicos: null,
                 verificar: 1,
-                API: "V8"
+                API: "v8"
             })
 
             return await PropostasCLTRepository.create(bodyDB);
+        } catch(err) {
+            console.log(err)
+            let status = !err.status ? 500 : err.status;
+            let message = `Erro inesperado ao realizar a simulação: ${err}`;
+            
+            if (axios.isAxiosError(err)) {
+                status = 424;
+                
+                if (err.response?.status === 429) {
+                    // Mensagem personalizada para o limite de requisições
+                    message = "O limite de requisições ao serviço de autorização foi excedido. Tente novamente em alguns instantes.";
+                } else {
+                    // Caso contrário, tenta pegar o 'result' ou o 'title' da API, senão mantém a default
+                    message = err.response?.data?.result ?? err.response?.data?.title ?? message;
+                }
+            } else if (err instanceof Error) {
+                message = err.message;
+            }
+
+            throw new HttpException(message, status);
+        }
+    }
+
+    async VerificarTodasAsPropostas() {
+        try {
+            const propostasParaVerificar = await PropostasCLTRepository.findAllParaVerificar("V8");
+
+            for (const { id_proposta } of propostasParaVerificar) {
+                await this.#verificarUmEAtualizarRegistroPropostaDB(id_proposta);
+
+                await new Promise(resolve => setTimeout(resolve, 5000));
+            };
+
+            TaskScheduler.schedule("Verificar propostas do V8CLT", () => this.VerificarTodasAsPropostas(), 600000);
+        } catch(err) {
+            console.error(`Não foi possível verificar as propostas do V8 CLT: ${err}`);
+        }
+    }
+
+    async CancelarProposta(proposalId, motivo) {
+        try {
+            // chama função interna que manda a request de cancelamento
+            await this.#cancelarProposta(proposalId, motivo);
+
+            // atualiza o dado no nosso banco de dados
+            await this.#verificarUmEAtualizarRegistroPropostaDB(proposalId);
+ 
+            // retornando o body do banco (para futura implementação de chatbot);
+            return await PropostasCLTRepository.findOneByProposalId(proposalId);
         } catch(err) {
             console.log(err)
             let status = !err.status ? 500 : err.status;
@@ -519,6 +574,66 @@ class V8CLTService {
         } catch (err) {
             throw err;
         }
+    }
+
+    async #verificarUmEAtualizarRegistroPropostaDB(proposalId) {
+        try {
+            const STATUS_FINALIZADOS = new Set([
+                "paid",
+                "canceled",
+                "refunded"
+            ]);
+
+            // recupera todas as informações da proposta, incluindo o status dela
+            const proposalData = await axios.get(`${process.env.v8_baseURL}/private-consignment/operation/${proposalId}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                    },
+                }
+            );
+
+            const verificar = !STATUS_FINALIZADOS.has(proposalData.data.status);
+
+            const propostaDB = await PropostasCLTRepository.findOneByProposalId(proposalId);
+
+            // monta o body com as novas informações atualizadas, porém armazenando apenas o que interessa
+            const dadosAtualizados = {
+                ...propostaDB,
+
+                // por algum motivo, o "contract_url" é o msm q link form nesse end-point
+                link_form: proposalData?.data?.contract_url,
+                status_nome: proposalData?.data?.status,
+                verificar
+            }
+
+            return await PropostasCLTRepository.updateByProposalId(proposalId, dadosAtualizados);
+        } catch(err) {
+            throw err;
+        }
+    }
+
+    async #cancelarProposta(proposalId, motivoCancelamento) {
+        try {
+            await axios.post(`${process.env.v8_baseURL}/private-consignment/operation/${proposalId}/cancel`,
+                {
+                    cancel_reason: "invalid_data:other",
+                    cancel_description: motivoCancelamento,
+                    provider: "QI"
+                },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                    }
+                }
+            )
+        } catch(err) {
+            throw err;
+        }
+    }
+
+    getToken() {
+        return this.accessToken;
     }
 }
 
