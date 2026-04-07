@@ -19,7 +19,6 @@ export default function CltEsteira() {
   const [propostaSelecionada, setPropostaSelecionada] = useState(null);
   const [drawerAberto, setDrawerAberto] = useState(false);
 
-  const [mostrarConfirmacao, setMostrarConfirmacao] = useState(false);
   const [cancelando, setCancelando] = useState(false);
 
   async function fetchPropostas() {
@@ -87,24 +86,36 @@ export default function CltEsteira() {
   async function handleCancelarProposta() {
     if (!propostaSelecionada) return;
 
-    try {
-      setCancelando(true);
+    const motivo = prompt("Tem certeza de que deseja cancelar? Se sim, digite o motivo:");
 
-      await api.patch(
-        "/propostas/FGTS/cancelar",
-        { proposalId: propostaSelecionada.proposal_id }
-      );
+    if (motivo !== null) {
+      
+      if (motivo.trim() === "") {
+        alert("O motivo é obrigatório para cancelar a proposta.");
+        return;
+      }
 
-      setMostrarConfirmacao(false);
-      fecharDrawer();
-      await fetchPropostas();
+      try {
+        setCancelando(true);
 
-      alert("Proposta cancelada com sucesso.");
-    } catch (error) {
-      console.error("Erro ao cancelar:", error);
-      alert("Erro ao cancelar proposta.");
-    } finally {
-      setCancelando(false);
+        const bodyCancelar = {
+          proposalId: propostaSelecionada.id_proposta,
+          motivo: motivo,
+          instituicao: propostaSelecionada.API
+        };
+
+        await api.patch("/propostas/CLT/cancelar", bodyCancelar);
+
+        await fetchPropostas();
+        fecharDrawer();
+        
+        alert("Proposta cancelada com sucesso.");
+      } catch (error) {
+        console.error("Erro ao cancelar:", error);
+        alert("Erro ao cancelar proposta.");
+      } finally {
+        setCancelando(false);
+      }
     }
   }
 
@@ -285,7 +296,7 @@ export default function CltEsteira() {
                     <div className="drawer-actions">
                     <button
                         className="btn-cancelar"
-                        onClick={() => setMostrarConfirmacao(true)}
+                        onClick={handleCancelarProposta}
                     >
                         Cancelar Proposta
                     </button>
@@ -294,34 +305,6 @@ export default function CltEsteira() {
             </div>
           </div>
         </>
-      )}
-
-      {/* ================= MODAL ================= */}
-
-      {mostrarConfirmacao && (
-        <div className="modal-overlay">
-          <div className="modal-confirmacao">
-            <h3>Cancelar Proposta</h3>
-            <p>Tem certeza que deseja cancelar esta proposta?</p>
-
-            <div className="modal-actions">
-              <button
-                className="btn-secundario"
-                onClick={() => setMostrarConfirmacao(false)}
-              >
-                Voltar
-              </button>
-
-              <button
-                className="btn-cancelar"
-                onClick={handleCancelarProposta}
-                disabled={cancelando}
-              >
-                {cancelando ? "Cancelando..." : "Confirmar Cancelamento"}
-              </button>
-            </div>
-          </div>
-        </div>
       )}
     </>
   );

@@ -117,6 +117,9 @@ export default function CltConsulta() {
                         status: "NAO_ELEGIVEL",
                         motivoErro: getErrorMessage(err)
                     });
+                } else if (err.status == 422) {
+                    alert("API do v8 está esperando para fazer a consulta de saldo, refaça essa requisição daqui a alguns minutos.")
+                    setResultadoSimulacao(null);
                 } else {
                     setResultadoSimulacao({
                         status: "ERRO",
