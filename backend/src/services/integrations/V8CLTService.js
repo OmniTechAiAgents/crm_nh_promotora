@@ -312,7 +312,7 @@ class V8CLTService {
 
     async VerificarTodasAsPropostas() {
         try {
-            const propostasParaVerificar = await PropostasCLTRepository.findAllParaVerificar("V8");
+            const propostasParaVerificar = await PropostasCLTRepository.findAllParaVerificar("v8");
 
             for (const { id_proposta } of propostasParaVerificar) {
                 await this.#verificarUmEAtualizarRegistroPropostaDB(id_proposta);

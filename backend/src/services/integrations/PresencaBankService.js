@@ -414,6 +414,58 @@ class PresencaBankService {
             throw new HttpException(message, status);
         }
     }
+
+    async VerificarTodasAsPropostas() {
+        try {
+            const propostasParaVerificar = await PropostasCLTRepository.findAllParaVerificar("Presenca bank");
+
+            for (const { id_proposta } of propostasParaVerificar) {
+                await this.#verificarUmEAtualizarRegistroPropostaDB(id_proposta);
+
+                await new Promise(resolve => setTimeout(resolve, 2500));
+            }
+
+            TaskScheduler.schedule("Verificar propostas do Presenca bank", () => this.VerificarTodasAsPropostas(), 60000);
+        } catch(err) {
+            console.error(`Não foi possível verificar as propostas do Presenca bank: ${err}`);
+        } 
+    }
+
+    async #verificarUmEAtualizarRegistroPropostaDB(proposalId) {
+        try {
+            const STATUS_FINALIZADOS = new Set([
+                "Paga",
+                "Cancelada"
+            ]);
+
+            const proposalData = await axios.get(`${process.env.presencaBank_baseURL}/operacoes/${proposalId}/detalhe`, 
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                    }
+                }
+            )
+
+            const verificar = !STATUS_FINALIZADOS.has(proposalData?.data?.status?.name);
+
+            const propostaDB = await PropostasCLTRepository.findOneByProposalId(proposalId);
+
+            const dadosAtualizados = {
+                ...propostaDB,
+
+                status_nome: proposalData?.data?.status?.name,
+                verificar
+            }
+
+            return await PropostasCLTRepository.updateByProposalId(proposalId, dadosAtualizados);
+        } catch(err) {
+            throw err;
+        }
+    }
+
+    getToken() {
+        return this.accessToken;
+    }
 }
 
 export default new PresencaBankService();
