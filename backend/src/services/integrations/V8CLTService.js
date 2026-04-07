@@ -114,7 +114,7 @@ class V8CLTService {
             // colocando dentro de uma array para ficar no padrão do presença
             return [bodyRetorno];
         } catch (err) {
-            console.log(err)
+            // console.log(err)
             let status = !err.status ? 500 : err.status;
             let message = `Erro inesperado ao realizar a simulação: ${err}`;
             
@@ -159,7 +159,7 @@ class V8CLTService {
 
             return bodyRetorno;
         } catch (err) {
-            console.log(err)
+            // console.log(err)
             let status = !err.status ? 500 : err.status;
             let message = `Erro inesperado ao realizar a simulação: ${err}`;
             
@@ -283,7 +283,7 @@ class V8CLTService {
                 produto_id: null,
                 status_historicos: null,
                 verificar: 1,
-                API: "V8"
+                API: "v8"
             })
 
             return await PropostasCLTRepository.create(bodyDB);
