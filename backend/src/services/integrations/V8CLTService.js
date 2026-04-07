@@ -79,11 +79,17 @@ class V8CLTService {
 
             while (flag) {
                 objTermo = await this.#verificarEstadoAutorizacaoTermo(cpf);
+                console.log(objTermo)
 
-                if (objTermo.status == "SUCCESS" || objTermo.status == "CONSENT_APPROVED") {
-                    flag = false;
-                } else if(objTermo.status == "REJECTED") {
+                if (objTermo.status == "REJECTED") {
                     throw new HttpException(`Não foi possível realizar a consulta: ${objTermo.description}`, 424);
+                } else if (
+                    (objTermo.status == "WAITING_CONSULT" || objTermo.status == "CONSENT_APPROVED") 
+                    && !objTermo.availableMarginValue
+                ) {
+                    throw new HttpException("Requisição aceita, porém API parceira está aguardando a consulta.", 422);
+                } else if (objTermo.status == "SUCCESS" || objTermo.status == "CONSENT_APPROVED") {
+                    flag = false;
                 }
 
                 await new Promise(resolve => setTimeout(resolve, 2000));
@@ -327,6 +333,9 @@ class V8CLTService {
 
             // atualiza o dado no nosso banco de dados
             await this.#verificarUmEAtualizarRegistroPropostaDB(proposalId);
+ 
+            // retornando o body do banco (para futura implementação de chatbot);
+            return await PropostasCLTRepository.findOneByProposalId(proposalId);
         } catch(err) {
             console.log(err)
             let status = !err.status ? 500 : err.status;

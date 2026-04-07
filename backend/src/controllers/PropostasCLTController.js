@@ -82,9 +82,9 @@ class PropostasCLTController {
         try {
             const dados = ValidarBodyCancelarPropostaCLT.parse(req.body);
 
-            await PropostasCLTService.CancelarProposta(dados, dados.instituicao);
+            const response = await PropostasCLTService.CancelarProposta(dados, dados.instituicao);
 
-            return res.status(200).json({ msg: "Proposta cancelada com sucesso!" });
+            return res.status(200).json( response );
         } catch(err) {
             console.log(err)
 
