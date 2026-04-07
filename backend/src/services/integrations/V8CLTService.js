@@ -320,6 +320,36 @@ class V8CLTService {
         }
     }
 
+    async CancelarProposta(proposalId, motivo) {
+        try {
+            // chama função interna que manda a request de cancelamento
+            await this.#cancelarProposta(proposalId, motivo);
+
+            // atualiza o dado no nosso banco de dados
+            await this.#verificarUmEAtualizarRegistroPropostaDB(proposalId);
+        } catch(err) {
+            console.log(err)
+            let status = !err.status ? 500 : err.status;
+            let message = `Erro inesperado ao realizar a simulação: ${err}`;
+            
+            if (axios.isAxiosError(err)) {
+                status = 424;
+                
+                if (err.response?.status === 429) {
+                    // Mensagem personalizada para o limite de requisições
+                    message = "O limite de requisições ao serviço de autorização foi excedido. Tente novamente em alguns instantes.";
+                } else {
+                    // Caso contrário, tenta pegar o 'result' ou o 'title' da API, senão mantém a default
+                    message = err.response?.data?.result ?? err.response?.data?.title ?? message;
+                }
+            } else if (err instanceof Error) {
+                message = err.message;
+            }
+
+            throw new HttpException(message, status);
+        }
+    }
+
     // funções internas (tem end-points demais para fazer tudo em uma função)
     async #verificarERecuperarIdTermoConsentimento(cpf) {
         try {
@@ -569,6 +599,25 @@ class V8CLTService {
             }
 
             return await PropostasCLTRepository.updateByProposalId(proposalId, dadosAtualizados);
+        } catch(err) {
+            throw err;
+        }
+    }
+
+    async #cancelarProposta(proposalId, motivoCancelamento) {
+        try {
+            await axios.post(`${process.env.v8_baseURL}/private-consignment/operation/${proposalId}/cancel`,
+                {
+                    cancel_reason: "invalid_data:other",
+                    cancel_description: motivoCancelamento,
+                    provider: "QI"
+                },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                    }
+                }
+            )
         } catch(err) {
             throw err;
         }

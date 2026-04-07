@@ -3,6 +3,7 @@ import { ZodError } from "zod";
 import HttpException from "../utils/HttpException.js";
 import { ValidarBodyPropostaCLT } from "../middleware/ValidarBodyPropostaCLT.js";
 import { ValidarBodySimulacaoCLT } from "../middleware/ValidarBodySimulacaoCLT.js";
+import { ValidarBodyCancelarPropostaCLT } from "../middleware/ValidarBodyCancelarPropostaCLT.js";
 
 class PropostasCLTController {
     async DigitarPropostas (req, res) {
@@ -67,6 +68,24 @@ class PropostasCLTController {
 
             return res.status(200).json( response );
         } catch (err) {
+            console.log(err)
+
+            if (err instanceof HttpException) {
+                return res.status(err.status).json({ erro: err.message });
+            }
+
+            return res.status(500).json({ erro: err.message });
+        }
+    }
+
+    async CancelarProposta(req, res) {
+        try {
+            const dados = ValidarBodyCancelarPropostaCLT.parse(req.body);
+
+            await PropostasCLTService.CancelarProposta(dados, dados.instituicao);
+
+            return res.status(200).json({ msg: "Proposta cancelada com sucesso!" });
+        } catch(err) {
             console.log(err)
 
             if (err instanceof HttpException) {

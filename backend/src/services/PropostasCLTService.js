@@ -57,6 +57,24 @@ class PropostasCLTService {
             throw err;
         }
     }
+
+    async CancelarProposta(data, instituicao) {
+        try {
+            let response;
+
+            switch (instituicao) {
+                case "v8":
+                    response = await V8CLTService.CancelarProposta(data.proposalId, data.motivo);
+                    break;
+                default:
+                    throw new HttpException("Instituição não encontrada", 404);
+            }
+
+            return response;
+        } catch(err) {
+            throw err;
+        }
+    }
 }
 
 export default new PropostasCLTService();
