@@ -76,6 +76,8 @@ export default function FgtsOfertasPromotor() {
                 <tr>
                   <th>CPF</th>
                   <th>Valor</th>
+                  <th>Data (criação)</th>
+                  <th>Data (ultima alteração)</th>
                   <th>Ações</th>
                 </tr>
               </thead>
@@ -97,6 +99,14 @@ export default function FgtsOfertasPromotor() {
                         style: "currency",
                         currency: "BRL",
                       })}
+                    </td>
+
+                    <td>
+                      {new Date(item.createdAt).toLocaleDateString('pt-BR')}
+                    </td>
+
+                    <td>
+                      {new Date(item.updatedAt).toLocaleDateString('pt-BR')}
                     </td>
 
                     <td>
