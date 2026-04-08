@@ -83,6 +83,11 @@ async function bootstrap() {
             await V8CLTService.VerificarTodasAsPropostas();
             console.log("✅ Todas as propostas pendentes do V8CLT foram verificadas");
         }
+
+        if(PresencaBankService.getToken() != null) {
+            await PresencaBankService.VerificarTodasAsPropostas();
+            console.log("✅ Todas as propostas pendentes do Presenca bank foram verificadas");
+        }
         
     } catch (err) {
         console.error("❌ Falha Crítica na inicialização:");
