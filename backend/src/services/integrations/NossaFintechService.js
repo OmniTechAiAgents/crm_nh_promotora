@@ -72,7 +72,7 @@ class NossaFintechService {
         //userUsername
         try {
             const players = [
-                { code: "qi", table: 104 , enabled: true },
+                { code: "qi", table: 101 , enabled: true },
                 { code: "bmp", table: 106, enabled: false }
             ];
 
@@ -166,6 +166,7 @@ class NossaFintechService {
             }
 
             if (lastError != null) {
+                console.log(lastError);
                 const msg = lastError.response?.data?.data?.error_message_ptBR ?? "Não foi possível realizar a simulação devido a falha na instituição parceira.";
                 throw new HttpException(msg, 424);
             }
@@ -223,6 +224,7 @@ class NossaFintechService {
 
             return await ConsultasFGTSRepository.Create(bodyDB);
         } catch (err) {
+            // console.log(err);
             let status = 500;
             let message = "Erro inesperado ao realizar a simulação";
             
