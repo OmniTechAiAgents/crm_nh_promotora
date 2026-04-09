@@ -72,16 +72,18 @@ class NossaFintechService {
         //userUsername
         try {
             const players = [
-                { code: "qi", table: 101 , enabled: true },
-                { code: "bmp", table: 106, enabled: false }
+                { code: "qi", enabled: true },
+                { code: "bmp", enabled: true }
             ];
 
             let responseSaldo = null;
             let responseSimulacao = null;
             let lastError = null;
             let usedPlayer = null;
+            let tabelaSelecionada;
 
-            for(const { code, table, enabled } of players) {
+            // for que percorre os players para consulta de saldo
+            for(const { code, enabled } of players) {
                 await new Promise(resolve => setTimeout(resolve, 2000));
 
                 if (!enabled) continue;
@@ -104,9 +106,38 @@ class NossaFintechService {
                     )
 
                     usedPlayer = code.trim();
+
+                    // consulta as tabelas disponíveis
+                    const tabelasDisponiveis = await axios.post(`${process.env.NossaFintech_baseURL}/nossa/v2/simulation`,
+                        {
+                            cpf: cpf,
+                            key: responseSaldo.data.key,
+                            number_of_installments: responseSaldo.data.data.periods.length,
+                            eligibility: responseSaldo.data.eligible,
+                            service_type: usedPlayer
+                        },
+                        {
+                            headers: {
+                                'Authorization': `Bearer ${this.accessToken}`,
+                            }
+                        }
+                    )
+
+                    // console.log(tabelasDisponiveis.data);
+
+                    if (code.trim() == "qi") {
+                        tabelaSelecionada = tabelasDisponiveis.data.find(t => t.cod_produto === 104) || tabelasDisponiveis.data.find(t => t.cod_produto === 101);
+                    } else if (code.trim() == "bmp") {
+                        tabelaSelecionada = tabelasDisponiveis.data.find(t => t.cod_produto === 106);
+                    }
+
+                    if (!tabelaSelecionada) throw new HttpException('Cliente sem oferta disponível nem na tabela "NOSSA MELHOR" e nem na "VENDA MAIS".')
+                    // console.log(tabelaSelecionada);
+
                     break;
                 } catch(err) {
                     console.error(`O player ${code} falhou em concluir a simulacao`);
+                    // console.log(err.response.data)
                     lastError = err;
                 }
             }
@@ -145,7 +176,7 @@ class NossaFintechService {
                     key: responseSaldo.data.key,
                     number_of_installments: responseSaldo.data.data.periods.length,
                     eligibility: responseSaldo.data.eligible,
-                    cod_produto: players.find(p => p.code === usedPlayer)?.table,
+                    cod_produto: tabelaSelecionada.cod_produto,
                     service_type: usedPlayer
                 });
                     
@@ -166,7 +197,7 @@ class NossaFintechService {
             }
 
             if (lastError != null) {
-                console.log(lastError);
+                // console.log(lastError);
                 const msg = lastError.response?.data?.data?.error_message_ptBR ?? "Não foi possível realizar a simulação devido a falha na instituição parceira.";
                 throw new HttpException(msg, 424);
             }
