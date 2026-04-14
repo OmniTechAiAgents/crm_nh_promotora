@@ -156,7 +156,9 @@ class NossaFintechService {
                     console.log("else if disparado");
                     msg = desc;
                 } else {
-                    msg = "fodase";
+                    // imprimindo o log pq n sei exatamente como tratar esse erro
+                    console.log(lastError?.data);
+                    msg = "Erro desconhecido na API parceira.";
                 }
 
                 console.log(msg)
