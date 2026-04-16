@@ -8,6 +8,7 @@ import FgtsOfertasPromotor from "../modules/fgts/FgtsOfertasPromotor";
 import RegistrarNovoCliente from "../modules/clientes/RegistrarNovoCliente";
 import CltConsulta from "../modules/clt/CltConsulta";
 import CltEsteira from "../modules/clt/CltEsteira";
+import BuscarCliente from "../modules/clientes/BuscarCliente";
 
 
 export const routesConfig = [
@@ -80,6 +81,13 @@ export const routesConfig = [
   permission: "FGTS_VIEW",
   showInMenu: true,
   element: <RegistrarNovoCliente />
+},
+{
+  path: "/buscar-cliente",
+  label: "Buscar informações do cliente",
+  permission: "FGTS_VIEW",
+  showInMenu: true,
+  element: <BuscarCliente />
 }
 
 ];

@@ -3,9 +3,12 @@
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    gap: 100px;
     width: 100%;
     height: 100%;
+}
+
+.criar-cliente-container h2 {
+    margin-bottom: 25px;
 }
 
 .input-group-registro-cliente {
@@ -15,6 +18,12 @@
 .input-group-registro-cliente label {
     font-size: 1.5vw !important;
     margin-bottom: 0 !important;
+}
+
+.pesquisar-cliente-form {
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
 }
 
 .criar-cliente-form {
