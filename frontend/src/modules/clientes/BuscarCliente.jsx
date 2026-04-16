@@ -7,23 +7,6 @@ export default function BuscarCliente() {
     const [ cliente, setCliente ] = useState({});
     const [ carregando, setCarregando ] = useState(false);
 
-    function normalizarCPF(cpfInput) {
-        if (!cpfInput) return "";
-
-        let somenteNumeros = cpfInput.replace(/\D/g, "");
-
-        while (somenteNumeros.length < 11) {
-            somenteNumeros = "0" + somenteNumeros;
-        }
-
-        if (somenteNumeros.length > 11) {
-            somenteNumeros = somenteNumeros.slice(0, 11);
-        }
-
-        return somenteNumeros;
-    }
-    const cpfNormalizado = normalizarCPF(cpf);
-
     async function handleSubmit(e) {
         e.preventDefault();
         
@@ -41,8 +24,6 @@ export default function BuscarCliente() {
                 }
             );
 
-            console.log(data);
-
             setCliente(data);
         } catch (err) {
             alert(`Erro ao buscar cliente: ${err.response.data.erro}`);
@@ -50,6 +31,50 @@ export default function BuscarCliente() {
             setCarregando(false);
         }
     }
+
+    async function sincronizarDadosNovaVida(cpf) {
+        const cpfNormalizadoCliente = normalizarCPF(cpf);
+
+        setCarregando(true)
+        setCliente({})
+
+        try {
+            const {data} = await api.patch(`/clientes/${cpfNormalizadoCliente}/sincronizar-novavida`);
+
+            alert(data.msg);
+
+            const dataCliente = await api.post("/clientes/novavida", 
+                {
+                    cpf: cpfNormalizado,
+                }
+            );
+
+            setCliente(dataCliente.data);
+        } catch (err) {
+            alert(`Erro ao sincronizar dados do cliente: ${err.response.data.erro}`);
+        } finally {
+            setCarregando(false)
+        }
+    }
+
+    // recupera a role do usuário do local_storage
+    const userRole = JSON.parse(localStorage.getItem('auth_data') || '{}')?.user?.roles?.[0];
+    function normalizarCPF(cpfInput) {
+        if (!cpfInput) return "";
+
+        let somenteNumeros = cpfInput.replace(/\D/g, "");
+
+        while (somenteNumeros.length < 11) {
+            somenteNumeros = "0" + somenteNumeros;
+        }
+
+        if (somenteNumeros.length > 11) {
+            somenteNumeros = somenteNumeros.slice(0, 11);
+        }
+
+        return somenteNumeros;
+    }
+    const cpfNormalizado = normalizarCPF(cpf);
 
     return (
         <div>
@@ -73,7 +98,7 @@ export default function BuscarCliente() {
             {carregando ? (<h2>Buscando...</h2>) : ""}
 
             {Object.keys(cliente).length > 0 ? (
-                <form className='criar-cliente-container'>
+                <form className='infos-cliente-container'>
                     <div className="input-group input-group-registro-cliente">
                         <label htmlFor="">Nome</label>
                         <input 
@@ -113,6 +138,10 @@ export default function BuscarCliente() {
                             disabled={true}
                         />
                     </div>
+
+                    {userRole == "admin" ? (
+                        <button onClick={() => sincronizarDadosNovaVida(cliente.cpf)} type='button' className="btn-consultar btn-sincronizar-dados-nv">Sincronizar dados com nova vida</button>
+                        ) : ("")}
                 </form>
             ) : ("")}
         </div>
