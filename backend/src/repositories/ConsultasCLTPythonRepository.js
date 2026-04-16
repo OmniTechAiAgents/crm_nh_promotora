@@ -8,7 +8,18 @@ class ConsultasCLTPythonRepository {
     async createMany(data) {
         const t = await db.transaction();
         try{
-            const result = await ConsultasCLTPython.bulkCreate(data, { transaction: t });
+            const result = await ConsultasCLTPython.bulkCreate(data, { 
+                transaction: t,
+
+                // se vier um item com um id ja existente na tabela, ele atualiza esses seguintes valores:
+                updateOnDuplicate: [
+                    "valor_parcela",
+                    "valor_solicitado",
+                    "qtd_parcelas",
+                    "updatedAt",
+                    "ofertado"
+                ]
+            });
             await t.commit();
             return result;
         } catch (err) {
@@ -17,11 +28,12 @@ class ConsultasCLTPythonRepository {
         }
     }
 
-    async searchDuplicates(cliente_id, instituicao) {
+    async searchDuplicates(cliente_id, instituicao, cnpj) {
         return ConsultasCLTPython.findOne({
             where: {
                 cliente_id,
-                instituicao
+                instituicao,
+                cnpj
             }
         })
     }

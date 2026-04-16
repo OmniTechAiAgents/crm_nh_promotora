@@ -21,7 +21,10 @@ class ConsultasCLTPythonService {
                 // tenta buscar dps de criar (garantir integridade)
                 clienteData = await ClientesService.procurarCpf(item.cpf);
 
-                return {
+                // verifica se já tem uma consulta CLT Python na tabela
+                const consultaExistente = await ConsultasCLTPythonRepository.searchDuplicates(clienteData.dataValues.id, instituicao, item.cnpj);
+
+                const dadosConsulta = {
                     cliente_id: clienteData.dataValues.id,
                     valor_parcela: item.valor_parcela,
                     valor_solicitado: item.valor_solicitado,
@@ -30,6 +33,14 @@ class ConsultasCLTPythonService {
                     empresa: item.empresa,
                     instituicao: instituicao
                 }
+
+                // se a consulta existe, passa o id dela no objeto para que ele altere no banco ao invés de criar uma nova
+                if (consultaExistente) {
+                    dadosConsulta.id = consultaExistente.id;
+                    dadosConsulta.ofertado = false
+                }
+
+                return dadosConsulta;
             }))
 
             return await ConsultasCLTPythonRepository.createMany(consultasFormatadas);
