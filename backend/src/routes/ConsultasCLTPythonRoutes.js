@@ -1,9 +1,9 @@
 import express from "express";
-import { AuthenticationToken } from "../middleware/authenticate.js";
 import ConsultasCLTPythonController from "../controllers/ConsultasCLTPythonController.js";
+import { AuthenticateApiKeyAutomacao } from "../middleware/authenticateApiKeyAutomacao.js";
 
 const ConsultasCLTPythonRoutes = express.Router();
 
-ConsultasCLTPythonRoutes.post("/", AuthenticationToken, ConsultasCLTPythonController.ArmazenarConsultas);
+ConsultasCLTPythonRoutes.post("/", AuthenticateApiKeyAutomacao, ConsultasCLTPythonController.ArmazenarConsultas);
 
 export default ConsultasCLTPythonRoutes;
