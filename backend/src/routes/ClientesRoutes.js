@@ -8,4 +8,6 @@ ClientesRoutes.post("/", AuthenticationToken, ClientesController.CriarClienteDB)
 
 ClientesRoutes.get("/", AuthenticationToken, ClientesController.BuscarClientePorCpf);
 
+ClientesRoutes.post("/novavida", AuthenticationToken, ClientesController.BuscarClienteDBeConsultarNovaVida);
+
 export default ClientesRoutes;
