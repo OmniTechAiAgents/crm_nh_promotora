@@ -89,6 +89,17 @@ class NovaVidaService {
             });
             const responseJson = parser.parse(responseXml);
 
+            // tentando filtrar para pegar apenas o numero que tenha o cadastro no zapzap
+            const celulares = responseJson.CONSULTA?.CELULARES?.CELULAR;
+            if (Array.isArray(celulares) && celulares.length > 1) {
+                const indexWhats = celulares.findIndex(c => c.FLWHATSAPP === 'S');
+
+                if (indexWhats > 0) {
+                    const [celularComWhats] = celulares.splice(indexWhats, 1);
+                    celulares.unshift(celularComWhats);
+                }
+            }
+
             return responseJson;
         } catch (err) {
             if(axios.isAxiosError(err)) {
