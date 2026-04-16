@@ -12,6 +12,17 @@ class ClientesRepository {
     async create(data) {
         return Clientes.create(data);
     }
+
+    async updateByCpf(cpf, data) {
+        return Clientes.update(
+            data,
+            {
+                where: {
+                    cpf
+                }
+            }
+        )
+    }
 }
 
 export default new ClientesRepository();
