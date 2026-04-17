@@ -2,6 +2,7 @@ import ConsultasCLTPython from "../models/ConsultasCLTPython.js";
 import { Op } from 'sequelize';
 import Clientes from "../models/Clientes.js";
 import db from "../config/db.js";
+import Usuario from "../models/Usuario.js";
 
 class ConsultasCLTPythonRepository {
     // cria vários registros com o array q vai receber fazendo transação para n dar merda
@@ -49,10 +50,29 @@ class ConsultasCLTPythonRepository {
         )
     }
 
-    async searchPagination(pesquisa, limite, offset) {
+    async searchPagination(pesquisa, limite, offset, filtroAtribuido, filtroUserId) {
         const where = {}
 
-        // adicionar a pesquisa para buscar o cpf na tabela "clientes"
+        // pesquisa na tabela clientes q é FK
+        if (pesquisa) {
+            where['$cliente.cpf$'] = {
+                [Op.like]: `%${pesquisa}%`       
+            };
+        }
+
+        // se filtro atribuido for true, pesquisa pelos registros em que usuario id n seja null
+        if (filtroAtribuido == 1) {
+            // busca onde não é nulo, mas com a linguagem do sequelize
+            where.usuario_id = { [Op.ne]:null }
+        } else {
+            where.usuario_id = null;
+        }
+
+        if (filtroUserId != null) {
+            where.usuario_id = filtroUserId
+        }
+
+        console.log(where)
 
         const result = await ConsultasCLTPython.findAndCountAll({
             where,
@@ -60,6 +80,11 @@ class ConsultasCLTPythonRepository {
                 {
                     model: Clientes,
                     as: 'cliente',
+                },
+                {
+                    model: Usuario,
+                    as: 'usuario',
+                    attributes: { exclude: ['password'] }
                 }
             ],
             limit: limite,

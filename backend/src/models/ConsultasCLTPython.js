@@ -1,6 +1,7 @@
 import { DataTypes } from 'sequelize';
 import db from '../config/db.js';
 import Clientes from './Clientes.js';
+import Usuario from './Usuario.js';
 
 const ConsultasCLTPython = db.define(
     "consultasCLTPython",
@@ -46,6 +47,17 @@ const ConsultasCLTPython = db.define(
             type: DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: false,
+        },
+        usuario_id: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            defaultValue: null,
+            references: {
+                model: Usuario,
+                key: "id"
+            },
+            onUpdate: "CASCADE",
+            onDelete: "SET NULL"
         }
     },
     {
@@ -53,6 +65,11 @@ const ConsultasCLTPython = db.define(
         timestamps: true
     }
 )
+
+ConsultasCLTPython.belongsTo(Usuario, {
+    foreignKey: "usuario_id",
+    as: "usuario"
+})
 
 ConsultasCLTPython.belongsTo(Clientes, {
     foreignKey: "cliente_id",

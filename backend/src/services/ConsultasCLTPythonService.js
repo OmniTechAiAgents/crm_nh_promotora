@@ -48,6 +48,35 @@ class ConsultasCLTPythonService {
             throw err;
         }
     }
+
+    async recuperarConsultas(page, limit, pesquisa, atribuido, userData) {
+        try {
+            const offset = (page - 1) * limit;
+
+            // coloca validação para aplicar o filtro de "atribuido" apenas para admins
+            if (userData.role != "admin") atribuido = null;
+
+            // transformar booleano para integer por quase do sequelize
+            atribuido == "true" ? atribuido = 1 : atribuido = 0;
+
+            // colocando filtro para o promotor só pegar as ofertas que foram atribuidas para ele
+            const filtroUserId = userData.role == "promotor" ? userData.id : null;
+
+            console.log(`
+                Page: ${page},
+                Limit: ${limit},
+                Pesquisa: ${pesquisa},
+                Atribuido: ${atribuido},
+                UserData: ${userData}
+                `)
+
+            const result  = await ConsultasCLTPythonRepository.searchPagination(pesquisa, limit, offset, atribuido, filtroUserId)
+
+            return result;
+        } catch(err) {
+            throw err;
+        }
+    }
 }
 
 export default new ConsultasCLTPythonService();
