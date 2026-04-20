@@ -64,14 +64,6 @@ class ConsultasCLTPythonService {
             // colocando filtro para o promotor só pegar as ofertas que foram atribuidas para ele
             const filtroUserId = userData.role == "promotor" ? userData.id : null;
 
-            console.log(`
-                Page: ${page},
-                Limit: ${limit},
-                Pesquisa: ${pesquisa},
-                Atribuido: ${atribuido},
-                UserData: ${userData}
-                `)
-
             const result  = await ConsultasCLTPythonRepository.searchPagination(pesquisa, limit, offset, atribuido, filtroUserId)
 
             return result;
