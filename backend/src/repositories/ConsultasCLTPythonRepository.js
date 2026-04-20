@@ -6,20 +6,33 @@ import Usuario from "../models/Usuario.js";
 
 class ConsultasCLTPythonRepository {
     // cria vários registros com o array q vai receber fazendo transação para n dar merda
-    async createMany(data) {
+    async createMany(data, cenario) {
         const t = await db.transaction();
+
+        let campoUpdateOnDuplicate;
+
+        if (cenario == "adicionar") {
+            // se vier um item com um id ja existente na tabela, ele atualiza esses seguintes valores:
+            campoUpdateOnDuplicate = [
+                "valor_parcela",
+                "valor_solicitado",
+                "qtd_parcelas",
+                "updatedAt",
+                "ofertado"
+            ]
+        } else if (cenario == "atribuir_user") {
+            campoUpdateOnDuplicate = [
+                "usuario_id",
+                "updatedAt"
+            ]
+        }
+
         try{
             const result = await ConsultasCLTPython.bulkCreate(data, { 
                 transaction: t,
 
-                // se vier um item com um id ja existente na tabela, ele atualiza esses seguintes valores:
-                updateOnDuplicate: [
-                    "valor_parcela",
-                    "valor_solicitado",
-                    "qtd_parcelas",
-                    "updatedAt",
-                    "ofertado"
-                ]
+                // aqui define o que pode ser alterado se vier com um id igual (update na tabela)
+                updateOnDuplicate: campoUpdateOnDuplicate
             });
             await t.commit();
             return result;

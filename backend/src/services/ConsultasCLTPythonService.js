@@ -43,7 +43,7 @@ class ConsultasCLTPythonService {
                 return dadosConsulta;
             }))
 
-            return await ConsultasCLTPythonRepository.createMany(consultasFormatadas);
+            return await ConsultasCLTPythonRepository.createMany(consultasFormatadas, "adicionar");
         } catch (err) {
             throw err;
         }
