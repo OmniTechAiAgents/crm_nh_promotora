@@ -1,4 +1,6 @@
+import AuthRepository from "../repositories/AuthRepository.js";
 import ConsultasCLTPythonRepository from "../repositories/ConsultasCLTPythonRepository.js";
+import HttpException from "../utils/HttpException.js";
 import ClientesService from "./ClientesService.js";
 
 class ConsultasCLTPythonService {
@@ -43,7 +45,7 @@ class ConsultasCLTPythonService {
                 return dadosConsulta;
             }))
 
-            return await ConsultasCLTPythonRepository.createMany(consultasFormatadas, "adicionar");
+            return await ConsultasCLTPythonRepository.createMany(consultasFormatadas);
         } catch (err) {
             throw err;
         }
@@ -74,6 +76,41 @@ class ConsultasCLTPythonService {
 
             return result;
         } catch(err) {
+            throw err;
+        }
+    }
+
+    async atribuirConsultasAUsuario(data) {
+        try {
+            const consultasFormatadas = await Promise.all(data.map(async (item) => {
+                // verifica se o usuário existe no db
+                const usuarioExiste = await AuthRepository.findOneById(item.usuario_id);
+                if(!usuarioExiste) {
+                    throw new HttpException(`Usuário com o Id "${item.usuario_id}" não existe no banco de dados.`, 404);
+                }
+
+                // verifica se a consulta CLT existe no db
+                const consultaCLT = await ConsultasCLTPythonRepository.findOneById(item.id);
+                if(!consultaCLT) {
+                    throw new HttpException(`Consulta com o Id "${item.id}" não existe no banco de dados.`, 404);
+                }
+
+                // monta o body de edit
+                const editBody = ({
+                    ...consultaCLT.dataValues,
+
+                    usuario_id: item.usuario_id
+                })
+
+                return editBody;
+            }))
+
+            console.log(consultasFormatadas);
+
+            // usa a msm função de criar pq ela tbm serve para editar os campos
+            return await ConsultasCLTPythonRepository.createMany(consultasFormatadas);
+        } catch(err) {
+            // console.log(err);
             throw err;
         }
     }
