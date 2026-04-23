@@ -1,4 +1,5 @@
 import { ValidarBodyConsultaCLT } from "../middleware/ValidarBodyConsultaCLT.js";
+import { ValidarBodyLinkFormalizacaoCLT } from "../middleware/ValidarBodyLinkFormalizacaoCLT.js";
 import ConsultasCLTService from "../services/ConsultasCLTService.js";
 import HttpException from "../utils/HttpException.js";
 import { ZodError } from "zod";
@@ -34,6 +35,32 @@ class ConsultasCLTController {
 
             return res.status(200).json(response);
         } catch (err) {
+            // console.error(err);
+
+            if (err instanceof ZodError) {
+                return res.status(400).json({
+                    erro: err.issues[0].message
+                });
+            }
+
+            if (err instanceof HttpException) {
+                return res.status(err.status).json({ erro: err.message })
+            }
+
+            return res.status(500).json({ erro: err.message });
+        }
+    }
+
+    async ObterLinkDeFormalização(req, res) {
+        try {
+            const dados = ValidarBodyLinkFormalizacaoCLT.parse(req.body);
+
+            const link = await ConsultasCLTService.GerarLinkFormalizacao(dados.instituicao, dados.cpf);
+
+            return res.status(200).json({
+                link
+            });
+        } catch(err) {
             // console.error(err);
 
             if (err instanceof ZodError) {
