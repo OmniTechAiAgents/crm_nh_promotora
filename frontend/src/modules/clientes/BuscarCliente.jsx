@@ -76,6 +76,12 @@ export default function BuscarCliente() {
     }
     const cpfNormalizado = normalizarCPF(cpf);
 
+    function formatar_data(data) {
+        const [ ano, mes, dia ] = data.split('-');
+
+        return `${dia}/${mes}/${ano}`;
+    }
+
     return (
         <div>
             <h2>Busca de informações do cliente</h2>
@@ -123,8 +129,8 @@ export default function BuscarCliente() {
                         <label htmlFor="">Data de nascimento</label>
                         <input 
                             type="text"
-                            placeholder="DD-MM-YYYY"
-                            value={cliente.data_nasc}
+                            placeholder="DD/MM/YYYY"
+                            value={formatar_data(cliente.data_nasc)}
                             disabled={true}
                         />
                     </div>
