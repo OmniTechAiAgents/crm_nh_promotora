@@ -9,6 +9,7 @@ import RegistrarNovoCliente from "../modules/clientes/RegistrarNovoCliente";
 import CltConsulta from "../modules/clt/CltConsulta";
 import CltEsteira from "../modules/clt/CltEsteira";
 import BuscarCliente from "../modules/clientes/BuscarCliente";
+import GerarLinkForm from "../modules/link-form/GerarLinkForm";
 
 
 export const routesConfig = [
@@ -25,6 +26,13 @@ export const routesConfig = [
     permission: "FGTS_VIEW",
     showInMenu: true,
     element: <CltConsulta />
+  },
+  {
+    path: "/link-formalizacao",
+    label: "Gerar links de formalização",
+    permission: "FGTS_VIEW",
+    showInMenu: true,
+    element: <GerarLinkForm />
   },
   {
     path: "/registro",

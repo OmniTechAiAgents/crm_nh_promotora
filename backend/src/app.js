@@ -63,8 +63,8 @@ async function bootstrap() {
         console.log("✅ Token V8-CLT carregado e agendamento ativo")
 
         // DESATIVADO POR ENQUANTO JA QUE O MODULO DA C6 AINDA N ESTA SENDO UTILIZADO
-        // await C6Service.Autenticar();
-        // console.log("✅ Token C6 carregado e agendamento ativo");
+        await C6Service.Autenticar();
+        console.log("✅ Token C6 carregado e agendamento ativo");
 
         const PORT = process.env.PORT || 3000;
         app.listen(PORT, () => {

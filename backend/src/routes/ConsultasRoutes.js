@@ -14,6 +14,7 @@ ConsultasRoutes.post("/FGTS/manual", AuthenticationToken, ConsultasFGTSControlle
 
 ConsultasRoutes.post("/CLT/gerarAutorizacaoDataPrev", AuthenticationToken, ConsultasCLTController.GerarTermoAutorizacaoDataPrev);
 ConsultasRoutes.post("/CLT/consultarVinculosMargemTabela", AuthenticationToken, ConsultasCLTController.ConsultarVinculoMargemTabela);
+ConsultasRoutes.post("/CLT/gerarLinkFormalizacao", AuthenticationToken, ConsultasCLTController.ObterLinkDeFormalização);
 
 // parte automatizada (consuta em lote)
 ConsultasRoutes.post("/FGTS/lote", AuthenticationToken, AuthorizeRoles('admin'), uploadCsv.single("file"), ConsultasFGTSController.IniciarConsultaEmLote);

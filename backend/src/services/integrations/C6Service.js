@@ -71,14 +71,16 @@ class C6Service {
 
     async GerarLinkAutenticacaoCLT(cpf) {
         try {
-            const resultBuscaCliente = await ClientesService.procurarCpf(data.cpf); 
+            const resultBuscaCliente = await ClientesService.procurarCpf(cpf); 
             if (!resultBuscaCliente || resultBuscaCliente?.length === 0) {
-                const dadosCliente = await NovaVidaService.BuscarDados(data.cpf);
+                const dadosCliente = await NovaVidaService.BuscarDados(cpf);
             
-                await ClientesService.criarClienteNovaVida(dadosCliente, data.cpf);
+                await ClientesService.criarClienteNovaVida(dadosCliente, cpf);
             }
             
-            const clienteData = await ClientesService.procurarCpf(data.cpf);
+            const clienteData = await ClientesService.procurarCpf(cpf);
+            const cliente_ddd = clienteData.dataValues.celular.slice(0, 2);
+            const cliente_celular = clienteData.dataValues.celular.slice(2);
 
             const clienteBody = ({
                 nome: clienteData.dataValues.nome,
@@ -86,8 +88,8 @@ class C6Service {
                 data_nascimento: clienteData.dataValues.data_nasc,
 
                 telefone: {
-                    numero: clienteData.dataValues.celular_numero,
-                    codigo_area: clienteData.dataValues.celular_ddd
+                    numero: cliente_celular,
+                    codigo_area: cliente_ddd
                 }
             })
 
@@ -105,6 +107,8 @@ class C6Service {
             // também gera o timestamp de expiração se precisar armazenar
             return response.data.link;
         } catch (err) {
+            // console.log(err.response)
+
             throw err;
         }
     }
