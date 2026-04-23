@@ -17,6 +17,7 @@ import { seedISPBs } from './utils/seedISPBs.js';
 import { connectRabbit } from './config/rabbitMQ.js';
 import MicroservicesRoutes from './routes/MicroservicesRoutes.js';
 import V8CLTService from './services/integrations/V8CLTService.js';
+import ConsultasCLTPythonRoutes from './routes/ConsultasCLTPythonRoutes.js';
 
 const app = express();
 
@@ -32,6 +33,7 @@ app.use('/propostas', PropostasRoutes);
 app.use('/usuarios', UsuariosRoutes);
 app.use('/microservicos', MicroservicesRoutes);
 app.use('/clientes', ClientesRoutes);
+app.use('/consultasCLTPython', ConsultasCLTPythonRoutes);
 
 async function bootstrap() {
     try {
