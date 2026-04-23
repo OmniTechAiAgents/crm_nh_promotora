@@ -93,8 +93,6 @@ class C6Service {
                 }
             })
 
-            console.log(clienteBody)
-
             const response = await axios.post(`${process.env.C6_baseURL}/marketplace/authorization/generate-liveness`, 
                 clienteBody,
                 {
