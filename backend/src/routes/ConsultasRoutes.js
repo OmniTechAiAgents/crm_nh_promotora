@@ -20,5 +20,6 @@ ConsultasRoutes.post("/CLT/gerarLinkFormalizacao", AuthenticationToken, Consulta
 ConsultasRoutes.post("/FGTS/lote", AuthenticationToken, AuthorizeRoles('admin'), uploadCsv.single("file"), ConsultasFGTSController.IniciarConsultaEmLote);
 ConsultasRoutes.get("/FGTS/lote", AuthenticationToken, AuthorizeRoles('admin'), ConsultasFGTSController.RecuperarConsultasEmLote);
 ConsultasRoutes.patch("/FGTS/lote/reatribuir", AuthenticationToken, AuthorizeRoles('admin'), ConsultasFGTSController.RetribuirConsultasEmLote);
+ConsultasRoutes.patch("/FGTS/marcarInelegivel", AuthenticationToken, ConsultasFGTSController.MarcarConsultaInelegivel);
 
 export default ConsultasRoutes;

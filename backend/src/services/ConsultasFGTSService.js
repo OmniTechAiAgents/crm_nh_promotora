@@ -86,6 +86,14 @@ class ConsultasFGTSService {
             throw err;
         }
     }
+
+    async MarcarConsultaComoInelegivel(id_consulta, motivo) {
+        try {
+            return await ConsultasFGTSRepository.MarcarConsultaInelegivel(id_consulta, motivo);
+        } catch(err) {
+            throw err;
+        }
+    }
 }
 
 export default new ConsultasFGTSService();

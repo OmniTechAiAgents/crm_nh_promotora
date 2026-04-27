@@ -85,6 +85,18 @@ class ConsultasFGTSRepository {
         )
     }
 
+    async MarcarConsultaInelegivel(id, mensagem) {
+        return Cpfs_individuais.update(
+            {
+                mensagem,
+                elegivelProposta: false
+            },
+            {
+                where: { id }
+            }
+        )
+    }
+
 
     // reatribuição de lote
     async UpdatePromotorIdByConsultaLoteId(id_consulta_lote, usuario_id) {
