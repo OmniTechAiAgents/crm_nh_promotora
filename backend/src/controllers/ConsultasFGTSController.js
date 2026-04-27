@@ -6,6 +6,7 @@ import { ValidarBodyConsultaEmLote } from "../middleware/ValidarBodyConsultaEmLo
 import ConsultasLoteService from "../services/ConsultasLoteService.js";
 import AuthService from "../services/AuthService.js";
 import { ValidarBodyReatribuicaoConsultaLote } from "../middleware/VerificarBodyReatribuicaoConsultaLote.js";
+import { ValidarBodyMarcarConsultaInelegivel } from "../middleware/ValidarBodyMarcarConsultaInelegivel.js";
 
 class ConsultasFGTSController {
     async FazerConsulta (req, res) {
@@ -146,6 +147,28 @@ class ConsultasFGTSController {
         } catch (err) {
             // console.error(err)
 
+            if (err instanceof ZodError) {
+                return res.status(400).json({
+                    erro: err.issues[0].message
+                });
+            }
+
+            if (err instanceof HttpException) {
+                return res.status(err.status).json({ erro: err.message });
+            }
+
+            return res.status(500).json({ erro: err.message });
+        }
+    }
+
+    async MarcarConsultaInelegivel (req, res) {
+        try {
+            const dados = ValidarBodyMarcarConsultaInelegivel.parse(req.body);
+
+            await ConsultasFGTSService.MarcarConsultaComoInelegivel(dados.id_consulta, dados.motivo);
+
+            return res.status(200).json({ msg: "A consulta foi marcada como inelegivel." })
+        } catch(err) {
             if (err instanceof ZodError) {
                 return res.status(400).json({
                     erro: err.issues[0].message

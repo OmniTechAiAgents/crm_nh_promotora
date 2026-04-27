@@ -351,13 +351,22 @@
 }
 
 .btn-info-cliente {
-  margin-left: 5px;
   background: #2e6e7d;
   color: #eff6ff;
 }
 
 .btn-info-cliente:hover {
   background-color: #42aba8;
+  transition: 0.3s ease background-color;
+}
+
+.btn-marcar-inelegivel {
+  background: #ac6700;
+  color: #eff6ff;
+}
+
+.btn-marcar-inelegivel:hover {
+  background: #ff9900;
   transition: 0.3s ease background-color;
 }
 
