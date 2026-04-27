@@ -78,6 +78,7 @@ export default function FgtsOfertasPromotor() {
                   <th>Valor</th>
                   <th>Data (criação)</th>
                   <th>Data (ultima alteração)</th>
+                  <th>Id consulta lote</th>
                   <th>Ações</th>
                 </tr>
               </thead>
@@ -110,6 +111,10 @@ export default function FgtsOfertasPromotor() {
                     </td>
 
                     <td>
+                      {item.id_consulta_lote}
+                    </td>
+
+                    <td className="td-button">
                       <button 
                         className="btn-acoes-oferta btn-criar-proposta"
                         onClick={() =>

@@ -44,7 +44,7 @@ class ConsultasFGTSRepository {
             ],
             limit: limite,
             offset,
-            order: [['createdAt', 'DESC']]
+            order: [['id_consulta_lote', 'DESC']]
         });
 
         return {
