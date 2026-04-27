@@ -53,6 +53,28 @@ export default function FgtsOfertasPromotor() {
     };
   };
 
+  const marcarPropostaInelegivel = async (id_oferta) => {
+    const motivo = prompt("Tem certeza que deseja marcar essa proposta como inelegível? Se sim, digite o motivo:")
+
+    try {
+      const response = await api.patch(`/consultas/FGTS/marcarInelegivel`,
+        {
+          id_consulta: id_oferta,
+          motivo: motivo
+        }
+      );
+
+      alert(`${response.data?.msg}`);
+
+      window.location.reload();
+    } catch (error) {
+      alert("Erro ao marcar oferta como inelegível.")
+      console.error("Erro ao marcar oferta como inelegivel:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="container">
       <h2>Minhas Ofertas FGTS</h2>
@@ -134,6 +156,13 @@ export default function FgtsOfertasPromotor() {
                         >
                           Info. cliente
                         </button>
+                      
+                      <button 
+                        className="btn-acoes-oferta btn-marcar-inelegivel"
+                        onClick={() => marcarPropostaInelegivel(item.id)}
+                        >
+                          Marcar inelegível
+                      </button>
                     </td>
                   </tr>
 
