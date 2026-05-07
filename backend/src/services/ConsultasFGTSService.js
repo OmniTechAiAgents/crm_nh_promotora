@@ -37,8 +37,6 @@ class ConsultasFGTSService {
                 role: usuarioRaw.dataValues.role
             }
 
-            console.log(resultadoRaw);
-
             // mapeando o resultadoo
             const resultadoTratado = ({
                 id: resultadoRaw.id,

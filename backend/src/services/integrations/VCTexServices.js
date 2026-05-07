@@ -257,7 +257,6 @@ class VCTexServices {
                 message = err.message;
             }
 
-            console.log("antes da alteracao ERRO.")
             const resultBuscaCliente = await ClientesService.procurarCpf(cpf);
             if (!resultBuscaCliente || resultBuscaCliente?.length === 0) {
                 const dadosCliente = await NovaVidaService.BuscarDados(cpf);
@@ -270,8 +269,6 @@ class VCTexServices {
             }
 
             const cliente = await ClientesService.procurarCpf(cpf);
-
-            console.log("depois da alteracao ERRO.")
 
             const response = {
                 cliente_id: cliente.id,

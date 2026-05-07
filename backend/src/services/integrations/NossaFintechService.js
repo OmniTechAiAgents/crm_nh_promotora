@@ -219,8 +219,20 @@ class NossaFintechService {
                 });
             }
 
+            const resultBuscaCliente = await ClientesService.procurarCpf(cpf);
+            if (!resultBuscaCliente || resultBuscaCliente?.length === 0) {
+                const dadosCliente = await NovaVidaService.BuscarDados(cpf);
+
+                if (dadosCliente.CONSULTA == "Não Autorizado") {
+                    throw new HttpException("Não foi possível recuperar os dados do cliente na API do Nova Vida, será necessário fazer o cadastro do cliente manualmente.", 424);
+                }
+
+                await ClientesService.criarClienteNovaVida(dadosCliente, cpf);
+            }
+            const cliente = await ClientesService.procurarCpf(cpf);
+
             const bodyDB = {
-                cpf: cpf,
+                cliente_id: cliente.id,
                 anuidades: responseSimulacao.data.installments.map(item => ({
                     due_date: item.due_date,
                     total_amount: item.total_amount,
@@ -240,7 +252,8 @@ class NossaFintechService {
                 id_consulta_lote: id_consulta_lote
             }
 
-            const consultaDuplicada = await ConsultasFGTSRepository.SearchDuplicates(bodyDB.cpf, bodyDB.banco, bodyDB.API);
+            let bodyRetorno = {};
+            const consultaDuplicada = await ConsultasFGTSRepository.SearchDuplicates(cliente.cpf, bodyDB.banco, bodyDB.API);
             if (consultaDuplicada) {
                 const bodyUpdate = ({
                     id: consultaDuplicada.dataValues.id,
@@ -250,12 +263,26 @@ class NossaFintechService {
             
                 await ConsultasFGTSRepository.Update(consultaDuplicada.dataValues.id, bodyUpdate);
             
-                const objConsultaDB = await ConsultasFGTSRepository.SearchDuplicates(bodyDB.cpf, bodyDB.banco, bodyDB.API);
+                const objConsultaDB = await ConsultasFGTSRepository.SearchDuplicates(cliente.cpf, bodyDB.banco, bodyDB.API);
             
-                return objConsultaDB;
+                // adicionando o obj de cliente no body de retorno
+                bodyRetorno = ({
+                    ...objConsultaDB.dataValues,
+                    cliente: cliente.dataValues
+                })
+
+                return bodyRetorno;
             }
 
-            return await ConsultasFGTSRepository.Create(bodyDB);
+            // adicionando o obj de cliente no body de retorno
+            const novoRegistro = await ConsultasFGTSRepository.Create(bodyDB);
+
+            bodyRetorno = ({
+                ...novoRegistro.dataValues,
+                cliente: cliente.dataValues
+            })
+
+            return bodyRetorno;
         } catch (err) {
             // console.log(err);
             let status = 500;
@@ -269,8 +296,21 @@ class NossaFintechService {
                 status = err.status;
             }
 
+            const resultBuscaCliente = await ClientesService.procurarCpf(cpf);
+            if (!resultBuscaCliente || resultBuscaCliente?.length === 0) {
+                const dadosCliente = await NovaVidaService.BuscarDados(cpf);
+
+                if (dadosCliente.CONSULTA == "Não Autorizado") {
+                    throw new HttpException("Não foi possível recuperar os dados do cliente na API do Nova Vida, será necessário fazer o cadastro do cliente manualmente.", 424);
+                }
+
+                await ClientesService.criarClienteNovaVida(dadosCliente, cpf);
+            }
+
+            const cliente = await ClientesService.procurarCpf(cpf);
+
             const response = {
-                cpf,
+                cliente_id: cliente.id,
                 anuidades: null,
                 saldo: null,
                 valor_bruto: null,
