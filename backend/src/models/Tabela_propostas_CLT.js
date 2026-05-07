@@ -1,6 +1,7 @@
 import { DataTypes } from 'sequelize';
 import db from "../config/db.js";
 import Usuario from './Usuario.js';
+import Clientes from './Clientes.js';
 
 const Tabela_propostas_CLT = db.define(
     "tabela_propostas_CLT",
@@ -10,21 +11,13 @@ const Tabela_propostas_CLT = db.define(
             primaryKey: true,
             autoIncrement: true,
         },
-        nome: {
-            type: DataTypes.STRING(100),
-            allowNull: false
-        },
-        cpf: {
-            type: DataTypes.STRING(11),
+        cliente_id: {
+            type:DataTypes.INTEGER,
             allowNull: false,
-        },
-        cel: {
-            type: DataTypes.STRING(15),
-            allowNull: false
-        },
-        data_nascimento: {
-            type: DataTypes.DATE,
-            allowNull: true
+            references: {
+                model: Clientes,
+                key: "id"
+            }
         },
         nome_tabela: {
             type: DataTypes.STRING,
@@ -120,6 +113,11 @@ Tabela_propostas_CLT.belongsTo(Usuario, {
 
 Usuario.hasMany(Tabela_propostas_CLT, {
     foreignKey: 'usuario_id'
+});
+
+Tabela_propostas_CLT.belongsTo(Clientes, {
+    foreignKey: "cliente_id",
+    as: "cliente"
 });
 
 export default Tabela_propostas_CLT;

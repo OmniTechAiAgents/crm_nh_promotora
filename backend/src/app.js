@@ -19,6 +19,10 @@ import MicroservicesRoutes from './routes/MicroservicesRoutes.js';
 import V8CLTService from './services/integrations/V8CLTService.js';
 import ConsultasCLTPythonRoutes from './routes/ConsultasCLTPythonRoutes.js';
 
+import Cpfs_individuais from './models/Cpfs_individuais.js';
+import Tabela_propostas from './models/Tabela_propostas.js';
+import Tabela_propostas_CLT from './models/Tabela_propostas_CLT.js';
+
 const app = express();
 
 // SÓ PARA AMBIENTE DE DEV (sem cors)

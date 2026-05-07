@@ -2,6 +2,7 @@ import { DataTypes, Sequelize } from 'sequelize';
 import db from '../config/db.js';
 import Usuario from './Usuario.js';
 import Consultas_lote from './Consultas_lote.js';
+import Clientes from './Clientes.js';
 
 const Cpfs_individuais = db.define(
     "Cpfs_individuais",
@@ -11,9 +12,13 @@ const Cpfs_individuais = db.define(
             primaryKey: true,
             autoIncrement: true,
         },
-        cpf: {
-            type: DataTypes.STRING(14),
+        cliente_id: {
+            type:DataTypes.INTEGER,
             allowNull: false,
+            references: {
+                model: Clientes,
+                key: "id"
+            }
         },
         anuidades: {
             type: DataTypes.JSON,
@@ -114,6 +119,11 @@ Cpfs_individuais.belongsTo(Consultas_lote, {
 Consultas_lote.hasMany(Cpfs_individuais, {
     foreignKey: 'id_consulta_lote',
     as: 'consultas'
+});
+
+Cpfs_individuais.belongsTo(Clientes, {
+    foreignKey: "cliente_id",
+    as: "cliente"
 });
 
 export default Cpfs_individuais;
