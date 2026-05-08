@@ -418,12 +418,9 @@ class NossaFintechService {
                     }
                 }
             );
-            
+
             const bodyDB = ({
-                nome: responseProposta.data.nom_cliente,
-                cpf: responseProposta.data.cod_cpf_cliente,
-                cel: responseProposta.data.num_telefone_celular.replace(/^\+55/, ''),
-                data_nascimento: responseProposta.data.dat_nascimento,
+                cliente_id: cliente.id,
                 proposal_id: responseProposta.data.debt_key,
                 link_form: responseProposta.data.link_form,
                 valor_liquido: responseProposta.data.val_liquido,

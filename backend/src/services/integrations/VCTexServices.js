@@ -542,10 +542,7 @@ class VCTexServices {
 
             // mapeia so os dados vindos da API
             const dadosAtualizados = {
-                nome: propostaAPI.borrower.name,
-                cpf: propostaAPI.borrower.cpf,
-                cel: propostaAPI.borrower.phoneNumber,
-                data_nascimento: propostaAPI.borrower.birthdate,
+                cliente_id: userId,
                 link_form:
                     propostaAPI.proposalStatusId === 60
                         ? propostaAPI.contractFormalizationLink
