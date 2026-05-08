@@ -540,9 +540,22 @@ class VCTexServices {
             const propostaAPI = data.data;
             const propostaDB = await PropostasRepository.findOne(proposalId);
 
+            const resultBuscaCliente = await ClientesService.procurarCpf(propostaAPI.borrower.cpf);
+            if (!resultBuscaCliente || resultBuscaCliente?.length === 0) {
+                const dadosCliente = await NovaVidaService.BuscarDados(propostaAPI.borrower.cpf);
+
+                if (dadosCliente.CONSULTA == "Não Autorizado") {
+                    throw new HttpException("Não foi possível recuperar os dados do cliente na API do Nova Vida, será necessário fazer o cadastro do cliente manualmente.", 424);
+                }
+
+                await ClientesService.criarClienteNovaVida(dadosCliente, propostaAPI.borrower.cpf);
+            }
+
+            const cliente = await ClientesService.procurarCpf(propostaAPI.borrower.cpf);
+
             // mapeia so os dados vindos da API
             const dadosAtualizados = {
-                cliente_id: userId,
+                cliente_id: cliente.dataValues.id,
                 link_form:
                     propostaAPI.proposalStatusId === 60
                         ? propostaAPI.contractFormalizationLink
