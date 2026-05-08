@@ -1,6 +1,7 @@
 import Tabela_propostas_CLT from "../models/Tabela_propostas_CLT.js";
 import { Op } from 'sequelize';
 import Usuario from "../models/Usuario.js";
+import Clientes from "../models/Clientes.js";
 
 class PropostasCLTRepository {
     async create(data) {
@@ -9,11 +10,10 @@ class PropostasCLTRepository {
 
     async SearchPagination(pesquisa, limite, offset, filtroUserId) {
         const where = {};
+        const whereCliente = {};
 
         if (pesquisa) {
-            where[Op.or] = [
-                { cpf: { [Op.like]: `%${pesquisa}%` } }
-            ]
+            whereCliente.cpf = { [Op.like]: `%${pesquisa}%` };
         }
 
         if (filtroUserId != null) {
@@ -27,6 +27,13 @@ class PropostasCLTRepository {
                     model: Usuario,
                     as: 'usuario',
                     attributes: { exclude: ['password'] }
+                },
+                {
+                    model: Clientes,
+                    as: "cliente",
+
+                    // so passa o where se tiver conteúdo
+                    ...(Object.keys(whereCliente).length > 0 && { where: whereCliente })
                 }
             ],
             limit: limite,
