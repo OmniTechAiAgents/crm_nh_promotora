@@ -90,7 +90,7 @@ export default function FgtsConsulta() {
 
       const ofertaTratada = {
         status,
-        cpf: data.cpf,
+        cpf: data.cliente.cpf,
         instituicaoEscolhida: instituicao,
         valorLiquido: data.valor_liquido,
         valorBruto: data.valor_bruto,

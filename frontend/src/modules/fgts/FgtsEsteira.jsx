@@ -163,7 +163,7 @@ export default function FgtsEsteira() {
               <tbody>
                 {propostas.map((proposta) => (
                   <tr key={proposta.id}>
-                    <td>{proposta.nome}</td>
+                    <td>{proposta.cliente.nome}</td>
                     <td>{proposta.numero_contrato || "-"}</td>
                     <td>{proposta.API}</td>
 
@@ -237,7 +237,7 @@ export default function FgtsEsteira() {
                 </div>
 
                 <div className="drawer-section">
-                    <strong>Nome:</strong> {propostaSelecionada.nome}
+                    <strong>Nome:</strong> {propostaSelecionada.cliente.nome}
                 </div>
 
                 <div className="drawer-section">
@@ -246,7 +246,7 @@ export default function FgtsEsteira() {
                 </div>
 
                 <div className="drawer-section">
-                    <strong>CPF:</strong> {propostaSelecionada.cpf}
+                    <strong>CPF:</strong> {propostaSelecionada.cliente.cpf}
                 </div>
 
                 <div className="drawer-section">
