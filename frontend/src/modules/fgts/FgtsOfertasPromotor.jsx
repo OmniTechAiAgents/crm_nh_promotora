@@ -47,7 +47,7 @@ export default function FgtsOfertasPromotor() {
         dueDate: a.due_date,
         amount: a.total_amount,
       })),
-      cpf: item.cpf,
+      cpf: item.cliente.cpf,
       financialId: item.chave,
       motivoErro: item.mensagem,
     };
@@ -114,7 +114,7 @@ export default function FgtsOfertasPromotor() {
                     }`}
                   >
                     <td className="cpf-link">
-                      {item.cpf}
+                      {item.cliente.cpf}
                     </td>
 
                     <td>
@@ -151,7 +151,7 @@ export default function FgtsOfertasPromotor() {
                         className="btn-acoes-oferta btn-info-cliente"
                         onClick={() => {
                             setOpenModal(true)
-                            setCpfSelecionado(item.cpf)
+                            setCpfSelecionado(item.cliente.cpf)
                           }}
                         >
                           Info. cliente
