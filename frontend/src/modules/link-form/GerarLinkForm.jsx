@@ -39,7 +39,7 @@ export default function GerarLinkForm() {
 
             setResultado(data.link);
         } catch (err) {
-            alert(`Erro ao gerar link de formalização do ${instituicao}: ${err}`);
+            alert(`Erro ao gerar link de formalização do ${instituicao}: ${err.response?.data?.erro}`);
         } finally {
             setLoading(false);
         }
