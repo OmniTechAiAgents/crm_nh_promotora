@@ -262,10 +262,7 @@ class V8CLTService {
             const dadosProposta = await this.#buscarInformacoesProposta(responseProposta.id);
 
             const bodyDB = ({
-                nome: cliente.dataValues.nome,
-                cpf: dados.cpf,
-                cel: cliente.dataValues.celular,
-                data_nascimento: cliente.dataValues.data_nasc,
+                cliente_id: cliente.dataValues.id,
                 nome_tabela: dados.nomeTabela,
                 id_proposta: responseProposta.id,
                 link_form: responseProposta.formalization_url,

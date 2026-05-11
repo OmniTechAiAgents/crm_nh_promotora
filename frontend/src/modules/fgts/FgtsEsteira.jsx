@@ -19,7 +19,6 @@ export default function FgtsEsteira() {
   const [propostaSelecionada, setPropostaSelecionada] = useState(null);
   const [drawerAberto, setDrawerAberto] = useState(false);
 
-  const [mostrarConfirmacao, setMostrarConfirmacao] = useState(false);
   const [cancelando, setCancelando] = useState(false);
 
   async function fetchPropostas() {
@@ -87,6 +86,9 @@ export default function FgtsEsteira() {
   async function handleCancelarProposta() {
     if (!propostaSelecionada) return;
 
+    const confirmado = confirm("Tem certeza de que deseja cancelar?");
+    if (!confirmado) return;
+
     try {
       setCancelando(true);
 
@@ -95,9 +97,8 @@ export default function FgtsEsteira() {
         { proposalId: propostaSelecionada.proposal_id }
       );
 
-      setMostrarConfirmacao(false);
-      fecharDrawer();
       await fetchPropostas();
+      fecharDrawer();
 
       alert("Proposta cancelada com sucesso.");
     } catch (error) {
@@ -163,7 +164,7 @@ export default function FgtsEsteira() {
               <tbody>
                 {propostas.map((proposta) => (
                   <tr key={proposta.id}>
-                    <td>{proposta.nome}</td>
+                    <td>{proposta.cliente.nome}</td>
                     <td>{proposta.numero_contrato || "-"}</td>
                     <td>{proposta.API}</td>
 
@@ -237,7 +238,7 @@ export default function FgtsEsteira() {
                 </div>
 
                 <div className="drawer-section">
-                    <strong>Nome:</strong> {propostaSelecionada.nome}
+                    <strong>Nome:</strong> {propostaSelecionada.cliente.nome}
                 </div>
 
                 <div className="drawer-section">
@@ -246,7 +247,7 @@ export default function FgtsEsteira() {
                 </div>
 
                 <div className="drawer-section">
-                    <strong>CPF:</strong> {propostaSelecionada.cpf}
+                    <strong>CPF:</strong> {propostaSelecionada.cliente.cpf}
                 </div>
 
                 <div className="drawer-section">
@@ -264,43 +265,15 @@ export default function FgtsEsteira() {
                     <div className="drawer-actions">
                     <button
                         className="btn-cancelar"
-                        onClick={() => setMostrarConfirmacao(true)}
+                        onClick={() => handleCancelarProposta()}
                     >
-                        Cancelar Proposta
+                        {cancelando ? ("Cancelando...") : ("Cancelar Proposta")}
                     </button>
                     </div>
                 )}
             </div>
           </div>
         </>
-      )}
-
-      {/* ================= MODAL ================= */}
-
-      {mostrarConfirmacao && (
-        <div className="modal-overlay">
-          <div className="modal-confirmacao">
-            <h3>Cancelar Proposta</h3>
-            <p>Tem certeza que deseja cancelar esta proposta?</p>
-
-            <div className="modal-actions">
-              <button
-                className="btn-secundario"
-                onClick={() => setMostrarConfirmacao(false)}
-              >
-                Voltar
-              </button>
-
-              <button
-                className="btn-cancelar"
-                onClick={handleCancelarProposta}
-                disabled={cancelando}
-              >
-                {cancelando ? "Cancelando..." : "Confirmar Cancelamento"}
-              </button>
-            </div>
-          </div>
-        </div>
       )}
     </>
   );

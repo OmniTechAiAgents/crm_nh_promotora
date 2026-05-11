@@ -52,7 +52,7 @@ class VCTexServices {
             } else {
                 await TokenAPIsRepository.create(TokenData);
             }
-            
+
             // atualiza o accessToken q ta na memoria
             this.accessToken = response.data.token.accessToken;
 
@@ -61,7 +61,7 @@ class VCTexServices {
             TaskScheduler.schedule("VCTexFGTS", () => this.Autenticar(), delay.delay);
 
             return this.accessToken;
-        } catch(err) {
+        } catch (err) {
             console.error(`Não foi possivel recuperar o token de acesso da VCTex: ${err}`);
         }
     }
@@ -152,11 +152,11 @@ class VCTexServices {
                     }
 
                     break;
-                } catch(err) {
+                } catch (err) {
                     console.error(`O player ${code} falhou em concluir a simulacao`);
                     lastError = err;
 
-                    if(ERROS_OPERACAO.includes(err.response?.data?.message)) {
+                    if (ERROS_OPERACAO.includes(err.response?.data?.message)) {
                         break;
                     }
                 }
@@ -173,7 +173,7 @@ class VCTexServices {
                         accessToken: this.accessToken,
                         timeout: 30_000
                     })
-                } catch(err) {
+                } catch (err) {
                     console.error(`Erro ao concluir simulação com a nova tabela.`);
                     lastError = err;
                 }
@@ -183,9 +183,21 @@ class VCTexServices {
             if (!rawResponse) {
                 throw lastError || new Error("Falha ao realizar simulação");
             }
-            
-            const response = {
-                cpf: cpf,
+
+            const resultBuscaCliente = await ClientesService.procurarCpf(cpf);
+            if (!resultBuscaCliente || resultBuscaCliente?.length === 0) {
+                const dadosCliente = await NovaVidaService.BuscarDados(cpf);
+
+                if (dadosCliente.CONSULTA == "Não Autorizado") {
+                    throw new HttpException("Não foi possível recuperar os dados do cliente na API do Nova Vida, será necessário fazer o cadastro do cliente manualmente.", 424);
+                }
+
+                await ClientesService.criarClienteNovaVida(dadosCliente, cpf);
+            }
+            const cliente = await ClientesService.procurarCpf(cpf);
+
+            const bodyDB = {
+                cliente_id: cliente.id,
                 anuidades: rawResponse.data.data.simulationData.installments,
                 saldo: rawResponse.data.data.simulationData.totalReleasedAmount,
                 valor_bruto: rawResponse.data.data.simulationData.totalAmount,
@@ -202,22 +214,38 @@ class VCTexServices {
                 id_consulta_lote: id_consulta_lote
             }
 
-            const consultaDuplicada = await ConsultasFGTSRepository.SearchDuplicates(response.cpf, response.banco, response.API);
+            let bodyRetorno = {};
+            const consultaDuplicada = await ConsultasFGTSRepository.SearchDuplicates(cliente.cpf, bodyDB.banco, bodyDB.API);
             if (consultaDuplicada) {
+                // entrou no if de consulta duplicada
                 const bodyUpdate = ({
                     id: consultaDuplicada.dataValues.id,
-                    
-                    ...response
+
+                    ...bodyDB
                 })
 
                 await ConsultasFGTSRepository.Update(consultaDuplicada.dataValues.id, bodyUpdate);
 
-                const objConsultaDB = await ConsultasFGTSRepository.SearchDuplicates(response.cpf, response.banco, response.API);
+                const objConsultaDB = await ConsultasFGTSRepository.SearchDuplicates(cliente.cpf, bodyDB.banco, bodyDB.API);
 
-                return objConsultaDB;
+                // adicionando o obj de cliente no body de retorno
+                bodyRetorno = ({
+                    ...objConsultaDB.dataValues,
+                    cliente: cliente.dataValues
+                })
+
+                return bodyRetorno;
             }
+
+            // adicionando o obj de cliente no body de retorno
+            const novoRegistro = await ConsultasFGTSRepository.Create(bodyDB)
             
-            return await ConsultasFGTSRepository.Create(response);
+            bodyRetorno = ({
+                ...novoRegistro.dataValues,
+                cliente: cliente.dataValues
+            })
+
+            return bodyRetorno;
         } catch (err) {
             let status = 500;
             let message = "Erro inesperado ao realizar a simulação";
@@ -229,8 +257,21 @@ class VCTexServices {
                 message = err.message;
             }
 
+            const resultBuscaCliente = await ClientesService.procurarCpf(cpf);
+            if (!resultBuscaCliente || resultBuscaCliente?.length === 0) {
+                const dadosCliente = await NovaVidaService.BuscarDados(cpf);
+
+                if (dadosCliente.CONSULTA == "Não Autorizado") {
+                    throw new HttpException("Não foi possível recuperar os dados do cliente na API do Nova Vida, será necessário fazer o cadastro do cliente manualmente.", 424);
+                }
+
+                await ClientesService.criarClienteNovaVida(dadosCliente, cpf);
+            }
+
+            const cliente = await ClientesService.procurarCpf(cpf);
+
             const response = {
-                cpf,
+                cliente_id: cliente.id,
                 anuidades: null,
                 saldo: null,
                 valor_bruto: null,
@@ -262,17 +303,17 @@ class VCTexServices {
                 throw new HttpException("Nenhuma proposta encontrada com esse financialId", 404);
             }
 
-            const resultBuscaCliente = await ClientesService.procurarCpf(data.cpf); 
+            const resultBuscaCliente = await ClientesService.procurarCpf(data.cpf);
             if (!resultBuscaCliente || resultBuscaCliente?.length === 0) {
                 const dadosCliente = await NovaVidaService.BuscarDados(data.cpf);
-            
-                if(dadosCliente.CONSULTA == "Não Autorizado") {
+
+                if (dadosCliente.CONSULTA == "Não Autorizado") {
                     throw new HttpException("Não foi possível recuperar os dados do cliente na API do Nova Vida, será necessário fazer o cadastro do cliente manualmente.", 424);
                 }
 
                 await ClientesService.criarClienteNovaVida(dadosCliente, data.cpf);
             }
-            
+
             const cliente = await ClientesService.procurarCpf(data.cpf);
 
             const reqBody = ({
@@ -296,7 +337,7 @@ class VCTexServices {
                     type: "rg",
                     number: "999999999",
                     issuingState: "SP",
-                    issuingAuthority: "SSP", 
+                    issuingAuthority: "SSP",
                     issueDate: "2023-01-01"
                 },
                 address: {
@@ -319,7 +360,7 @@ class VCTexServices {
                 }
             })
 
-            const response = await axios.post(`${process.env.VCTex_baseURL}/service/proposal`, 
+            const response = await axios.post(`${process.env.VCTex_baseURL}/service/proposal`,
                 reqBody,
                 {
                     headers: {
@@ -330,7 +371,7 @@ class VCTexServices {
             );
 
             // tenta verificar se o status id da proposta é 60 em 3 tentativas
-            for(let i = 0; i < 3; i++) {
+            for (let i = 0; i < 3; i++) {
                 // timeout de 10s
                 await new Promise(resolve => setTimeout(resolve, 10000));
 
@@ -347,7 +388,7 @@ class VCTexServices {
                     break;
                 }
             }
-            
+
             // apos verificar o status, passa para recuperar as informacoes com o link de formalizacao
             await this.AtualizarRegistroPropostaDB(response.data.data.proposalcontractNumber, response.data.data.proposalId, userId)
 
@@ -364,14 +405,14 @@ class VCTexServices {
 
             return true;
         } catch (err) {
-            if(axios.isAxiosError(err)) {
+            if (axios.isAxiosError(err)) {
                 const status = 424;
                 const message = err.response?.data?.message || "Erro desconhecido.";
 
                 throw new HttpException(message, status);
             }
 
-            if(err instanceof HttpException) {
+            if (err instanceof HttpException) {
                 throw new HttpException(err.message, err.status);
             }
 
@@ -401,17 +442,17 @@ class VCTexServices {
             await this.AtualizarRegistroPropostaDB(numContract, proposalId, userId);
 
             const response = await PropostasRepository.findOne(proposalId);
-            
+
             return response;
         } catch (err) {
-            if(axios.isAxiosError(err)) {
+            if (axios.isAxiosError(err)) {
                 const status = 424;
                 const message = err.response?.data?.message || "Erro desconhecido.";
 
                 throw new HttpException(message, status);
             }
 
-            if(err instanceof HttpException) {
+            if (err instanceof HttpException) {
                 throw new HttpException(err.message, err.status);
             }
         }
@@ -444,17 +485,17 @@ class VCTexServices {
             await this.AtualizarRegistroPropostaDB(numero_contrato, proposalId);
 
             const response = await PropostasRepository.findOne(proposalId);
-            
+
             return response;
         } catch (err) {
-            if(axios.isAxiosError(err)) {
+            if (axios.isAxiosError(err)) {
                 const status = 424;
                 const message = err.response?.data?.message || "Erro desconhecido.";
 
                 throw new HttpException(message, status);
             }
 
-            if(err instanceof HttpException) {
+            if (err instanceof HttpException) {
                 throw new HttpException(err.message, err.status);
             }
 
@@ -487,7 +528,7 @@ class VCTexServices {
             );
 
             // tento recuperar apenas o proposalStatusId para lidar melhor com a coluna "Verificar"
-            const responseProposalStatus = await axios.get(`${process.env.VCTex_baseURL}/service/proposal/status/${proposalId}`, 
+            const responseProposalStatus = await axios.get(`${process.env.VCTex_baseURL}/service/proposal/status/${proposalId}`,
                 {
                     headers: {
                         Authorization: `Bearer ${this.accessToken}`,
@@ -499,12 +540,22 @@ class VCTexServices {
             const propostaAPI = data.data;
             const propostaDB = await PropostasRepository.findOne(proposalId);
 
+            const resultBuscaCliente = await ClientesService.procurarCpf(propostaAPI.borrower.cpf);
+            if (!resultBuscaCliente || resultBuscaCliente?.length === 0) {
+                const dadosCliente = await NovaVidaService.BuscarDados(propostaAPI.borrower.cpf);
+
+                if (dadosCliente.CONSULTA == "Não Autorizado") {
+                    throw new HttpException("Não foi possível recuperar os dados do cliente na API do Nova Vida, será necessário fazer o cadastro do cliente manualmente.", 424);
+                }
+
+                await ClientesService.criarClienteNovaVida(dadosCliente, propostaAPI.borrower.cpf);
+            }
+
+            const cliente = await ClientesService.procurarCpf(propostaAPI.borrower.cpf);
+
             // mapeia so os dados vindos da API
             const dadosAtualizados = {
-                nome: propostaAPI.borrower.name,
-                cpf: propostaAPI.borrower.cpf,
-                cel: propostaAPI.borrower.phoneNumber,
-                data_nascimento: propostaAPI.borrower.birthdate,
+                cliente_id: cliente.dataValues.id,
                 link_form:
                     propostaAPI.proposalStatusId === 60
                         ? propostaAPI.contractFormalizationLink

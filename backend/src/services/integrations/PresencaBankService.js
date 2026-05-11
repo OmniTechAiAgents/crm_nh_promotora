@@ -377,10 +377,7 @@ class PresencaBankService {
             };
 
             const bodyDB = ({
-                nome: cliente.dataValues.nome,
-                cpf: dados.cpf,
-                cel: cliente.dataValues.celular,
-                data_nascimento: cliente.dataValues.data_nasc,
+                cliente_id: cliente.dataValues.id,
                 nome_tabela: bodyPropostaRetorno.data.nomeTabela,
                 id_proposta: bodyPropostaRetorno.data.id,
                 usuario_id: userId,

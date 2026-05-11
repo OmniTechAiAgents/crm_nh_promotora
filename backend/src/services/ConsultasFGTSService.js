@@ -40,7 +40,7 @@ class ConsultasFGTSService {
             // mapeando o resultadoo
             const resultadoTratado = ({
                 id: resultadoRaw.id,
-                cpf: resultadoRaw.cpf,
+                cliente: resultadoRaw.cliente,
                 anuidades: anuidadesPadronizadas,
                 valor_bruto: resultadoRaw.valor_bruto,
                 valor_liquido: resultadoRaw.valor_liquido,

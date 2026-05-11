@@ -1,6 +1,7 @@
 import Tabela_propostas from "../models/Tabela_propostas.js";
 import { Op } from 'sequelize';
 import Usuario from "../models/Usuario.js";
+import Clientes from "../models/Clientes.js";
 
 class PropostasRepository {
     async create(data) {
@@ -39,11 +40,10 @@ class PropostasRepository {
 
     async SearchPagination(pesquisa, limite, offset, filtroUserId) {
         const where = {};
+        const whereCliente = {};
 
         if (pesquisa) {
-            where[Op.or] = [
-                { cpf: { [Op.like]: `%${pesquisa}%` } }
-            ]
+            whereCliente.cpf = { [Op.like]: `%${pesquisa}%` };
         }
 
         if (filtroUserId != null) {
@@ -57,6 +57,13 @@ class PropostasRepository {
                     model: Usuario,
                     as: 'usuario',
                     attributes: { exclude: ['password'] }
+                },
+                {
+                    model: Clientes,
+                    as: "cliente",
+
+                    // so passa o where se tiver conteúdo
+                    ...(Object.keys(whereCliente).length > 0 && { where: whereCliente })
                 }
             ],
             limit: limite,

@@ -1,6 +1,7 @@
 import Cpfs_individuais from '../models/Cpfs_individuais.js';
 import { Op } from 'sequelize';
 import Usuario from "../models/Usuario.js";
+import Clientes from '../models/Clientes.js';
 
 class ConsultasFGTSRepository {
     async Create(data) {
@@ -17,12 +18,11 @@ class ConsultasFGTSRepository {
 
     async SearchPagination(pesquisa, limite, offset, filtroUserId, filtroElegivelProposta) {
         const where = {};
+        const whereCliente = {};
 
         // add pesquisa se tiver (opcional do usuario);
         if (pesquisa) {
-            where[Op.or] = [
-                { cpf: { [Op.like]: `%${pesquisa}%` } }
-            ]
+            whereCliente.cpf = { [Op.like]: `%${pesquisa}%` };
         }
 
         if (filtroUserId != null) {
@@ -40,6 +40,13 @@ class ConsultasFGTSRepository {
                     model: Usuario,
                     as: 'usuario',
                     attributes: { exclude: ['password'] }
+                },
+                {
+                    model: Clientes,
+                    as: "cliente",
+
+                    // so passa o where se tiver conteúdo
+                    ...(Object.keys(whereCliente).length > 0 && { where: whereCliente })
                 }
             ],
             limit: limite,
@@ -56,10 +63,18 @@ class ConsultasFGTSRepository {
     async SearchDuplicates(cpf, banco, API) {
         return Cpfs_individuais.findOne({
             where: {
-                cpf,
                 banco,
                 API
-            }
+            },
+            include: [
+                {
+                    model: Clientes,
+                    as: "cliente",
+                    where: {
+                        cpf: cpf
+                    }
+                }
+            ]
         })
     }
 
