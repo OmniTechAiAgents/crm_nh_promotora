@@ -167,3 +167,28 @@
   border-radius: 5px;
   width: 30%;
 }
+
+.admin-modal-fgts-reatribuicao {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.div-btns-reatribuicao-lote {
+  /* background-color: red; */
+  margin-top: 15px;
+  display: inline-flex;
+  gap: 15px;
+}
+
+.div-btns-reatribuicao-lote button {
+  width: 100%;
+}
+
+.btn-fechar {
+  background-color: rgb(159, 0, 0);
+}
+
+.btn-fechar:hover {
+  background-color: rgb(207, 0, 0);
+}

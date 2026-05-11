@@ -9,9 +9,14 @@ export default function AdminFgtsLote() {
   const [pesquisa, setPesquisa] = useState("");
   const [loading, setLoading] = useState(false);
   const [detalhe, setDetalhe] = useState(null);
+  const [telaReatribuicao, setTelaReatribuicao] = useState(null);
+  const [usuarios, setUsuarios] = useState([]);
+  const [selectedUserId, setSelectedUserId] = useState(0);
+  const [loadingReatribuicao, setLoadingReatribuicao] = useState(false);
 
   useEffect(() => {
     fetchLotes();
+    fetchUsers();
   }, [pagina, pesquisa]);
 
   const fetchLotes = async () => {
@@ -34,6 +39,46 @@ export default function AdminFgtsLote() {
 
   const countStatus = (status) =>
     lotes.filter((l) => l.status === status).length;
+
+  const fetchUsers = async () => {
+    try {
+      const response = await api.get(
+        `/usuarios?pesquisa=&pagina=1&limite=100000`
+      );
+
+      setUsuarios(response.data.data);
+    } catch (err) {
+      console.error("Erro ao buscar usuarios:", err);
+    }
+  }
+
+  const handleChangeUser = (event) => {
+    setSelectedUserId(event.target.value)
+  }
+
+  const handleReatribuirLote = async () => {
+    setLoadingReatribuicao(true);
+    
+    if(selectedUserId == 0) return alert("Selecione algum usuário.")
+
+    try {
+      const response = await api.patch(
+        `/consultas/FGTS/lote/reatribuir`,
+        {
+          id_consulta_lote: telaReatribuicao.id,
+          id_novo_promotor: selectedUserId
+        }
+      );
+
+      alert(response.data.msg);
+    } catch(err) {
+      alert(`Erro ao reatribuir lote: ${err.response.data.erro}`);
+    } finally {
+      setLoadingReatribuicao(false);
+      fetchLotes();
+      setTelaReatribuicao(null);
+    }
+  }
 
   return (
     <div className="admin-container">
@@ -73,13 +118,12 @@ export default function AdminFgtsLote() {
               <strong>{lote.instituicao}</strong>
 
               <span
-                className={`badge ${
-                  lote.status === "concluido"
-                    ? "verde"
-                    : lote.status === "erro"
+                className={`badge ${lote.status === "concluido"
+                  ? "verde"
+                  : lote.status === "erro"
                     ? "vermelho"
                     : "cinza"
-                }`}
+                  }`}
               >
                 {lote.status}
               </span>
@@ -99,7 +143,7 @@ export default function AdminFgtsLote() {
                 marginTop: 15,
                 display: "flex",
                 gap: 10,
-                flexWrap: "wrap",
+                // flexWrap: "wrap",
               }}
             >
               <button
@@ -107,6 +151,12 @@ export default function AdminFgtsLote() {
                 onClick={() => setDetalhe(lote)}
               >
                 Ver detalhes
+              </button>
+              <button
+                className="btn-secundario"
+                onClick={() => setTelaReatribuicao(lote)}
+              >
+                Reatribuir lote
               </button>
             </div>
           </div>
@@ -164,6 +214,51 @@ export default function AdminFgtsLote() {
             >
               Fechar
             </button>
+          </div>
+        </>
+      )}
+
+      {telaReatribuicao && (
+        <>
+          <div className="overlay" onClick={() => setTelaReatribuicao(null)}></div>
+          <div className="admin-modal-fgts-lote admin-modal-fgts-reatribuicao" style={{ marginTop: 30 }}>
+            <h3>Reatribuição do Lote #{telaReatribuicao.id}</h3>
+
+            <p><strong>Esse lote pertence ao usuário:</strong> <br />{usuarios.find(u => u.id === telaReatribuicao.promotor.id)?.username || "Desconhecido"}</p>
+
+            <div>
+              <p><strong>Selecione o novo usuário:</strong></p>
+
+              <select
+                id="user-select"
+                value={selectedUserId}
+                onChange={handleChangeUser}
+              >
+                <option value="">-- Escolha um usuário --</option>
+
+                {usuarios.map((usuario) => (
+                  <option key={usuario.id} value={usuario.id}>
+                    {usuario.username}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="div-btns-reatribuicao-lote">
+              <button
+                className="btn-admin btn-fechar"
+                onClick={() => setTelaReatribuicao(null)}
+              >
+                Fechar
+              </button>
+              
+              <button
+                className="btn-admin"
+                onClick={() => handleReatribuirLote()}
+              >
+                Reatribuir
+              </button>
+            </div>
           </div>
         </>
       )}
