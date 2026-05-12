@@ -106,6 +106,11 @@ export default function AdminFgtsLote() {
         <div className="admin-status-card error-count">
           Erro: {countStatus("erro")}
         </div>
+        <div>
+          <button onClick={fetchLotes} className="btn-secundario">
+            Recarregar
+          </button>
+        </div>
       </section>
 
       {loading && <p>Carregando...</p>}
@@ -125,7 +130,7 @@ export default function AdminFgtsLote() {
                     : "cinza"
                   }`}
               >
-                {lote.status}
+                {lote.status == "em_andamento" ? `em_andamento: ${lote.progresso}%` : lote.status}
               </span>
             </div>
 
@@ -203,9 +208,9 @@ export default function AdminFgtsLote() {
             <br />
             <h3>Detalhes financeiros do lote</h3>
             <p><strong>Qtd. clientes elegiveis:</strong> {detalhe.resumo.quantidade}</p>
-            <p><strong>Saldo total:</strong> R${detalhe.resumo.saldoTotal}</p>
-            <p><strong>Valor bruto total:</strong> R${detalhe.resumo.valorBrutoTotal}</p>
-            <p><strong>Valor líquido total:</strong> R${detalhe.resumo.valorLiquidoTotal}</p>
+            <p><strong>Saldo total:</strong> R${detalhe.resumo.saldoTotal.toFixed(2)}</p>
+            <p><strong>Valor bruto total:</strong> R${detalhe.resumo.valorBrutoTotal.toFixed(2)}</p>
+            <p><strong>Valor líquido total:</strong> R${detalhe.resumo.valorLiquidoTotal.toFixed(2)}</p>
 
             <button
               className="btn-admin"
