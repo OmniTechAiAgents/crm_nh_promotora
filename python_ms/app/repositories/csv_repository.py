@@ -13,16 +13,35 @@ class csv_repository:
     
     def getDataFrame(self):
         path = os.path.join(default_path, self.local_path)
+        
+        encodings = ['utf-8', 'latin1', 'iso-8859-1', 'cp1252']
+        df = None
 
-        df = pd.read_csv(path, sep=";", dtype={"CPF": str, "Cliente": str, "Dt Nasc": str, "Celular": str})
+        for enc in encodings:
+            try:
+                # O parâmetro 'errors="strict"' força a exceção se o encoding estiver errado
+                df = pd.read_csv(
+                    path, 
+                    sep=";", 
+                    dtype={"CPF": str, "Cliente": str, "Dt Nasc": str, "Celular": str},
+                    encoding=enc
+                )
+                # Se chegou aqui sem erro, deu certo. Podemos sair do loop.\
+                print(f"Sucesso ao ler com encoding: {enc}")
+                break
+            except (UnicodeDecodeError, ValueError):
+                continue  # Tenta o próximo da lista
+            except Exception as e:
+                print(f"Erro crítico no arquivo {path}: {e}")
+                return None
+        
+        if df is None:
+            print(f"Falha total: Nenhum encoding compatível para o arquivo {path}")
+            return None
 
-        # converte "" para NaN
+        # Processamento posterior
         df.replace("", pd.NA, inplace=True)
-
-        # remove linhas totalmente vazias
         df.dropna(how="all", inplace=True)
-
-        # reseta índice
         df.reset_index(drop=True, inplace=True)
 
         return df
