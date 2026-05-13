@@ -43,6 +43,11 @@ const Consultas_lote = db.define(
             type: DataTypes.STRING,
             allowNull: true,
             defaultValue: null
+        },
+        total_consultas: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            defaultValue: 0
         }
     },
     {

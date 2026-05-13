@@ -7,6 +7,7 @@ import ConsultasLoteService from "../services/ConsultasLoteService.js";
 import AuthService from "../services/AuthService.js";
 import { ValidarBodyReatribuicaoConsultaLote } from "../middleware/VerificarBodyReatribuicaoConsultaLote.js";
 import { ValidarBodyMarcarConsultaInelegivel } from "../middleware/ValidarBodyMarcarConsultaInelegivel.js";
+import contarLinhasCSV from "../utils/ContarLinhasCsv.js";
 
 class ConsultasFGTSController {
     async FazerConsulta (req, res) {
@@ -81,11 +82,14 @@ class ConsultasFGTSController {
                 return res.status(400).json({ erro: "É preciso enviar um arquivo .csv para inciar a operação." });
             }
             
+            const totalLinhas = await contarLinhasCSV(`./csvs_consulta_lote/${req.file.filename}`);
+
             const objDB = ({
                 id_admin: req.user.id,
                 id_promotor: id_promotor,
                 local_path: req.file.filename,
-                instituicao: instituicao
+                instituicao: instituicao,
+                total_consultas: totalLinhas
             })
 
             await ConsultasLoteService.Postar(objDB);

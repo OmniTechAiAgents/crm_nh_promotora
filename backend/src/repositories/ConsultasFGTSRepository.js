@@ -1,7 +1,8 @@
 import Cpfs_individuais from '../models/Cpfs_individuais.js';
-import { Op } from 'sequelize';
+import { Op, QueryTypes } from 'sequelize';
 import Usuario from "../models/Usuario.js";
 import Clientes from '../models/Clientes.js';
+import db from '../config/db.js';
 
 class ConsultasFGTSRepository {
     async Create(data) {
@@ -112,11 +113,29 @@ class ConsultasFGTSRepository {
         )
     }
 
+    async CountTotalsByLoteIds(ids_lotes) {
+        if (!ids_lotes.length) return [];
+
+        const sql = `
+            SELECT id_consulta_lote, COUNT(*) as total 
+            FROM cpfs_individuais 
+            WHERE id_consulta_lote IN (:ids) 
+            GROUP BY id_consulta_lote
+        `;
+
+        const results = await db.query(sql, {
+            replacements: { ids: ids_lotes },
+            type: QueryTypes.SELECT
+        });
+
+        return results;
+    }
+
 
     // reatribuição de lote
     async UpdatePromotorIdByConsultaLoteId(id_consulta_lote, usuario_id) {
         return Cpfs_individuais.update(
-            {usuario_id},
+            { usuario_id },
             {
                 where: {
                     id_consulta_lote: id_consulta_lote

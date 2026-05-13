@@ -13,7 +13,7 @@ class ConsultasLoteService {
 
             // captura os dados necessários e monta a msg para o rabbitMQ
             await PublisherRabbitMQ("consultas_lote", result.dataValues);
-        } catch(err) {
+        } catch (err) {
             throw err;
         }
     }
@@ -21,7 +21,7 @@ class ConsultasLoteService {
     async Editar(consultaId, status, mensagem) {
         try {
             const existe = await ConsultasLoteRepository.findOneConsultaById(consultaId);
-            if(!existe) throw new HttpException("Consulta não encontrada", 404);
+            if (!existe) throw new HttpException("Consulta não encontrada", 404);
 
             const bodyDB = ({
                 ...existe,
@@ -38,12 +38,29 @@ class ConsultasLoteService {
     async RecuperarConsultas(pesquisa, page, limit) {
         try {
             const offset = (page - 1) * limit;
-
             const result = await ConsultasLoteRepository.SearchPagination(pesquisa, limit, offset);
+
+            // começando a recuperar o total de todos os lotes da pag
+            const idsDosLotes = result.data.map(lote => lote.id);
+
+            const totais = await ConsultasFGTSRepository.CountTotalsByLoteIds(idsDosLotes);
+
+            const mapaDeTotais = {};
+            totais.forEach(row => {
+                mapaDeTotais[row.id_consulta_lote] = row.total;
+            });
 
             const newData = result.data.map((lote) => {
 
                 const loteJson = lote.toJSON();
+
+                const totalConcluido = mapaDeTotais[loteJson.id] || 0;
+
+                // se loteJson for 0, ele simplesmente coloca 0 para n dividir por 0
+                const calculo = loteJson.total_consultas > 0
+                    ? (totalConcluido / loteJson.total_consultas) * 100
+                    : 0;
+                loteJson.progresso = Number(calculo.toFixed(2));
 
                 const consultas = loteJson.consultas || [];
 
@@ -60,10 +77,11 @@ class ConsultasLoteService {
                     quantidade: 0,
                     saldoTotal: 0,
                     valorBrutoTotal: 0,
-                    valorLiquidoTotal: 0
+                    valorLiquidoTotal: 0,
                 });
 
                 delete loteJson.consultas;
+                delete loteJson.total_consultas;
 
                 return {
                     ...loteJson,
@@ -75,7 +93,7 @@ class ConsultasLoteService {
                 ...result,
                 data: newData
             };
-        } catch(err) {
+        } catch (err) {
             throw err;
         }
     }
