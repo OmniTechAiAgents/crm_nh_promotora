@@ -62,7 +62,7 @@ class C6Service {
 
             // reagendar a tarefa com o schreduler
             const delay = IsTokenExpired((new Date).getTime(), TokenData.expires);
-            TaskScheduler.schedule("C6", () => this.Autenticar(), delay.delay);
+            TaskScheduler.schedule("C6", () => this.Autenticar(), 900);
 
             return this.accessToken;
         } catch(err) {
