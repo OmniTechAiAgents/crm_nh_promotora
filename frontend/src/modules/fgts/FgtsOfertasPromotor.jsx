@@ -54,22 +54,24 @@ export default function FgtsOfertasPromotor() {
   };
 
   const marcarPropostaInelegivel = async (id_oferta) => {
-    const motivo = prompt("Tem certeza que deseja marcar essa proposta como inelegível? Se sim, digite o motivo:")
+    const confirmado = confirm(`Tem certeza de que deseja marcar esse cliente como "contactado"?`);
+
+    if (!confirmado) return;
 
     try {
       const response = await api.patch(`/consultas/FGTS/marcarInelegivel`,
         {
           id_consulta: id_oferta,
-          motivo: motivo
+          motivo: "Cliente já contactado"
         }
       );
 
-      alert(`${response.data?.msg}`);
+      alert(`Operação concluída.`);
 
-      window.location.reload();
+      buscarOfertas();
     } catch (error) {
-      alert("Erro ao marcar oferta como inelegível.")
-      console.error("Erro ao marcar oferta como inelegivel:", error);
+      alert("Erro ao marcar cliente como contactado.")
+      console.error("Erro ao marcar cliente como contactado:", error);
     } finally {
       setLoading(false);
     }
@@ -161,7 +163,7 @@ export default function FgtsOfertasPromotor() {
                         className="btn-acoes-oferta btn-marcar-inelegivel"
                         onClick={() => marcarPropostaInelegivel(item.id)}
                         >
-                          Marcar inelegível
+                          Marcar "contactado"
                       </button>
                     </td>
                   </tr>
