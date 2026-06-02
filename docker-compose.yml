@@ -1,4 +1,23 @@
+version: '3.8'
+
 services:
+  nginx:
+    image: nginx:alpine
+    container_name: nginx_proxy
+    restart: always
+    ports:
+      # http
+      - "80:80"
+      # https      
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - node
+    networks:
+      - app_network
+
   mysql:
     image: mysql:8.0
     container_name: mysql_db
@@ -8,43 +27,38 @@ services:
       MYSQL_DATABASE: crm_nh_promotora
       MYSQL_USER: root_db
       MYSQL_PASSWORD: root
-    ports:
-      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
       - app_network
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD"]
-      interval: 5s
+      interval: 10s
       timeout: 5s
-      retries: 10
-      start_period: 5s
+      retries: 5
+      start_period: 10s
 
   node:
-    build: ./backend
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: node_app
-    ports:
-      - "3000:3000"
+    restart: always
     volumes:
-      - ./backend:/app
-      - /app/node_modules
       - shared_uploads:/app/csvs_consulta_lote
     depends_on:
       mysql:
         condition: service_healthy
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
     networks:
       - app_network
   
   frontend:
     build: ./frontend
     container_name: react_app
-    ports:
-      - "5173:5173"
+    restart: always
     volumes:
-      - ./frontend:/app
       - /app/node_modules
     depends_on:
       - node
@@ -52,26 +66,25 @@ services:
       - app_network
 
   rabbitmq:
-    image: rabbitmq:3-management
+    image: rabbitmq:3-management-alpine
     container_name: rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
+    restart: always
     volumes:
       - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - rabbitmq_data:/var/lib/rabbitmq
     networks:
       - app_network
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "ping"]
-      interval: 5s
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 5
 
   python_ms:
     build: ./python_ms
     container_name: python_ms
+    restart: always
     volumes:
-      - ./python_ms:/app
       - shared_uploads:/app/csvs_consulta_lote
     depends_on:
       rabbitmq:
@@ -81,6 +94,7 @@ services:
 
 volumes:
   mysql_data:
+  rabbitmq_data:
   shared_uploads: 
 
 networks:
