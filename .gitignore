@@ -2,3 +2,4 @@
 .vite
 /shared_uploads/
 docker-compose.override.yml
+.env
