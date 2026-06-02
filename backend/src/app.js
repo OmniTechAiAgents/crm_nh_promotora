@@ -25,8 +25,20 @@ import Tabela_propostas_CLT from './models/Tabela_propostas_CLT.js';
 
 const app = express();
 
-// SÓ PARA AMBIENTE DE DEV (sem cors)
-app.use(cors());
+app.use(cors({
+    origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+        
+        if (origin === process.env.FRONTEND_URL || allowedOrigin === '*') {
+            return callback(null, true);
+        } else {
+            return callback(new Error('Bloqueado pelo CORS: Origem não permitida.'));
+        }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+}));
 
 app.use(express.json());
 
