@@ -1,3 +1,4 @@
+#comentario só para refazer o deploy
 version: '3.8'
 
 services:
