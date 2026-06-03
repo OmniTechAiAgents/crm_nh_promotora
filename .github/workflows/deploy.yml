@@ -2,21 +2,47 @@ name: Deploy CRM NH Promotora
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main", "homologacao" ]
 
 jobs:
-  deploy:
+  DEPLOY_HOMOLOGACAO:
+    name: 🚀 Deploy no ambiente de Homologação
+    if: github.ref == 'refs/heads/homologacao'
     runs-on: ubuntu-latest
+    environment: homologacao
 
     steps:
-      - name: Deploy via SSH
+      - name: Deploy via SSH na Homologação
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
+          host: ${{ secrets.SSH_HOMOLOGACAO_HOST }}
+          username: ${{ secrets.SSH_HOMOLOGACAO_USER }}
+          key: ${{ secrets.SSH_HOMOLOGACAO_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_HOMOLOGACAO_PORT }}
           script: |
-            cd /home/florindo/crm_nh_promotora
+            echo "Iniciando deploy em Homologação..."
+            # O caminho usa a variável do usuário dinamicamente
+            cd /home/${{ secrets.SSH_HOMOLOGACAO_USER }}/crm_nh_promotora
             ./deploy.dev.sh
+            echo "Deploy na homologação deu bão"
+
+  DEPLOY_PRODUCAO:
+    name: 🔒 Deploy no ambiente de Produção
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: producao
+
+    steps:
+      - name: Deploy via SSH na VPS Hostinger
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_PRODUCAO_HOST }}
+          username: ${{ secrets.SSH_PRODUCAO_USER }}
+          key: ${{ secrets.SSH_PRODUCAO_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PRODUCAO_PORT }}
+          script: |
+            echo "Iniciando deploy em Produção..."
+            # O caminho usa a variável do usuário dinamicamente
+            cd /home/${{ secrets.SSH_PRODUCAO_USER }}/crm_nh_promotora
+            ./deploy.prod.sh
+            echo "Deploy na produção deu bão"
