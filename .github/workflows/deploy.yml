@@ -19,4 +19,4 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             cd /home/florindo/crm_nh_promotora
-            ./deploy.sh
+            ./deploy.dev.sh
