@@ -17,7 +17,7 @@ docker volume rm ${PWD##*/}_rabbitmq_data 2>/dev/null || true
 
 echo "⬇ Atualizando código (forçando estado do repo)"
 git fetch origin
-git reset --hard origin/main
+git reset --hard origin/homologacao
 
 echo "🐳 Subindo containers"
 if ! docker compose up -d --build; then
