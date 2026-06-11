@@ -4,7 +4,7 @@ import VerifyCpfMask from '../utils/VerifyCpfMask.js';
 export const ValidarBodyPropostaCLT = z
     .object({
         // informações que o usuário vai ter q digitar
-        instituicao: z.enum(["Presenca bank", "v8"]),
+        instituicao: z.enum(["v8"]),
         
         // nullable serve para o transform poder mudar para null sem dar merda
         bankCode: z.string().optional().nullable(),
@@ -37,13 +37,6 @@ export const ValidarBodyPropostaCLT = z
     .superRefine((data, ctx) => {
         const recebeBanco = data.bankCode || data.accountType || data.accountNumber || data.accountDigit || data.branchNumber;
         const recebePix = data.pixKey || data.pixKeyType;
-
-        if (data.instituicao == "Presenca bank" && recebePix) {
-            ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: "A instituição 'Presenca bank' não suporta operações com pix. Envie apenas dados bancários."
-            });
-        }
 
         if (recebeBanco && recebePix) {
             ctx.addIssue({
@@ -96,24 +89,6 @@ export const ValidarBodyPropostaCLT = z
             data.accountDigit = null;
             data.branchNumber = null;
         } else if (recebeBanco) {
-            data.pixKey = null;
-            data.pixKeyType = null;
-        }
-
-        if (data.instituicao == "Presenca bank") {
-            switch (data.accountType) {
-                case "corrente":
-                    data.accountType = "2"
-                    break;
-                case "poupanca":
-                    data.accountType = "1"
-                    break;
-                default:
-                    break
-            }
-        }
-
-        if (data.instituicao == "v8") {
             switch (data.pixKeyType) {
                 case "chave_aleatoria":
                     data.pixKeyType = "chave aleatória"

@@ -1,6 +1,5 @@
 import PropostasCLTRepository from "../repositories/PropostasCLTRepository.js";
 import HttpException from "../utils/HttpException.js";
-import PresencaBankService from "./integrations/PresencaBankService.js";
 import V8CLTService from "./integrations/V8CLTService.js";
 
 class PropostasCLTService {
@@ -27,9 +26,6 @@ class PropostasCLTService {
             let response;
 
             switch (instituicao) {
-                case "Presenca bank":
-                    response = await PresencaBankService.DigitarProposta(data, userData.id);
-                    break;
                 case "v8":
                     response = await V8CLTService.DigitarProposta(data, userData.id);
                     break;

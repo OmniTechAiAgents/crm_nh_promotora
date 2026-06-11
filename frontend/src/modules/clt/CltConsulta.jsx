@@ -48,17 +48,15 @@ function getErrorMessage(error) {
 
 export default function CltConsulta() {
     const [cpf, setCpf] = useState("");
-    const [instituicao, setInstituicao] = useState("Presenca bank");
+    const [instituicao, setInstituicao] = useState("v8");
     const [resultado, setResultado] = useState(null);
     const [resultadoSimulacao, setResultadoSimulacao] = useState(null);
     const [loading, setLoading] = useState(false);
     const [loadingSimulacao, setLoadingSimulacao] = useState(false);
-    const [loadingDP, setLoadingDP] = useState(false);
-    const [textoCopiado, setTextoCopiado] = useState(false);
     const [tabelaSelecionada, setTabelaSelecionada] = useState("");
     const [prazoSelecionado, setPrazoSelecionado] = useState("");
     const [tabelasDisponiveis, setTabelasDisponiveis] = useState([]);
-    const [prazosDisponiveis, setPrazosDisponiveis] = useState([])
+    const [prazosDisponiveis, setPrazosDisponiveis] = useState([]);
 
     const consultar = async () => {
         setResultado(null);
@@ -110,34 +108,19 @@ export default function CltConsulta() {
                 // console.log("Tabelas encontradas:", tabelas);
             }
         } catch (err) {
-            // captura uma possível proposta inelegível
-            if (instituicao == "v8") {
-                if (err.status === 424) {
-                    setResultadoSimulacao({
-                        status: "NAO_ELEGIVEL",
-                        motivoErro: getErrorMessage(err)
-                    });
-                } else if (err.status == 422) {
-                    alert("API do v8 está esperando para fazer a consulta de saldo, refaça essa requisição daqui a alguns minutos.")
-                    setResultadoSimulacao(null);
-                } else {
-                    setResultadoSimulacao({
-                        status: "ERRO",
-                        motivoErro: getErrorMessage(err)
-                    });
-                }
-            } else if (instituicao == "Presenca bank") {
-                if (err.status === 424) {
-                    setResultado({
-                        status: "NAO_ELEGIVEL",
-                        motivoErro: getErrorMessage(err)
-                    });
-                } else {
-                    setResultado({
-                        status: "ERRO",
-                        motivoErro: getErrorMessage(err)
-                    });
-                }
+            if (err.status === 424) {
+                setResultadoSimulacao({
+                    status: "NAO_ELEGIVEL",
+                    motivoErro: getErrorMessage(err)
+                });
+            } else if (err.status == 422) {
+                alert("API do v8 está esperando para fazer a consulta de saldo, refaça essa requisição daqui a alguns minutos.")
+                setResultadoSimulacao(null);
+            } else {
+                setResultadoSimulacao({
+                    status: "ERRO",
+                    motivoErro: getErrorMessage(err)
+                });
             }
         } finally {
             setLoading(false);
@@ -218,52 +201,6 @@ export default function CltConsulta() {
         }
     }
 
-    const gerarLinkAutorizacaoDataPrev = async () => {
-        const cpfNormalizado = normalizarCPF(cpf);
-
-        try {
-            setLoadingDP(true);
-
-            const authData = JSON.parse(localStorage.getItem("auth_data"));
-            const token = authData?.token;
-
-            if (!token) {
-                alert("Sessão expirada, faça login novamente.");
-                return;
-            }
-
-            const {data} = await api.post(
-                "/consultas/CLT/gerarAutorizacaoDataPrev",
-                {
-                    cpf: cpfNormalizado,
-                    instituicao
-                }
-            );
-
-            console.log(data.shortUrl);
-
-            // lidando com a copia do link
-            try {
-                await navigator.clipboard.writeText(data.shortUrl);
-
-                setTextoCopiado(true);
-
-                // dps de 2 segundos some a msg
-                setTimeout(() => {
-                    setTextoCopiado(false);
-                }, 3000);
-            } catch (err) {
-                console.error("Erro ao tentar copiar para a área de transferência: ", err);
-                alert(`Não foi possível copiar o texto, aqui está o link: ${data.shortUrl}`);
-            }
-        } catch(err) {
-            const msgError = getErrorMessage(err);
-            alert(msgError)
-        } finally {
-            setLoadingDP(false);
-        }
-    }
-
     const handleChangeTabelaSelecionada = (event) => {
         setTabelaSelecionada(event.target.value);
     };
@@ -318,31 +255,10 @@ export default function CltConsulta() {
                 >
                     {loading ? "Consultando..." : "Consultar"}
                 </button>
-
-                {instituicao == "Presenca bank" ? 
-                    (
-                        <div className="div-btn-gerar-link-dp">
-                            <button
-                                className="btn-consultar"
-                                onClick={gerarLinkAutorizacaoDataPrev}
-                                disabled={loadingDP}
-                            >
-                                {loadingDP ? "Gerando..." : "Gerar link de autorização dataprev"}
-                            </button>
-
-                            {textoCopiado ? (
-                                <label className="btn-consultar label-copiado">Copiado!</label>
-                            ) : ""}
-                        </div>
-                    )
-                :
-                    ("")
-                }
             </div>
 
-            {instituicao == "v8" ? 
-                (
-                    <div className="consulta-form">
+            {/* Selects V8 */}
+            <div className="consulta-form">
                         <select 
                             value={tabelaSelecionada}
                             onChange={handleChangeTabelaSelecionada}
@@ -393,28 +309,11 @@ export default function CltConsulta() {
                                 {loadingSimulacao ? "Carregando..." : "Simular"}
                             </button>
                     </div>
-                ) 
-            : 
-                ("")
-            }
-        
+
             {/* INSTITUIÇÕES */}
             <div className="instituicoes">
                 <span className="inst-title">Instituição:</span>
         
-                <label className="radio-option">
-                    <input
-                        type="radio"
-                        value="Presenca bank"
-                        checked={instituicao === "Presenca bank"}
-                        onChange={(e) => {
-                            setInstituicao(e.target.value)
-                            limparResultado()
-                        }}
-                    />
-                    PRESENÇA BANK
-                </label>
-
                 <label className="radio-option">
                     <input
                         type="radio"
@@ -431,41 +330,17 @@ export default function CltConsulta() {
         
             {/* RESULTADO */}
             <div className="result-vinculos">
-                <h2>
-                    {instituicao == "Presenca bank" ? (
-                        "Vínculos empregatícios"
-                    ) : instituicao == "v8" ? (
-                        "Ofertas disponíveis"
-                    ) : ""}
-                            
-                </h2>
+                <h2>Ofertas disponíveis</h2>
 
-                    {instituicao == "Presenca bank" ? (
-                        <div className="div-cards-result">
-                            {resultado && Array.isArray(resultado) ? (
-                                resultado.map((item) => (
-                                    // Enviando matricula como key para não bagunçar o mapping
-                                    <CltResultadoCard key={item.matricula} resultado={item} />
-                            ))
-                            ) : (
-                                resultado && <CltResultadoCard resultado={resultado} />
-                            )}
-                        </div>
-                    ) : instituicao == "v8" ? (
-                        <div className="div-cards-result">
-                            {resultadoSimulacao && Array.isArray(resultadoSimulacao) ? (
-                                resultadoSimulacao.map((item) => (
-                                    // Enviando matricula como key para não bagunçar o mapping
-                                    <CltResultadoCard key={item.matricula} resultado={item} />
-                            ))
-                            ) : (
-                                resultadoSimulacao && <CltResultadoCard resultado={resultadoSimulacao} />
-                            )}
-                        </div>
-                    ) : 
-                        ("")
-                    }
-                
+                <div className="div-cards-result">
+                    {resultadoSimulacao && Array.isArray(resultadoSimulacao) ? (
+                        resultadoSimulacao.map((item) => (
+                            <CltResultadoCard key={item.matricula} resultado={item} />
+                        ))
+                    ) : (
+                        resultadoSimulacao && <CltResultadoCard resultado={resultadoSimulacao} />
+                    )}
+                </div>
             </div>
         </div>
     );

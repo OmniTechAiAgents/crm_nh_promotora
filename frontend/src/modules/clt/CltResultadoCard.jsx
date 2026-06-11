@@ -1,6 +1,5 @@
 import { useState } from "react";
 import "./clt.css";
-import CltPropostaPresencaBank from "./CltPropostaPresencaBank";
 import Modal from "../../components/Modal";
 import CltPropostaV8 from "./CltPropostaV8";
 
@@ -58,98 +57,6 @@ export default function CltResultadoCard({ resultado }) {
 
     // Pega o valor liberado da tabela escolhida, ou 0 se der ruim
     const valorParaReceber = tabelaDestaque ? tabelaDestaque.valorLiberado : 0;
-
-    // ---------- CARD OFERTA DISPONÍVEL PRESENÇA ----------
-    if (status === "ELEGIVEL" && !propostaDigitada && instituicaoEscolhida == "Presenca bank") {
-        return (
-            <>
-                <div className="card oferta">
-                    <div className="card-header verde">
-                        ✔ Vínculo Elegível
-                    </div>
-    
-                    <div className="card-body">
-                        <p>Cliente vai receber:</p>
-    
-                        <h1 style={{ color: '#2e7d32' }}>
-                            {formatarMoeda(valorParaReceber)}
-                        </h1>
-    
-                        <p>
-                            Instituição:{" "}
-                            <strong>{instituicaoEscolhida}</strong>
-                        </p>
-
-                        <p>
-                            CNPJ empregador:{" "}
-                            <strong>{cnpjEmpregador}</strong>
-                        </p>
-    
-                        <details className="tabelas-disponiveis-card">
-                            <summary style={{ cursor: "pointer" }}>Ver tabelas disponíveis</summary>
-
-                            {tabelasElegiveis && tabelasElegiveis.length > 0 ? (
-                                tabelasElegiveis.map((tabela) => (
-                                <div 
-                                    key={tabela.id_tabela} 
-                                    className="linha-parcela" 
-                                    style={{ display: 'flex', flexDirection: 'column', gap: '4px', paddingBottom: '12px', borderBottom: '1px solid #eee' }}
-                                >
-                                    {/* Linha 1: Nome da Tabela em destaque */}
-                                    <span style={{ fontWeight: '600', color: '#333' }}>
-                                        {tabela.nome}
-                                    </span>
-                                    
-                                    {/* Linha 2: Valores organizados lado a lado */}
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', color: '#555' }}>
-                                        <span>
-                                            <strong>Liberado:</strong> <span style={{ color: '#2e7d32' }}>{formatarMoeda(tabela.valorLiberado)}</span>
-                                        </span>
-                                        
-                                        <span>
-                                            <strong>Parcela:</strong> {tabela.prazo}x de {formatarMoeda(tabela.valorParcela)}
-                                        </span>
-                                    </div>
-                                </div>
-                                ))
-                            ) : (
-                                <div>Nenhuma tabela disponível</div>
-                            )}
-                        </details>
-    
-                    <button
-                        className="btn-principal"
-                        onClick={() => setOpenModal(true)}
-                    >
-                    Digitar Proposta
-                    </button>
-                </div>
-            </div>
-    
-            {/* ---------- MODAL ---------- */}
-            <Modal
-                open={openModal}
-                onClose={() => setOpenModal(false)}
-            >
-                <CltPropostaPresencaBank
-                    instituicao={instituicaoEscolhida}
-                    cpf={cpf}
-                    sexo={sexo}
-                    nomeMae={nomeMae}
-                    cnpjEmpregador={cnpjEmpregador}
-                    registroEmpregaticio={registroEmpregaticio}
-                    tabelasDisponíveis={tabelasElegiveis}
-                    valorMargemAvaliavel={valorMargemAvaliavel}
-
-                    onSuccess={() => {
-                        setOpenModal(false);
-                        setPropostaDigitada(true);
-                    }}
-                />
-            </Modal>
-          </>
-        );
-    }
 
     // ---------- CARD OFERTA DISPONÍVEL V8 -----------
     if (status === "ELEGIVEL" && !propostaDigitada && instituicaoEscolhida == "v8") {
