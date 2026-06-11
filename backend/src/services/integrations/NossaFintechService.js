@@ -11,10 +11,13 @@ import NovaVidaService from './NovaVidaService.js';
 
 
 class NossaFintechService {
-    constructor () {
+    constructor() {
         this.accessToken = null;
     }
 
+    // ============================================
+    //                     FGTS
+    // ============================================
     async Autenticar() {
         try {
             const retorno = await TokenAPIsRepository.findOneByNameAndType("nossafintech", "fgts");
@@ -63,11 +66,10 @@ class NossaFintechService {
             TaskScheduler.schedule("nossafintech", () => this.Autenticar(), delay.delay);
 
             return this.accessToken;
-        } catch(err) {
+        } catch (err) {
             console.error(`Não foi possivel recuperar o token de acesso da nossa fintech: ${err}`);
         }
     }
-
     async Simulacao(cpf, userId, id_consulta_lote) {
         //userUsername
         try {
@@ -83,7 +85,7 @@ class NossaFintechService {
             let tabelaSelecionada;
 
             // for que percorre os players para consulta de saldo
-            for(const { code, enabled } of players) {
+            for (const { code, enabled } of players) {
                 await new Promise(resolve => setTimeout(resolve, 2000));
 
                 if (!enabled) continue;
@@ -93,7 +95,7 @@ class NossaFintechService {
 
                     // manda request para rota de verificar saldo
                     responseSaldo = await axios.post(`${process.env.NossaFintech_baseURL}/nossa/v1/balance`,
-                        { 
+                        {
                             cpf: cpf,
                             service_type: code.trim()
                         },
@@ -135,7 +137,7 @@ class NossaFintechService {
                     // console.log(tabelaSelecionada);
 
                     break;
-                } catch(err) {
+                } catch (err) {
                     console.error(`O player ${code} falhou em concluir a simulacao`);
                     // console.log(err.response.data)
                     lastError = err;
@@ -181,7 +183,7 @@ class NossaFintechService {
                     cod_produto: tabelaSelecionada.cod_produto,
                     service_type: usedPlayer
                 });
-                    
+
                 // manda request para simular
                 responseSimulacao = await axios.post(`${process.env.NossaFintech_baseURL}/nossa/v1/simulation`,
                     bodySimulacao,
@@ -257,14 +259,14 @@ class NossaFintechService {
             if (consultaDuplicada) {
                 const bodyUpdate = ({
                     id: consultaDuplicada.dataValues.id,
-                                
+
                     ...bodyDB
                 })
-            
+
                 await ConsultasFGTSRepository.Update(consultaDuplicada.dataValues.id, bodyUpdate);
-            
+
                 const objConsultaDB = await ConsultasFGTSRepository.SearchDuplicates(cliente.cpf, bodyDB.banco, bodyDB.API);
-            
+
                 // adicionando o obj de cliente no body de retorno
                 bodyRetorno = ({
                     ...objConsultaDB.dataValues,
@@ -287,7 +289,7 @@ class NossaFintechService {
             // console.log(err);
             let status = 500;
             let message = "Erro inesperado ao realizar a simulação";
-            
+
             if (axios.isAxiosError(err)) {
                 status = 424;
                 message = err.response?.data?.data?.error_message_ptBR ?? message;
@@ -332,20 +334,19 @@ class NossaFintechService {
             throw new HttpException(message, status);
         }
     }
-
     async Proposta(data, userId) {
         try {
             const verifica = await ConsultasFGTSRepository.SearchByFinancialId(data.financialId);
 
-            if(!verifica) {
+            if (!verifica) {
                 throw new HttpException("Nenhuma proposta encontrada com esse financialId", 404);
             }
 
-            const resultBuscaCliente = await ClientesService.procurarCpf(data.cpf); 
+            const resultBuscaCliente = await ClientesService.procurarCpf(data.cpf);
             if (!resultBuscaCliente || resultBuscaCliente?.length === 0) {
                 const dadosCliente = await NovaVidaService.BuscarDados(data.cpf);
 
-                if(dadosCliente.CONSULTA == "Não Autorizado") {
+                if (dadosCliente.CONSULTA == "Não Autorizado") {
                     throw new HttpException("Não foi possível recuperar os dados do cliente na API do Nova Vida, será necessário fazer o cadastro do cliente manualmente.", 424);
                 }
 
@@ -363,7 +364,7 @@ class NossaFintechService {
                     throw new HttpException("Banco não encontrado", 404);
                 }
             }
-        
+
             const reqBody = ({
                 simulation_key: data.financialId,
                 service_type: verifica.banco,
@@ -450,26 +451,25 @@ class NossaFintechService {
 
             return;
         } catch (err) {
-            if(axios.isAxiosError(err)) {
+            if (axios.isAxiosError(err)) {
                 const status = 424;
                 const message = err.response?.data?.message || "Erro desconhecido.";
 
                 throw new HttpException(message, status);
             }
 
-            if(err instanceof HttpException) {
+            if (err instanceof HttpException) {
                 throw new HttpException(err.message, err.status);
             }
 
             throw new HttpException(err.message, 500);
         }
     }
-
     async VerificarTodasAsPropostas() {
         try {
             const propostas = await PropostasRepository.findAllParaVerificar("Nossa fintech");
 
-            for(const { proposal_id } of propostas) {
+            for (const { proposal_id } of propostas) {
                 await this.AtualizarRegistroPropostaDB(proposal_id);
 
                 await new Promise(resolve => setTimeout(resolve, 5000));
@@ -480,7 +480,6 @@ class NossaFintechService {
             console.error(`Não foi possível verificar as propostas da Nossa fintech: ${err}`);
         }
     }
-
     async VerificarApenasUmaProposta(proposalId) {
         try {
             await this.AtualizarRegistroPropostaDB(proposalId);
@@ -494,7 +493,6 @@ class NossaFintechService {
             throw err;
         }
     }
-
     async CancelarProposta(proposalId) {
         try {
             await axios.post(`${process.env.NossaFintech_baseURL}/nossa/v1/cancel_operation`,
@@ -515,21 +513,19 @@ class NossaFintechService {
             const response = await PropostasRepository.findOne(proposalId);
 
             return response;
-        } catch(err) {
-            if(axios.isAxiosError(err)) {
+        } catch (err) {
+            if (axios.isAxiosError(err)) {
                 const status = 424;
                 const message = err.response?.data?.message || "Erro desconhecido.";
 
                 throw new HttpException(message, status);
             }
 
-            if(err instanceof HttpException) {
+            if (err instanceof HttpException) {
                 throw new HttpException(err.message, err.status);
             }
         }
     }
-
-
     async AtualizarRegistroPropostaDB(proposalId) {
         try {
             const STATUS_FINALIZADOS = new Set([
@@ -571,6 +567,36 @@ class NossaFintechService {
             })
 
             await PropostasRepository.update(proposalId, proposalAtualizada)
+        } catch (err) {
+            throw err;
+        }
+    }
+
+
+    // ============================================
+    //                     CLT
+    // ============================================
+    async GerarTermoAutorizacao(cpf) {
+        try {
+            const response = await axios.post(`${process.env.NossaFintech_baseURL}/clt-loan/v1/request-authorization`,
+                {
+                    document_number: cpf,
+                    person_name: "MARIA DA SILVA",
+                    country_code: "55",
+                    area_code: "11",
+                    phone_number: "999999999",
+                    notification_method: "sms",
+                    service_type: "QITECH"
+                },
+                {
+                    // timeout: 45_000,
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                    }
+                }
+            );
+
+            return response?.data?.data?.authorization_link;
         } catch (err) {
             throw err;
         }

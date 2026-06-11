@@ -12,6 +12,7 @@ const ConsultasRoutes = express.Router();
 ConsultasRoutes.get("/FGTS/manual", AuthenticationToken, ConsultasFGTSController.RecuperarConsultas);
 ConsultasRoutes.post("/FGTS/manual", AuthenticationToken, ConsultasFGTSController.FazerConsulta);
 
+ConsultasRoutes.post("/CLT/gerarAutorizacaoDataPrev", AuthenticationToken, ConsultasCLTController.GerarTermoAutorizacaoDataPrev);
 ConsultasRoutes.post("/CLT/consultarVinculosMargemTabela", AuthenticationToken, ConsultasCLTController.ConsultarVinculoMargemTabela);
 ConsultasRoutes.post("/CLT/gerarLinkFormalizacao", AuthenticationToken, ConsultasCLTController.ObterLinkDeFormalização);
 

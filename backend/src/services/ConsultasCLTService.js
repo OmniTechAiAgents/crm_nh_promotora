@@ -2,6 +2,7 @@ import axios from 'axios';
 import HttpException from "../utils/HttpException.js";
 import V8CLTService from './integrations/V8CLTService.js';
 import C6Service from './integrations/C6Service.js';
+import NossaFintechService from './integrations/NossaFintechService.js';
 
 class ConsultasCLTService {
     async ConsultarVinculoMargemTabela(cpf, instituicao) {
@@ -18,6 +19,25 @@ class ConsultasCLTService {
             }
 
             return response;
+        } catch(err) {
+            throw err;
+        }
+    }
+
+    async GerarTermoAutorizacaoDataPrev(cpf, instituicao) {
+        try {
+            let response;
+
+            // decide para qual API vai mandar
+            switch (instituicao){
+                case "Nossa fintech":
+                    response = await NossaFintechService.GerarTermoAutorizacao(cpf);
+                    break;
+                default: 
+                    throw new HttpException("Instituição não encontrada", 404);
+            }
+
+            return { link: response };
         } catch(err) {
             throw err;
         }
