@@ -29,6 +29,24 @@ class ConsultasCLTController {
         }
     }
 
+    async RecuperarBancarizadoras(req, res) {
+        try {
+            const { instituicao } = req.query;
+            console.log(instituicao);
+            const response = await ConsultasCLTService.RecuperarBancarizadoras(instituicao);
+
+            return res.status(200).json(response);
+        } catch (err) {
+            // console.error(err);
+
+            if (err instanceof HttpException) {
+                return res.status(err.status).json({ erro: err.message })
+            }
+
+            return res.status(500).json({ erro: err.message });
+        }
+    }
+
     async GerarTermoAutorizacaoDataPrev(req, res) {
         try {
             const dados = ValidarBodyConsultaCLT.parse(req.body);

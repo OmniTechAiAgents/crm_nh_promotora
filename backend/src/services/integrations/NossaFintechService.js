@@ -576,6 +576,22 @@ class NossaFintechService {
     // ============================================
     //                     CLT
     // ============================================
+    async RecuperarBancarizadoras() {
+        try {
+            const response = await axios.get(`${process.env.NossaFintech_baseURL}/clt-loan/v1/banking-institutions`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                    }
+                }
+            );
+
+            return response.data.data;
+        } catch (err) {
+            throw err;
+        }
+    }
+    
     async GerarTermoAutorizacao(cpf) {
         try {
             const response = await axios.post(`${process.env.NossaFintech_baseURL}/clt-loan/v1/request-authorization`,

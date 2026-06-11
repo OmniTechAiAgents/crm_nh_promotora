@@ -24,6 +24,26 @@ class ConsultasCLTService {
         }
     }
 
+    async RecuperarBancarizadoras(instituicao) {
+        try {
+            let response;
+console.log(instituicao);
+            switch (instituicao) {
+                case "Nossa fintech":
+                    response = await NossaFintechService.RecuperarBancarizadoras();
+                    break;
+                default:
+                    throw new HttpException("Instituição não encontrada", 404);
+            }
+
+            return { 
+                bancarizadoras_disponiveis: response 
+            };
+        } catch(err) {
+            throw err;
+        }
+    }
+
     async GerarTermoAutorizacaoDataPrev(cpf, instituicao) {
         try {
             let response;
