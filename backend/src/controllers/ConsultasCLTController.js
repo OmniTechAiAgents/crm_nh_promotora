@@ -1,4 +1,5 @@
 import { ValidarBodyConsultaCLT } from "../middleware/ValidarBodyConsultaCLT.js";
+import { ValidarBodyAuthDataPrevCLT } from "../middleware/ValidarBodyAuthDataPrevCLT.js";
 import { ValidarBodyLinkFormalizacaoCLT } from "../middleware/ValidarBodyLinkFormalizacaoCLT.js";
 import ConsultasCLTService from "../services/ConsultasCLTService.js";
 import HttpException from "../utils/HttpException.js";
@@ -32,7 +33,7 @@ class ConsultasCLTController {
     async RecuperarBancarizadoras(req, res) {
         try {
             const { instituicao } = req.query;
-            console.log(instituicao);
+
             const response = await ConsultasCLTService.RecuperarBancarizadoras(instituicao);
 
             return res.status(200).json(response);
@@ -49,9 +50,9 @@ class ConsultasCLTController {
 
     async GerarTermoAutorizacaoDataPrev(req, res) {
         try {
-            const dados = ValidarBodyConsultaCLT.parse(req.body);
+            const dados = ValidarBodyAuthDataPrevCLT.parse(req.body);
 
-            const response = await ConsultasCLTService.GerarTermoAutorizacaoDataPrev(dados.cpf, dados.instituicao);
+            const response = await ConsultasCLTService.GerarTermoAutorizacaoDataPrev(dados.cpf, dados.instituicao, dados.banco);
 
             return res.status(200).json(response);
         } catch(err) {

@@ -27,7 +27,7 @@ class ConsultasCLTService {
     async RecuperarBancarizadoras(instituicao) {
         try {
             let response;
-console.log(instituicao);
+
             switch (instituicao) {
                 case "Nossa fintech":
                     response = await NossaFintechService.RecuperarBancarizadoras();
@@ -44,14 +44,14 @@ console.log(instituicao);
         }
     }
 
-    async GerarTermoAutorizacaoDataPrev(cpf, instituicao) {
+    async GerarTermoAutorizacaoDataPrev(cpf, instituicao, banco) {
         try {
             let response;
 
             // decide para qual API vai mandar
             switch (instituicao){
                 case "Nossa fintech":
-                    response = await NossaFintechService.GerarTermoAutorizacao(cpf);
+                    response = await NossaFintechService.GerarTermoAutorizacao(cpf, banco);
                     break;
                 default: 
                     throw new HttpException("Instituição não encontrada", 404);

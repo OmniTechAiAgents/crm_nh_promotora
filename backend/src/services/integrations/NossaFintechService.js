@@ -591,8 +591,7 @@ class NossaFintechService {
             throw err;
         }
     }
-    
-    async GerarTermoAutorizacao(cpf) {
+    async GerarTermoAutorizacao(cpf, banco) {
         try {
             const response = await axios.post(`${process.env.NossaFintech_baseURL}/clt-loan/v1/request-authorization`,
                 {
@@ -602,7 +601,7 @@ class NossaFintechService {
                     area_code: "11",
                     phone_number: "999999999",
                     notification_method: "sms",
-                    service_type: "QITECH"
+                    service_type: banco.trim()
                 },
                 {
                     // timeout: 45_000,
