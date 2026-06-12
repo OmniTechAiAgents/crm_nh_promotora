@@ -651,7 +651,7 @@ class NossaFintechService {
 
                 const margem = await this.#consultarMargem(cpf, banco, vinculo.employer_cnpj);
 
-                const tabelas = await this.#recuperarTabelasElegiveis(margem);
+                const tabelas = await this.#recuperarTabelasElegiveis(margem.margin_key, banco);
 
                 vinculosMargensTabelas.push({
                     ...vinculo,
@@ -740,11 +740,14 @@ class NossaFintechService {
             throw err;
         }
     }
-    async #recuperarTabelasElegiveis(margem) {
+    async #recuperarTabelasElegiveis(margin_key, banco) {
         try {
-            // 1. Recupera todas as tabelas (sua função original)
             const response = await axios.get(`${process.env.NossaFintech_baseURL}/clt-loan/v1/list-rebates`,
                 {
+                    params: {
+                        service_type: banco.trim(),
+                        margin_key: margin_key
+                    },
                     headers: {
                         'Authorization': `Bearer ${this.accessToken}`,
                     }
@@ -753,76 +756,12 @@ class NossaFintechService {
 
             let tabelasDisponiveis = response?.data?.data ?? [];
 
-            // Se não houver tabelas, já retorna vazio
-            if (tabelasDisponiveis.length === 0) return [];
-
             // regra NOSSA: só tabelas com seguro
             tabelasDisponiveis = tabelasDisponiveis.filter(tabela => 
                 tabela.name.toUpperCase().includes('C/ SEGURO')
             );
 
-            // 2. Extrai e converte as datas do payload do cliente
-            const dataAtual = new Date();
-            const dataNascimento = new Date(margem.birth_date);
-            const dataAdmissao = new Date(margem.admission_date);
-
-            // 3. Validação Global: Tempo de vínculo (Mínimo 12 meses) 
-            const mesesVinculo = (dataAtual.getFullYear() - dataAdmissao.getFullYear()) * 12 
-                               + (dataAtual.getMonth() - dataAdmissao.getMonth());
-            
-            if (mesesVinculo < 12) {
-                return []; // Cliente reprovado na regra de vínculo
-            }
-
-            // 4. Validação Global: Idade mínima inicial (21 anos) 
-            let idadeAtual = dataAtual.getFullYear() - dataNascimento.getFullYear();
-            if (dataAtual.getMonth() < dataNascimento.getMonth() || 
-               (dataAtual.getMonth() === dataNascimento.getMonth() && dataAtual.getDate() < dataNascimento.getDate())) {
-                idadeAtual--;
-            }
-
-            if (idadeAtual < 21) {
-                return []; // Cliente reprovado na regra de idade inicial
-            }
-
-            // 5. Define a idade máxima permitida no fim do contrato baseada no gênero
-            // Mulher: Até 59 anos [cite: 14] | Homem: Até 64 anos [cite: 15]
-            const isMulher = margem.gender.description.toLowerCase() === 'feminino';
-            const idadeMaximaFimContrato = isMulher ? 59 : 64;
-
-            // 6. Filtra e retorna apenas as tabelas elegíveis
-            const tabelasElegiveis = tabelasDisponiveis.filter(tabela => {
-                const prazo = tabela.number_of_installments;
-
-                // Projeta a data exata do fim do contrato
-                const dataFimContrato = new Date();
-                dataFimContrato.setMonth(dataAtual.getMonth() + prazo);
-
-                // Calcula a idade do cliente na data final projetada
-                let idadeNoFim = dataFimContrato.getFullYear() - dataNascimento.getFullYear();
-                if (dataFimContrato.getMonth() < dataNascimento.getMonth() || 
-                   (dataFimContrato.getMonth() === dataNascimento.getMonth() && dataFimContrato.getDate() < dataNascimento.getDate())) {
-                    idadeNoFim--;
-                }
-
-                // Se a idade no final do contrato ultrapassar o limite, a tabela não é elegível
-                if (idadeNoFim > idadeMaximaFimContrato) {
-                    return false;
-                }
-
-                /* * (Opcional) Validação base de Margem vs Valor Mínimo:
-                 * Se o saldo utilizável * prazo for menor que o valor mínimo de contrato (start),
-                 * o cliente não tem margem nem com taxa 0% para tirar o limite mínimo dessa tabela.
-                 */
-                const valorMinimoContrato = Number(tabela.start);
-                if ((margem.utilizable_balance * prazo) < valorMinimoContrato) {
-                    return false;
-                }
-
-                return true;
-            });
-
-            return tabelasElegiveis;
+            return tabelasDisponiveis;
 
         } catch (err) {
             throw err;
