@@ -660,7 +660,10 @@ class NossaFintechService {
                 });
             }
 
-            return vinculosMargensTabelas;
+            // Mapeia todos os vínculos para o formato desejado
+            return vinculosMargensTabelas.map(vinculo => 
+                this.#mapearRetornoConsultaVinculo(cpf, vinculo)
+            );
         } catch (err) {
             if (axios.isAxiosError(err)) {
                 const status = 424;
@@ -824,7 +827,28 @@ class NossaFintechService {
         } catch (err) {
             throw err;
         }
-    } 
+    }
+
+    #mapearRetornoConsultaVinculo(cpf, vinculo) {
+        const { work_registration, employer_cnpj, margem, tabelas } = vinculo;
+
+        // Extrai o gênero (primeira letra maiúscula)
+        const sexo = margem.gender.description.charAt(0).toUpperCase();
+
+        return {
+            cpf: cpf,
+            idTermo: margem.margin_key,
+            cnpjEmpregador: employer_cnpj,
+            matricula: work_registration,
+            dataAdmissao: margem.admission_date,
+            valorMargemAvaliavel: margem.utilizable_balance.toString(),
+            valorBaseMargem: margem.base_margin_value ? margem.base_margin_value.toString() : null,
+            valorTotalVencimentos: margem.total_gross_salary ? margem.total_gross_salary.toString() : null,
+            nomeMae: margem.mother_name,
+            sexo: sexo,
+            tabelasElegiveis: tabelas
+        };
+    }
 
     getToken() {
         return this.accessToken;
