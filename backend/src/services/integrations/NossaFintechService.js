@@ -602,6 +602,18 @@ class NossaFintechService {
     }
     async GerarTermoAutorizacao(cpf, banco) {
         try {
+            // verificando se da pra puxar os dados do cliente, evitar merda mais para frente
+            const resultBuscaCliente = await ClientesService.procurarCpf(cpf);
+            if (!resultBuscaCliente || resultBuscaCliente?.length === 0) {
+                const dadosCliente = await NovaVidaService.BuscarDados(cpf);
+
+                if (dadosCliente.CONSULTA == "Não Autorizado") {
+                    throw new HttpException("Não foi possível recuperar os dados do cliente na API do Nova Vida, será necessário fazer o cadastro do cliente manualmente.", 424);
+                }
+
+                await ClientesService.criarClienteNovaVida(dadosCliente, cpf);
+            }
+
             const response = await axios.post(`${process.env.NossaFintech_baseURL}/clt-loan/v1/request-authorization`,
                 {
                     document_number: cpf,
@@ -636,6 +648,18 @@ class NossaFintechService {
     }
     async ConsultarVinculoMargemTabela(cpf, banco) {
         try {
+            // verificando se da pra puxar os dados do cliente, evitar merda mais para frente
+            const resultBuscaCliente = await ClientesService.procurarCpf(cpf);
+            if (!resultBuscaCliente || resultBuscaCliente?.length === 0) {
+                const dadosCliente = await NovaVidaService.BuscarDados(cpf);
+
+                if (dadosCliente.CONSULTA == "Não Autorizado") {
+                    throw new HttpException("Não foi possível recuperar os dados do cliente na API do Nova Vida, será necessário fazer o cadastro do cliente manualmente.", 424);
+                }
+
+                await ClientesService.criarClienteNovaVida(dadosCliente, cpf);
+            }
+
             const statusAutorizacao = await this.#consultarStatusAutorizacao(cpf, banco);
             // console.log(`status recuperado: ${statusAutorizacao}`);
             if (statusAutorizacao !== "AUTHORIZED") {
