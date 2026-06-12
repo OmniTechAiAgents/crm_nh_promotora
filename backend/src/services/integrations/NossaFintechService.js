@@ -679,6 +679,47 @@ class NossaFintechService {
             throw new HttpException(err.message, 500);
         }
     }
+    async SimularProposta(data) {
+        try {
+            const response = await axios.post(`${process.env.NossaFintech_baseURL}/clt-loan/v1/simulate-loan`,
+                {
+                    margin_key: data.idTermo,
+                    simulation_type: "Payment",
+                    employer_document: data.cnpj_empregador,
+                    requested_amount: data.valorParcelas,
+                    service_type: data.banco.trim(),
+                    cod_tabela: data.tabelaId
+                },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                    }
+                }
+            );
+
+            return {
+                id_simulacao: response?.data?.data?.simulation_key,
+                valor_total: response?.data?.data?.disbursement_amount,
+                qtd_parcelas: response?.data?.data?.num_periods,
+                valor_parcelas: data.valorParcelas,
+                first_payment_date: response?.data?.data?.first_payment_date,
+                taxa_aplicada: response?.data?.data?.interest_rate,
+            };
+        } catch (err) {
+            if (axios.isAxiosError(err)) {
+                const status = 424;
+                const message = err.response?.data?.message || "Erro desconhecido.";
+
+                throw new HttpException(message, status);
+            }
+
+            if (err instanceof HttpException) {
+                throw new HttpException(err.message, err.status);
+            }
+
+            throw new HttpException(err.message, 500);
+        }
+    }
 
     // funções privadas
     async #consultarStatusAutorizacao(cpf, banco) {
@@ -767,7 +808,6 @@ class NossaFintechService {
             throw err;
         }
     }
-
     #mapearRetornoConsultaVinculo(cpf, vinculo) {
         const { work_registration, employer_cnpj, margem, tabelas } = vinculo;
 

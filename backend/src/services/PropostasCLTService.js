@@ -1,5 +1,6 @@
 import PropostasCLTRepository from "../repositories/PropostasCLTRepository.js";
 import HttpException from "../utils/HttpException.js";
+import NossaFintechService from "./integrations/NossaFintechService.js";
 import V8CLTService from "./integrations/V8CLTService.js";
 
 class PropostasCLTService {
@@ -10,6 +11,9 @@ class PropostasCLTService {
             switch (instituicao) {
                 case "v8":
                     response = await V8CLTService.SimularProposta(data);
+                    break;
+                case "Nossa fintech":
+                    response = await NossaFintechService.SimularProposta(data);
                     break;
                 default:
                     throw new HttpException("Instituição não encontrada", 404);
