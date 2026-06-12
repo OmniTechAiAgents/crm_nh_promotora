@@ -5,7 +5,7 @@ import C6Service from './integrations/C6Service.js';
 import NossaFintechService from './integrations/NossaFintechService.js';
 
 class ConsultasCLTService {
-    async ConsultarVinculoMargemTabela(cpf, instituicao) {
+    async ConsultarVinculoMargemTabela(cpf, banco, instituicao) {
         try {
             let response;
 
@@ -13,6 +13,9 @@ class ConsultasCLTService {
             switch (instituicao){
                 case "v8":
                     response = await V8CLTService.GerarTermoSimularOperacao(cpf);
+                    break;
+                case "Nossa fintech":
+                    response = await NossaFintechService.ConsultarVinculoMargemTabela(cpf, banco);
                     break;
                 default: 
                     throw new HttpException("Instituição não encontrada", 404);

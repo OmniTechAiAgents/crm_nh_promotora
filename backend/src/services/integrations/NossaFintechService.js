@@ -588,7 +588,16 @@ class NossaFintechService {
 
             return response.data.data;
         } catch (err) {
-            throw err;
+            if (axios.isAxiosError(err)) {
+                const status = 424;
+                const message = err.response?.data?.message || "Erro desconhecido.";
+
+                throw new HttpException(message, status);
+            }
+
+            if (err instanceof HttpException) {
+                throw new HttpException(err.message, err.status);
+            }
         }
     }
     async GerarTermoAutorizacao(cpf, banco) {
@@ -613,9 +622,209 @@ class NossaFintechService {
 
             return response?.data?.data?.authorization_link;
         } catch (err) {
+            if (axios.isAxiosError(err)) {
+                const status = 424;
+                const message = err.response?.data?.message || "Erro desconhecido.";
+
+                throw new HttpException(message, status);
+            }
+
+            if (err instanceof HttpException) {
+                throw new HttpException(err.message, err.status);
+            }
+        }
+    }
+    async ConsultarVinculoMargemTabela(cpf, banco) {
+        try {
+            const statusAutorizacao = await this.#consultarStatusAutorizacao(cpf, banco);
+            // console.log(`status recuperado: ${statusAutorizacao}`);
+            if (statusAutorizacao !== "AUTHORIZED") {
+                throw new HttpException("Sem autorização para consulta de vinculo de margem, use o end-point para gerar a autorização primeiro.", 424);
+            }
+
+            const vinculos = await this.#consultarVinculos(cpf, banco);
+            
+            let vinculosMargensTabelas = [];
+            for (const vinculo of vinculos) {
+                // timeout leve
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                const margem = await this.#consultarMargem(cpf, banco, vinculo.employer_cnpj);
+
+                const tabelas = await this.#recuperarTabelasElegiveis(margem);
+
+                vinculosMargensTabelas.push({
+                    ...vinculo,
+                    margem,
+                    tabelas
+                });
+            }
+
+            return vinculosMargensTabelas;
+        } catch (err) {
+            if (axios.isAxiosError(err)) {
+                const status = 424;
+                const message = err.response?.data?.message || "Erro desconhecido.";
+
+                throw new HttpException(message, status);
+            }
+
+            if (err instanceof HttpException) {
+                throw new HttpException(err.message, err.status);
+            }
+
+            throw new HttpException(err.message, 500);
+        }
+    }
+
+    // funções privadas
+    async #consultarStatusAutorizacao(cpf, banco) {
+        try {
+            const response = await axios.post(`${process.env.NossaFintech_baseURL}/clt-loan/v1/check-authorization`,
+                {
+                    document_number: cpf,
+                    service_type: banco.trim()
+                },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                    }
+                }
+            );
+
+            return response?.data?.data?.status;
+        } catch (err) {
             throw err;
         }
     }
+    async #consultarVinculos(cpf, banco) {
+        try {
+            const response = await axios.post(`${process.env.NossaFintech_baseURL}/clt-loan/v1/check-employee-enrollment`,
+                {
+                    document_number: cpf,
+                    service_type: banco.trim()
+                },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                    }
+                }
+            );
+
+            // retorna o array com todos os vinculos
+            return response?.data?.data ?? [];
+        } catch (err) {
+            throw err;
+        }
+    }
+    async #consultarMargem(cpf, banco, cnpj) {
+        try {
+            const response = await axios.post(`${process.env.NossaFintech_baseURL}/clt-loan/v1/get-margin`,
+                {
+                    document_number: cpf,
+                    service_type: banco.trim(),
+                    employer_document: cnpj
+                },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                    }
+                }
+            );
+
+            return response?.data?.data;
+        } catch (err) {
+            throw err;
+        }
+    }
+    async #recuperarTabelasElegiveis(margem) {
+        try {
+            // 1. Recupera todas as tabelas (sua função original)
+            const response = await axios.get(`${process.env.NossaFintech_baseURL}/clt-loan/v1/list-rebates`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                    }
+                }
+            );
+
+            let tabelasDisponiveis = response?.data?.data ?? [];
+
+            // Se não houver tabelas, já retorna vazio
+            if (tabelasDisponiveis.length === 0) return [];
+
+            // regra NOSSA: só tabelas com seguro
+            tabelasDisponiveis = tabelasDisponiveis.filter(tabela => 
+                tabela.name.toUpperCase().includes('C/ SEGURO')
+            );
+
+            // 2. Extrai e converte as datas do payload do cliente
+            const dataAtual = new Date();
+            const dataNascimento = new Date(margem.birth_date);
+            const dataAdmissao = new Date(margem.admission_date);
+
+            // 3. Validação Global: Tempo de vínculo (Mínimo 12 meses) 
+            const mesesVinculo = (dataAtual.getFullYear() - dataAdmissao.getFullYear()) * 12 
+                               + (dataAtual.getMonth() - dataAdmissao.getMonth());
+            
+            if (mesesVinculo < 12) {
+                return []; // Cliente reprovado na regra de vínculo
+            }
+
+            // 4. Validação Global: Idade mínima inicial (21 anos) 
+            let idadeAtual = dataAtual.getFullYear() - dataNascimento.getFullYear();
+            if (dataAtual.getMonth() < dataNascimento.getMonth() || 
+               (dataAtual.getMonth() === dataNascimento.getMonth() && dataAtual.getDate() < dataNascimento.getDate())) {
+                idadeAtual--;
+            }
+
+            if (idadeAtual < 21) {
+                return []; // Cliente reprovado na regra de idade inicial
+            }
+
+            // 5. Define a idade máxima permitida no fim do contrato baseada no gênero
+            // Mulher: Até 59 anos [cite: 14] | Homem: Até 64 anos [cite: 15]
+            const isMulher = margem.gender.description.toLowerCase() === 'feminino';
+            const idadeMaximaFimContrato = isMulher ? 59 : 64;
+
+            // 6. Filtra e retorna apenas as tabelas elegíveis
+            const tabelasElegiveis = tabelasDisponiveis.filter(tabela => {
+                const prazo = tabela.number_of_installments;
+
+                // Projeta a data exata do fim do contrato
+                const dataFimContrato = new Date();
+                dataFimContrato.setMonth(dataAtual.getMonth() + prazo);
+
+                // Calcula a idade do cliente na data final projetada
+                let idadeNoFim = dataFimContrato.getFullYear() - dataNascimento.getFullYear();
+                if (dataFimContrato.getMonth() < dataNascimento.getMonth() || 
+                   (dataFimContrato.getMonth() === dataNascimento.getMonth() && dataFimContrato.getDate() < dataNascimento.getDate())) {
+                    idadeNoFim--;
+                }
+
+                // Se a idade no final do contrato ultrapassar o limite, a tabela não é elegível
+                if (idadeNoFim > idadeMaximaFimContrato) {
+                    return false;
+                }
+
+                /* * (Opcional) Validação base de Margem vs Valor Mínimo:
+                 * Se o saldo utilizável * prazo for menor que o valor mínimo de contrato (start),
+                 * o cliente não tem margem nem com taxa 0% para tirar o limite mínimo dessa tabela.
+                 */
+                const valorMinimoContrato = Number(tabela.start);
+                if ((margem.utilizable_balance * prazo) < valorMinimoContrato) {
+                    return false;
+                }
+
+                return true;
+            });
+
+            return tabelasElegiveis;
+
+        } catch (err) {
+            throw err;
+        }
+    } 
 
     getToken() {
         return this.accessToken;

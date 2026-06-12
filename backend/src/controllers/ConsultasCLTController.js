@@ -10,7 +10,7 @@ class ConsultasCLTController {
         try {
             const dados = ValidarBodyConsultaCLT.parse(req.body);
 
-            const response = await ConsultasCLTService.ConsultarVinculoMargemTabela(dados.cpf, dados.instituicao);
+            const response = await ConsultasCLTService.ConsultarVinculoMargemTabela(dados.cpf, dados.banco, dados.instituicao);
 
             return res.status(200).json(response);
         } catch (err) {
