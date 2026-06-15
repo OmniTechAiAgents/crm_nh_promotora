@@ -886,6 +886,21 @@ class NossaFintechService {
             throw new HttpException(err.message, 500);
         }
     }
+    async VerificarTodasAsPropostasCLT() {
+        try {
+            const propostasParaVerificar = await PropostasCLTRepository.findAllParaVerificar("Nossa fintech");
+
+            for (const { id_proposta } of propostasParaVerificar) {
+                await this.#verificarUmEAtualizarRegistroPropostaDB(id_proposta);
+
+                await new Promise(resolve => setTimeout(resolve, 5000));
+            }
+
+            TaskScheduler.schedule("Verificar propostas do Nossa fintech CLT", () => this.VerificarTodasAsPropostas(), 300000);
+        } catch(err) {
+            console.error(`Não foi possível verificar as propostas do Nossa fintech CLT: ${err}`);
+        }
+    }
 
     // funções privadas
     async #consultarStatusAutorizacao(cpf, banco) {
@@ -1007,6 +1022,45 @@ class NossaFintechService {
             sexo: sexo,
             tabelasElegiveis: tabelas
         };
+    }
+    async #verificarUmEAtualizarRegistroPropostaDB(proposalId) {
+        try {
+            const STATUS_FINALIZADOS = new Set([
+                "Desembolsado",
+                "Cancelado",
+                "Cancelado Permanentemente"
+            ]);
+
+            const proposalData = await axios.get(`${process.env.NossaFintech_baseURL}/clt-loan/v1/get-operation-details/${proposalId}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                    },
+                }
+            )
+
+            // dados do DB
+            const propostaDB = await PropostasCLTRepository.findOneByProposalId(proposalId);
+
+            // novos dados
+            const verificar = !STATUS_FINALIZADOS.has(proposalData?.data?.data?.status);
+            const historicoStatus = proposalData?.data?.data?.history;
+            const link_form = proposalData?.data?.data?.link_form;
+            const status = proposalData?.data?.data?.status;
+
+            const dadosAtualizados = {
+                ...propostaDB,
+
+                link_form: link_form,
+                status_nome: status,
+                verificar: verificar,
+                status_historicos: historicoStatus
+            }
+
+            return await PropostasCLTRepository.updateByProposalId(proposalId, dadosAtualizados);
+        } catch(err) {
+            throw err;
+        }
     }
 
     getToken() {

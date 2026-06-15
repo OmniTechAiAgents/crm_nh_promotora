@@ -93,7 +93,7 @@ async function bootstrap() {
         }
         if(NossaFintechService.getToken() != null) {
             await NossaFintechService.VerificarTodasAsPropostas();
-            console.log("✅ Todas as propostas pendentes da Nossa fintech foram verificadas");
+            console.log("✅ Todas as propostas pendentes da Nossa fintech FGTS foram verificadas");
         }
 
         if(V8CLTService.getToken() != null) {
@@ -101,7 +101,10 @@ async function bootstrap() {
             console.log("✅ Todas as propostas pendentes do V8CLT foram verificadas");
         }
 
-
+        if(NossaFintechService.getToken() != null) {
+            await NossaFintechService.VerificarTodasAsPropostasCLT();
+            console.log("✅ Todas as propostas pendentes da Nossa fintech CLT foram verificadas")
+        }
         
     } catch (err) {
         console.error("❌ Falha Crítica na inicialização:");
