@@ -5,45 +5,45 @@ import CltResultadoCard from "./CltResultadoCard";
 
 // Função para normalizar o CPF
 function normalizarCPF(cpfInput) {
-  if (!cpfInput) return "";
+    if (!cpfInput) return "";
 
-  let somenteNumeros = cpfInput.replace(/\D/g, "");
+    let somenteNumeros = cpfInput.replace(/\D/g, "");
 
-  while (somenteNumeros.length < 11) {
-    somenteNumeros = "0" + somenteNumeros;
-  }
+    while (somenteNumeros.length < 11) {
+        somenteNumeros = "0" + somenteNumeros;
+    }
 
-  if (somenteNumeros.length > 11) {
-    somenteNumeros = somenteNumeros.slice(0, 11);
-  }
+    if (somenteNumeros.length > 11) {
+        somenteNumeros = somenteNumeros.slice(0, 11);
+    }
 
-  return somenteNumeros;
+    return somenteNumeros;
 }
 
 // Função utilitária para extrair mensagem de erro corretamente
 function getErrorMessage(error) {
-  const status = error.response?.status;
-  const data = error.response?.data?.erro;
+    const status = error.response?.status;
+    const data = error.response?.data?.erro;
 
-  if (status === 401) {
-    return "Sessão expirada. Faça login novamente.";
-  }
+    if (status === 401) {
+        return "Sessão expirada. Faça login novamente.";
+    }
 
-  if (!data) {
-    return error.message || "Erro inesperado.";
-  }
+    if (!data) {
+        return error.message || "Erro inesperado.";
+    }
 
-  if (typeof data === "string") {
-    return data;
-  }
+    if (typeof data === "string") {
+        return data;
+    }
 
-  return (
-    data.message ||
-    data.motivo ||
-    data.erro ||
-    data.mensagem ||
-    "Erro ao consultar backend."
-  );
+    return (
+        data.message ||
+        data.motivo ||
+        data.erro ||
+        data.mensagem ||
+        "Erro ao consultar backend."
+    );
 }
 
 export default function CltConsulta() {
@@ -57,6 +57,72 @@ export default function CltConsulta() {
     const [prazoSelecionado, setPrazoSelecionado] = useState("");
     const [tabelasDisponiveis, setTabelasDisponiveis] = useState([]);
     const [prazosDisponiveis, setPrazosDisponiveis] = useState([]);
+
+    // novas variáveis de estado para nossa fintech
+    const [bancarizadorasDisponiveisNossaFintech, setBancarizadorasDisponiveisNossaFintech] = useState([]);
+    const [bancarizadoraSelecionada, setBancarizadoraSelecionada] = useState("");
+    const [loadingBancarizadora, setLoadingBancarizadora] = useState(false);
+    const [textoCopiado, setTextoCopiado] = useState(false);
+    const [loadingCopy, setLoadingCopy] = useState(false);
+
+
+    const handleChangeBancarizadora = (event) => {
+        setBancarizadoraSelecionada(event.target.value);
+    };
+    const handleGerarTermoAutorizacao = async (cpf, bancarizadora) => {
+        try {
+            if (!bancarizadoraSelecionada) {
+                throw new Error("Selecione uma bancarizadora antes de autorização.");
+            }
+
+            const response = await api.post("/consultas/CLT/gerarAutorizacaoDataPrev", {
+                cpf,
+                instituicao: "Nossa fintech",
+                banco: bancarizadoraSelecionada
+            });
+
+            return response?.data?.link;
+        } catch (err) {
+            alert(err.message || "Erro ao gerar termo de autorização.");
+        }
+    }
+    async function copiarTexto(conteudo) {
+        try {
+            console.log(`conteúdo as ser copiado: ${conteudo}`)
+
+            await navigator.clipboard.writeText(conteudo);
+            console.log("Texto copiado com sucesso!");
+
+            setTextoCopiado(true);
+
+            setTimeout(() => {
+                setTextoCopiado(false);
+            }, 3000);
+        } catch (err) {
+            alert(`Erro ao copiar! Por favor, selecione e copie o texto manualmente: ${conteudo}`);
+            console.error("Falha ao copiar:", err);
+        }
+    }
+    const handleGerarECopiar = async () => {
+        if (!bancarizadoraSelecionada) {
+            alert("Selecione uma bancarizadora antes de gerar a autorização.");
+            return;
+        }
+
+        try {
+            setLoadingCopy(true);
+
+            const linkGerado = await handleGerarTermoAutorizacao(cpf, bancarizadoraSelecionada);
+
+            if (linkGerado) {
+                await copiarTexto(linkGerado);
+            }
+        } catch (err) {
+            console.error("Erro no processo de gerar e copiar:", err);
+        } finally {
+            setLoadingCopy(false);
+        }
+    };
 
     const consultar = async () => {
         setResultado(null);
@@ -92,7 +158,7 @@ export default function CltConsulta() {
             const ofertasTratadas = data.map(vinculo => ({
                 status: "ELEGIVEL",
                 instituicaoEscolhida: instituicao,
-                
+
                 // mandando o body de retorno direto já que são filtrados no back-end
                 ...vinculo
             }));
@@ -104,29 +170,32 @@ export default function CltConsulta() {
             if (instituicao == "v8") {
                 const tabelas = ofertasTratadas[0].tabelasElegiveis;
                 setTabelasDisponiveis(tabelas);
-                
+
                 // console.log("Tabelas encontradas:", tabelas);
             }
         } catch (err) {
-            if (err.status === 424) {
-                setResultadoSimulacao({
-                    status: "NAO_ELEGIVEL",
-                    motivoErro: getErrorMessage(err)
-                });
-            } else if (err.status == 422) {
-                alert("API do v8 está esperando para fazer a consulta de saldo, refaça essa requisição daqui a alguns minutos.")
-                setResultadoSimulacao(null);
+            if (instituicao == "v8") {
+                if (err.status === 424) {
+                    setResultadoSimulacao({
+                        status: "NAO_ELEGIVEL",
+                        motivoErro: getErrorMessage(err)
+                    });
+                } else if (err.status == 422) {
+                    alert("API do v8 está esperando para fazer a consulta de saldo, refaça essa requisição daqui a alguns minutos.")
+                    setResultadoSimulacao(null);
+                } else {
+                    setResultadoSimulacao({
+                        status: "ERRO",
+                        motivoErro: getErrorMessage(err)
+                    });
+                }
             } else {
-                setResultadoSimulacao({
-                    status: "ERRO",
-                    motivoErro: getErrorMessage(err)
-                });
+                console.log("COLOCAR OS ERROS DO NOSSA FINTECH AQUI...");
             }
         } finally {
             setLoading(false);
         }
     };
-
     const gerarSimulacao = async () => {
         setResultadoSimulacao(null);
 
@@ -200,6 +269,22 @@ export default function CltConsulta() {
             setLoadingSimulacao(false);
         }
     }
+    const recuperarBancarizadorasNossaFintech = async () => {
+        try {
+            setLoadingBancarizadora(true);
+
+            const { data } = await api.get("/consultas/CLT/bancarizadoras?instituicao=Nossa fintech");
+
+            console.log("BANCARIZARODAS RECUPERADAS");
+            console.log(data.bancarizadoras_disponiveis)
+
+            return data.bancarizadoras_disponiveis;
+        } catch (err) {
+            alert(`Erro ao recuperar bancarizadoras da Nossa Fintech: ${getErrorMessage(err)}`);
+        } finally {
+            setLoadingBancarizadora(false);
+        }
+    }
 
     const handleChangeTabelaSelecionada = (event) => {
         setTabelaSelecionada(event.target.value);
@@ -219,11 +304,11 @@ export default function CltConsulta() {
 
             if (tabela && tabela.number_of_installments) {
                 const parcelas = tabela.number_of_installments;
-                
+
                 setPrazosDisponiveis(parcelas);
 
                 const maiorParcela = Math.max(...parcelas.map(p => Number(p)));
-                
+
                 setPrazoSelecionado(maiorParcela.toString());
             }
         } else {
@@ -232,22 +317,34 @@ export default function CltConsulta() {
         }
     }, [tabelaSelecionada, tabelasDisponiveis]);
 
+    useEffect(() => {
+        const carregarBancarizadoras = async () => {
+            const bancarizadorasDisponiveis = await recuperarBancarizadorasNossaFintech();
+
+            if (bancarizadorasDisponiveis) {
+                setBancarizadorasDisponiveisNossaFintech(bancarizadorasDisponiveis);
+            }
+        };
+
+        carregarBancarizadoras();
+    }, []);
+
     return (
         <div className="consulta-container-clt">
             <h2>Consulta & Proposta CLT</h2>
-        
+
             {/* CPF + BOTÃO */}
             <div className="consulta-form">
-            <div className="input-group">
-                <label>CPF</label>
-                <input
-                    placeholder="Digite o CPF"
-                    value={cpf}
-                    onChange={(e) => setCpf(e.target.value)}
-                    maxLength={14}
-                />
-            </div>
-        
+                <div className="input-group">
+                    <label>CPF</label>
+                    <input
+                        placeholder="Digite o CPF"
+                        value={cpf}
+                        onChange={(e) => setCpf(e.target.value)}
+                        maxLength={14}
+                    />
+                </div>
+
                 <button
                     className="btn-consultar"
                     onClick={consultar}
@@ -258,62 +355,111 @@ export default function CltConsulta() {
             </div>
 
             {/* Selects V8 */}
-            <div className="consulta-form">
-                        <select 
-                            value={tabelaSelecionada}
-                            onChange={handleChangeTabelaSelecionada}
-                            className="input-group"
-                            disabled={loading || tabelasDisponiveis.length == 0}
-                        >
-                            {tabelasDisponiveis.length == 0 ? (
-                                <option value="">{loading ? "Carregando..." : "Realize a consulta"}</option>
-                            ) : (
-                                <>
-                                    <option value="">Selecione a tabela</option>
-                                    {tabelasDisponiveis.map((tabela) => (
-                                        <option key={tabela.id} value={tabela.id}>
-                                            {tabela.slug}
-                                        </option>
-                                    ))}
-                                </>
-                            )}
-                            
-                        </select>
+            {instituicao === "v8" && (
+                <div className="consulta-form">
+                    <select
+                        value={tabelaSelecionada}
+                        onChange={handleChangeTabelaSelecionada}
+                        className="input-group"
+                        disabled={loading || tabelasDisponiveis.length == 0}
+                    >
+                        {tabelasDisponiveis.length == 0 ? (
+                            <option value="">{loading ? "Carregando..." : "Realize a consulta"}</option>
+                        ) : (
+                            <>
+                                <option value="">Selecione a tabela</option>
+                                {tabelasDisponiveis.map((tabela) => (
+                                    <option key={tabela.id} value={tabela.id}>
+                                        {tabela.slug}
+                                    </option>
+                                ))}
+                            </>
+                        )}
 
-                        <select 
-                            value={prazoSelecionado}
-                            onChange={handleChangePrazoSelecionado}
-                            className="input-group"
-                            disabled={!tabelaSelecionada || prazosDisponiveis.length === 0}
-                        >
-                            {prazosDisponiveis.length === 0 ? (
-                                <option value="">Aguardando tabela...</option>
-                            ) : (
-                                <>
-                                    <option value="">Selecione o prazo</option>
-                                    
-                                    {prazosDisponiveis.map((prazo) => (
-                                        <option key={prazo} value={prazo}>
-                                            {prazo}x
-                                        </option>
-                                    ))}
-                                </>
-                            )}
-                        </select>
+                    </select>
 
-                        <button
-                                className="btn-consultar"
-                                disabled={resultado == null || loadingSimulacao}
-                                onClick={gerarSimulacao}
-                            >
-                                {loadingSimulacao ? "Carregando..." : "Simular"}
-                            </button>
-                    </div>
+                    <select
+                        value={prazoSelecionado}
+                        onChange={handleChangePrazoSelecionado}
+                        className="input-group"
+                        disabled={!tabelaSelecionada || prazosDisponiveis.length === 0}
+                    >
+                        {prazosDisponiveis.length === 0 ? (
+                            <option value="">Aguardando tabela...</option>
+                        ) : (
+                            <>
+                                <option value="">Selecione o prazo</option>
+
+                                {prazosDisponiveis.map((prazo) => (
+                                    <option key={prazo} value={prazo}>
+                                        {prazo}x
+                                    </option>
+                                ))}
+                            </>
+                        )}
+                    </select>
+
+                    <button
+                        className="btn-consultar"
+                        disabled={resultado == null || loadingSimulacao}
+                        onClick={gerarSimulacao}
+                    >
+                        {loadingSimulacao ? "Carregando..." : "Simular"}
+                    </button>
+                </div>
+            )}
+
+            {/* Selects Nossa fintech */}
+            {instituicao === "Nossa fintech" && (
+                <div className="consulta-form">
+                    <select
+                        value={bancarizadoraSelecionada}
+                        onChange={handleChangeBancarizadora}
+                        className="input-group"
+                        disabled={loadingBancarizadora}
+                    >
+                        {loadingBancarizadora ? (
+                            <option value="">Carregando bancarizadoras...</option>
+                        ) : (
+                            <>
+                                <option value="">Selecione a bancarizadora</option>
+                                {bancarizadorasDisponiveisNossaFintech.map((bancarizadora) => (
+                                    <option key={bancarizadora} value={bancarizadora}>
+                                        {bancarizadora}
+                                    </option>
+                                ))}
+                            </>
+                        )}
+                    </select>
+
+                    <button
+                        className="btn-consultar"
+                        disabled={!bancarizadoraSelecionada || loadingCopy}
+                        onClick={handleGerarECopiar}
+                    >
+                        {loadingCopy ? (
+                            "Copiando..."
+                        ) : textoCopiado ? (
+                            "Copiado!"
+                        ) : (
+                            "Gerar termo de autorização"
+                        )}
+                    </button>
+
+                    <button
+                        className="btn-consultar"
+                        disabled={resultado == null || loadingSimulacao}
+                        onClick={gerarSimulacao}
+                    >
+                        {loadingSimulacao ? "Carregando..." : "Simular"}
+                    </button>
+                </div>
+            )}
 
             {/* INSTITUIÇÕES */}
             <div className="instituicoes">
                 <span className="inst-title">Instituição:</span>
-        
+
                 <label className="radio-option">
                     <input
                         type="radio"
@@ -326,8 +472,20 @@ export default function CltConsulta() {
                     />
                     v8
                 </label>
+                <label className="radio-option">
+                    <input
+                        type="radio"
+                        value="Nossa fintech"
+                        checked={instituicao === "Nossa fintech"}
+                        onChange={(e) => {
+                            setInstituicao(e.target.value)
+                            limparResultado()
+                        }}
+                    />
+                    Nossa fintech
+                </label>
             </div>
-        
+
             {/* RESULTADO */}
             <div className="result-vinculos">
                 <h2>Ofertas disponíveis</h2>
