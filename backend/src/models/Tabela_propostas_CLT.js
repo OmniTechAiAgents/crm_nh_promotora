@@ -95,6 +95,10 @@ const Tabela_propostas_CLT = db.define(
             allowNull: false,
             defaultValue: true,
         },
+        banco: {
+            type: DataTypes.STRING(255),
+            defaultValue: null,
+        },
         API: {
             type: DataTypes.STRING(50),
             allowNull: false

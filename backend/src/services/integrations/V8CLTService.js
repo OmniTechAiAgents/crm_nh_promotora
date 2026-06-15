@@ -280,10 +280,16 @@ class V8CLTService {
                 produto_id: null,
                 status_historicos: null,
                 verificar: 1,
+                banco: "",
                 API: "v8"
             })
 
-            return await PropostasCLTRepository.create(bodyDB);
+            await PropostasCLTRepository.create(bodyDB);
+
+            return {
+                msg: "Proposta criada com sucesso!",
+                link_form: responseProposta.formalization_url
+            }
         } catch(err) {
             console.log(err)
             let status = !err.status ? 500 : err.status;

@@ -8,6 +8,7 @@ import ClientesService from '../ClientesService.js';
 import ISPBRepository from '../../repositories/ISPBRepository.js';
 import PropostasRepository from '../../repositories/PropostasRepository.js';
 import NovaVidaService from './NovaVidaService.js';
+import PropostasCLTRepository from '../../repositories/PropostasCLTRepository.js';
 
 
 class NossaFintechService {
@@ -826,8 +827,6 @@ class NossaFintechService {
                 }
             };
 
-            console.log(bodyRequest);
-
             const response = await axios.post(`${process.env.NossaFintech_baseURL}/clt-loan/v1/submit-proposal`,
                 bodyRequest,
                 {
@@ -837,31 +836,41 @@ class NossaFintechService {
                 }
             );
 
-            const bodyCLT = {
+            const bodyDB = {
                 cliente_id: cliente.dataValues.id,
                 nome_tabela: "Consignado CLT C/ Seguro",
-                id_proposta: response?.data?.num_proposta,
-                link_form: response?.data?.link_form,
-                contrato: response?.data?.ccb_pdf,
-                numero_contrato: response?.data?.num_contrato,
+                id_proposta: response?.data?.data?.num_proposta,
+                link_form: response?.data?.data?.link_form,
+                contrato: response?.data?.data?.ccb_pdf,
+                numero_contrato: response?.data?.data?.num_contrato,
                 usuario_id: usuarioId,
-                qtd_parcelas: response?.data?.qtd_parcela,
+                qtd_parcelas: response?.data?.data?.qtd_parcela,
                 valor_parcelas: data.valor_parcelas,
                 taxa_juros_mensal: data.taxa_aplicada,
-                valor_solicitado: response?.data?.val_emissao,
-                valor_liberado: response?.data?.val_liquido,
-                status_nome: response?.data?.status,
+                valor_solicitado: response?.data?.data?.val_emissao,
+                valor_liberado: response?.data?.data?.val_liquido,
+                status_nome: response?.data?.data?.status,
                 status_id: "",
-                produto_nome: response?.data?.dsc_produto || "VALOR_NAO_ENCONTRADO",
-                produto_id: response?.data?.cod_produto,
+                produto_nome: response?.data?.data?.dsc_produto || "VALOR_NAO_ENCONTRADO",
+                produto_id: response?.data?.data?.cod_produto,
                 status_historicos: "",
                 verificar: true,
-                API: response?.data?.service_type
+                banco: data.banco.trim(),
+                API: "Nossa fintech"
             };
 
+            console.log("Response data crua:")
+            console.log(response.data)
+
+            console.log("Body para o DB:")
+            console.log(bodyDB);
+
+            await PropostasCLTRepository.create(bodyDB);
+
             return {
-                bodyCLT,
-            };
+                msg: "Proposta criada com sucesso!",
+                link_form: response?.data?.data?.link_form
+            }
         } catch (err) {
             if (axios.isAxiosError(err)) {
                 const status = 424;
