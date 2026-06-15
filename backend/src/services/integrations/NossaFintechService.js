@@ -667,7 +667,7 @@ class NossaFintechService {
             }
 
             const vinculos = await this.#consultarVinculos(cpf, banco);
-            
+
             let vinculosMargensTabelas = [];
             for (const vinculo of vinculos) {
                 // timeout leve
@@ -685,7 +685,7 @@ class NossaFintechService {
             }
 
             // Mapeia todos os vínculos para o formato desejado
-            return vinculosMargensTabelas.map(vinculo => 
+            return vinculosMargensTabelas.map(vinculo =>
                 this.#mapearRetornoConsultaVinculo(cpf, vinculo)
             );
         } catch (err) {
@@ -723,11 +723,140 @@ class NossaFintechService {
 
             return {
                 id_simulacao: response?.data?.data?.simulation_key,
-                valor_total: response?.data?.data?.disbursement_amount,
+                valor_total: (response?.data?.data?.disbursement_amount) / 100,
                 qtd_parcelas: response?.data?.data?.num_periods,
                 valor_parcelas: data.valorParcelas,
                 first_payment_date: response?.data?.data?.first_payment_date,
-                taxa_aplicada: response?.data?.data?.interest_rate,
+                taxa_aplicada: +((response?.data?.data?.interest_rate) * 100).toFixed(2),
+            };
+        } catch (err) {
+            if (axios.isAxiosError(err)) {
+                const status = 424;
+                const message = err.response?.data?.message || "Erro desconhecido.";
+
+                throw new HttpException(message, status);
+            }
+
+            if (err instanceof HttpException) {
+                throw new HttpException(err.message, err.status);
+            }
+
+            throw new HttpException(err.message, 500);
+        }
+    }
+    async CriarProposta(data, usuarioId) {
+        try {
+            const resultBuscaCliente = await ClientesService.procurarCpf(data.cpf);
+            if (!resultBuscaCliente || resultBuscaCliente?.length === 0) {
+                const dadosCliente = await NovaVidaService.BuscarDados(cpf);
+
+                if (dadosCliente.CONSULTA == "Não Autorizado") {
+                    throw new HttpException("Não foi possível recuperar os dados do cliente na API do Nova Vida, será necessário fazer o cadastro do cliente manualmente.", 424);
+                }
+
+                await ClientesService.criarClienteNovaVida(dadosCliente, cpf);
+            }
+            const cliente = await ClientesService.procurarCpf(data.cpf);
+            const cliente_ddd = cliente.dataValues.celular.slice(0, 2);
+            const cliente_celular = cliente.dataValues.celular.slice(2);
+
+            const bodyRequest = {
+                simulation_key: data.simulacaoId,
+                service_type: data.banco.trim(),
+                employer_document: data.cnpj_empregador,
+                client: {
+                    document_number: data.cpf,
+                    person_name: cliente.dataValues.nome,
+                    gender: "FEMALE",
+                    mother_name: "MARIA DE LOURDES DA SILVA",
+                    birth_date: cliente.dataValues.data_nasc,
+                    profession: data.profissão,
+                    nationality: "Brasileiro",
+                    marital_status: "Solteiro",
+                    email: "example@example.com",
+                    country_code: "+55",
+                    area_code: cliente_ddd,
+                    phone_number: cliente_celular,
+                    street: "Rua direita",
+                    state: "SP",
+                    city: "São Paulo",
+                    neighborhood: "Sé",
+                    number: "199",
+                    postal_code: "01002000",
+                    complement: "",
+
+                    bank_account: {
+                        pix_transfer_type: "manual",
+                        bank_code: "033",
+                        branch_number: "0060",
+                        account_number: "01098440",
+                        account_type: "CHECKING",
+                        account_digit: "6"
+                    },
+                    // monta 2 bodys diferentes dependendo se tiver chave pix ou nao
+                    bank_account: {
+
+
+                        ...(data.pixKeyType == null && {
+                            pix_transfer_type: "manual",
+                            bank_code: data.bankCode,
+                            branch_number: data.branchNumber,
+                            account_number: data.accountNumber,
+                            account_type: data.accountType.toUpperCase(), // Atenção: CLT pede maiúsculo (ex: "CHECKING")
+                            account_digit: data.accountDigit
+                        }),
+
+                        // Monta as propriedades de PIX se houver chave PIX
+                        ...(data.pixKeyType != null && data.pixKey != null && {
+                            pix_transfer_type: "key",
+                            pix_key_type: data.pixKeyType,
+                            pix_key: data.pixKey
+                        })
+                    },
+                    id_document: {
+                        issue_date: "2010-05-20",
+                        issuer: "SSP-SP",
+                        number: "9999999999",
+                        type: "RG"
+                    }
+                }
+            };
+
+            console.log(bodyRequest);
+
+            const response = await axios.post(`${process.env.NossaFintech_baseURL}/clt-loan/v1/submit-proposal`,
+                bodyRequest,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                    }
+                }
+            );
+
+            const bodyCLT = {
+                cliente_id: cliente.dataValues.id,
+                nome_tabela: "Consignado CLT C/ Seguro",
+                id_proposta: response?.data?.num_proposta,
+                link_form: response?.data?.link_form,
+                contrato: response?.data?.ccb_pdf,
+                numero_contrato: response?.data?.num_contrato,
+                usuario_id: usuarioId,
+                qtd_parcelas: response?.data?.qtd_parcela,
+                valor_parcelas: data.valor_parcelas,
+                taxa_juros_mensal: data.taxa_aplicada,
+                valor_solicitado: response?.data?.val_emissao,
+                valor_liberado: response?.data?.val_liquido,
+                status_nome: response?.data?.status,
+                status_id: "",
+                produto_nome: response?.data?.dsc_produto || "VALOR_NAO_ENCONTRADO",
+                produto_id: response?.data?.cod_produto,
+                status_historicos: "",
+                verificar: true,
+                API: response?.data?.service_type
+            };
+
+            return {
+                bodyCLT,
             };
         } catch (err) {
             if (axios.isAxiosError(err)) {
@@ -822,7 +951,7 @@ class NossaFintechService {
             let tabelasDisponiveis = response?.data?.data ?? [];
 
             // regra NOSSA: só tabelas com seguro
-            tabelasDisponiveis = tabelasDisponiveis.filter(tabela => 
+            tabelasDisponiveis = tabelasDisponiveis.filter(tabela =>
                 tabela.name.toUpperCase().includes('C/ SEGURO')
             );
 
@@ -843,6 +972,7 @@ class NossaFintechService {
             idTermo: margem.margin_key,
             cnpjEmpregador: employer_cnpj,
             matricula: work_registration,
+            profissao: margem.job_code.description,
             dataAdmissao: margem.admission_date,
             valorMargemAvaliavel: margem.utilizable_balance.toString(),
             valorBaseMargem: margem.base_margin_value ? margem.base_margin_value.toString() : null,

@@ -33,6 +33,9 @@ class PropostasCLTService {
                 case "v8":
                     response = await V8CLTService.DigitarProposta(data, userData.id);
                     break;
+                case "Nossa fintech":
+                    response = await NossaFintechService.CriarProposta(data, userData.id);
+                    break;
                 default:
                     throw new HttpException("Instituição não encontrada", 404);
             }
