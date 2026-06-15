@@ -598,6 +598,8 @@ class NossaFintechService {
             if (err instanceof HttpException) {
                 throw new HttpException(err.message, err.status);
             }
+
+            throw new HttpException(err.message, 500);
         }
     }
     async GerarTermoAutorizacao(cpf, banco) {
@@ -636,7 +638,7 @@ class NossaFintechService {
         } catch (err) {
             if (axios.isAxiosError(err)) {
                 const status = 424;
-                const message = err.response?.data?.message || "Erro desconhecido.";
+                const message = err.response?.data?.error || "Erro desconhecido.";
 
                 throw new HttpException(message, status);
             }
@@ -644,6 +646,8 @@ class NossaFintechService {
             if (err instanceof HttpException) {
                 throw new HttpException(err.message, err.status);
             }
+
+            throw new HttpException(err.message, 500);
         }
     }
     async ConsultarVinculoMargemTabela(cpf, banco) {
@@ -908,6 +912,10 @@ class NossaFintechService {
                 }
             );
 
+            if(!response?.data?.success) {
+                throw new HttpException(response?.data?.message || "Erro desconhecido ao consultar os vínculos empregatícios", 424);
+            }
+
             // retorna o array com todos os vinculos
             return response?.data?.data ?? [];
         } catch (err) {
@@ -929,6 +937,11 @@ class NossaFintechService {
                 }
             );
 
+            // capturando possível erro
+            if(!response?.data?.success) {
+                throw new HttpException(response?.data?.message || "Erro desconhecido ao consultar margem", 424);
+            }
+
             return response?.data?.data;
         } catch (err) {
             throw err;
@@ -947,6 +960,10 @@ class NossaFintechService {
                     }
                 }
             );
+
+            if(!response?.data?.success) {
+                throw new HttpException(response?.data?.message || "Erro desconhecido ao consultar as tabelas disponíveis", 424);
+            }
 
             let tabelasDisponiveis = response?.data?.data ?? [];
 
