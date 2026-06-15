@@ -69,6 +69,9 @@ class PropostasCLTService {
                 case "v8":
                     response = await V8CLTService.CancelarProposta(data.proposalId, data.motivo);
                     break;
+                case "Nossa fintech":
+                    response = await NossaFintechService.CancelarPropostaCLT(data.proposalId);
+                    break;
                 default:
                     throw new HttpException("Instituição não encontrada", 404);
             }

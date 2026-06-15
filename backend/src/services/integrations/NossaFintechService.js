@@ -851,19 +851,13 @@ class NossaFintechService {
                 valor_liberado: response?.data?.data?.val_liquido,
                 status_nome: response?.data?.data?.status,
                 status_id: "",
-                produto_nome: response?.data?.data?.dsc_produto || "VALOR_NAO_ENCONTRADO",
+                produto_nome: response?.data?.data?.dsc_produto || "",
                 produto_id: response?.data?.data?.cod_produto,
                 status_historicos: "",
                 verificar: true,
                 banco: data.banco.trim(),
                 API: "Nossa fintech"
             };
-
-            console.log("Response data crua:")
-            console.log(response.data)
-
-            console.log("Body para o DB:")
-            console.log(bodyDB);
 
             await PropostasCLTRepository.create(bodyDB);
 
@@ -897,175 +891,208 @@ class NossaFintechService {
             }
 
             TaskScheduler.schedule("Verificar propostas do Nossa fintech CLT", () => this.VerificarTodasAsPropostas(), 300000);
-        } catch(err) {
+        } catch (err) {
             console.error(`Não foi possível verificar as propostas do Nossa fintech CLT: ${err}`);
         }
     }
-
-    // funções privadas
-    async #consultarStatusAutorizacao(cpf, banco) {
+    async CancelarPropostaCLT(propostaId) {
         try {
-            const response = await axios.post(`${process.env.NossaFintech_baseURL}/clt-loan/v1/check-authorization`,
+            const proposalDataDB = await PropostasCLTRepository.findOneByProposalId(propostaId);
+            await axios.post(`${process.env.NossaFintech_baseURL}/clt-loan/v1/cancel-proposal`,
                 {
-                    document_number: cpf,
-                    service_type: banco.trim()
+                    debt_key: propostaId,
+                    service_type: proposalDataDB.dataValues.banco
                 },
                 {
                     headers: {
                         'Authorization': `Bearer ${this.accessToken}`,
                     }
-                }
-            );
-
-            return response?.data?.data?.status;
-        } catch (err) {
-            throw err;
-        }
-    }
-    async #consultarVinculos(cpf, banco) {
-        try {
-            const response = await axios.post(`${process.env.NossaFintech_baseURL}/clt-loan/v1/check-employee-enrollment`,
-                {
-                    document_number: cpf,
-                    service_type: banco.trim()
-                },
-                {
-                    headers: {
-                        'Authorization': `Bearer ${this.accessToken}`,
-                    }
-                }
-            );
-
-            if(!response?.data?.success) {
-                throw new HttpException(response?.data?.message || "Erro desconhecido ao consultar os vínculos empregatícios", 424);
-            }
-
-            // retorna o array com todos os vinculos
-            return response?.data?.data ?? [];
-        } catch (err) {
-            throw err;
-        }
-    }
-    async #consultarMargem(cpf, banco, cnpj) {
-        try {
-            const response = await axios.post(`${process.env.NossaFintech_baseURL}/clt-loan/v1/get-margin`,
-                {
-                    document_number: cpf,
-                    service_type: banco.trim(),
-                    employer_document: cnpj
-                },
-                {
-                    headers: {
-                        'Authorization': `Bearer ${this.accessToken}`,
-                    }
-                }
-            );
-
-            // capturando possível erro
-            if(!response?.data?.success) {
-                throw new HttpException(response?.data?.message || "Erro desconhecido ao consultar margem", 424);
-            }
-
-            return response?.data?.data;
-        } catch (err) {
-            throw err;
-        }
-    }
-    async #recuperarTabelasElegiveis(margin_key, banco) {
-        try {
-            const response = await axios.get(`${process.env.NossaFintech_baseURL}/clt-loan/v1/list-rebates`,
-                {
-                    params: {
-                        service_type: banco.trim(),
-                        margin_key: margin_key
-                    },
-                    headers: {
-                        'Authorization': `Bearer ${this.accessToken}`,
-                    }
-                }
-            );
-
-            if(!response?.data?.success) {
-                throw new HttpException(response?.data?.message || "Erro desconhecido ao consultar as tabelas disponíveis", 424);
-            }
-
-            let tabelasDisponiveis = response?.data?.data ?? [];
-
-            // regra NOSSA: só tabelas com seguro
-            tabelasDisponiveis = tabelasDisponiveis.filter(tabela =>
-                tabela.name.toUpperCase().includes('C/ SEGURO')
-            );
-
-            return tabelasDisponiveis;
-
-        } catch (err) {
-            throw err;
-        }
-    }
-    #mapearRetornoConsultaVinculo(cpf, vinculo) {
-        const { work_registration, employer_cnpj, margem, tabelas } = vinculo;
-
-        // Extrai o gênero (primeira letra maiúscula)
-        const sexo = margem.gender.description.charAt(0).toUpperCase();
-
-        return {
-            cpf: cpf,
-            idTermo: margem.margin_key,
-            cnpjEmpregador: employer_cnpj,
-            matricula: work_registration,
-            profissao: margem.job_code.description,
-            dataAdmissao: margem.admission_date,
-            valorMargemAvaliavel: margem.utilizable_balance.toString(),
-            valorBaseMargem: margem.base_margin_value ? margem.base_margin_value.toString() : null,
-            valorTotalVencimentos: margem.total_gross_salary ? margem.total_gross_salary.toString() : null,
-            nomeMae: margem.mother_name,
-            sexo: sexo,
-            tabelasElegiveis: tabelas
-        };
-    }
-    async #verificarUmEAtualizarRegistroPropostaDB(proposalId) {
-        try {
-            const STATUS_FINALIZADOS = new Set([
-                "Desembolsado",
-                "Cancelado",
-                "Cancelado Permanentemente"
-            ]);
-
-            const proposalData = await axios.get(`${process.env.NossaFintech_baseURL}/clt-loan/v1/get-operation-details/${proposalId}`,
-                {
-                    headers: {
-                        'Authorization': `Bearer ${this.accessToken}`,
-                    },
                 }
             )
 
-            // dados do DB
-            const propostaDB = await PropostasCLTRepository.findOneByProposalId(proposalId);
+            await this.#verificarUmEAtualizarRegistroPropostaDB(propostaId);
 
-            // novos dados
-            const verificar = !STATUS_FINALIZADOS.has(proposalData?.data?.data?.status);
-            const historicoStatus = proposalData?.data?.data?.history;
-            const link_form = proposalData?.data?.data?.link_form;
-            const status = proposalData?.data?.data?.status;
+            return await PropostasCLTRepository.findOneByProposalId(propostaId);
+    } catch(err) {
+        if (axios.isAxiosError(err)) {
+            const status = 424;
+            const message = err.response?.data?.message || "Erro desconhecido.";
 
-            const dadosAtualizados = {
-                ...propostaDB,
-
-                link_form: link_form,
-                status_nome: status,
-                verificar: verificar,
-                status_historicos: historicoStatus
-            }
-
-            return await PropostasCLTRepository.updateByProposalId(proposalId, dadosAtualizados);
-        } catch(err) {
-            throw err;
+            throw new HttpException(message, status);
         }
-    }
 
-    getToken() {
-        return this.accessToken;
+        if (err instanceof HttpException) {
+            throw new HttpException(err.message, err.status);
+        }
+
+        throw new HttpException(err.message, 500);
     }
+}
+
+    // funções privadas
+    async #consultarStatusAutorizacao(cpf, banco) {
+    try {
+        const response = await axios.post(`${process.env.NossaFintech_baseURL}/clt-loan/v1/check-authorization`,
+            {
+                document_number: cpf,
+                service_type: banco.trim()
+            },
+            {
+                headers: {
+                    'Authorization': `Bearer ${this.accessToken}`,
+                }
+            }
+        );
+
+        return response?.data?.data?.status;
+    } catch (err) {
+        throw err;
+    }
+}
+    async #consultarVinculos(cpf, banco) {
+    try {
+        const response = await axios.post(`${process.env.NossaFintech_baseURL}/clt-loan/v1/check-employee-enrollment`,
+            {
+                document_number: cpf,
+                service_type: banco.trim()
+            },
+            {
+                headers: {
+                    'Authorization': `Bearer ${this.accessToken}`,
+                }
+            }
+        );
+
+        if (!response?.data?.success) {
+            throw new HttpException(response?.data?.message || "Erro desconhecido ao consultar os vínculos empregatícios", 424);
+        }
+
+        // retorna o array com todos os vinculos
+        return response?.data?.data ?? [];
+    } catch (err) {
+        throw err;
+    }
+}
+    async #consultarMargem(cpf, banco, cnpj) {
+    try {
+        const response = await axios.post(`${process.env.NossaFintech_baseURL}/clt-loan/v1/get-margin`,
+            {
+                document_number: cpf,
+                service_type: banco.trim(),
+                employer_document: cnpj
+            },
+            {
+                headers: {
+                    'Authorization': `Bearer ${this.accessToken}`,
+                }
+            }
+        );
+
+        // capturando possível erro
+        if (!response?.data?.success) {
+            throw new HttpException(response?.data?.message || "Erro desconhecido ao consultar margem", 424);
+        }
+
+        return response?.data?.data;
+    } catch (err) {
+        throw err;
+    }
+}
+    async #recuperarTabelasElegiveis(margin_key, banco) {
+    try {
+        const response = await axios.get(`${process.env.NossaFintech_baseURL}/clt-loan/v1/list-rebates`,
+            {
+                params: {
+                    service_type: banco.trim(),
+                    margin_key: margin_key
+                },
+                headers: {
+                    'Authorization': `Bearer ${this.accessToken}`,
+                }
+            }
+        );
+
+        if (!response?.data?.success) {
+            throw new HttpException(response?.data?.message || "Erro desconhecido ao consultar as tabelas disponíveis", 424);
+        }
+
+        let tabelasDisponiveis = response?.data?.data ?? [];
+
+        // regra NOSSA: só tabelas com seguro
+        tabelasDisponiveis = tabelasDisponiveis.filter(tabela =>
+            tabela.name.toUpperCase().includes('C/ SEGURO')
+        );
+
+        return tabelasDisponiveis;
+
+    } catch (err) {
+        throw err;
+    }
+}
+#mapearRetornoConsultaVinculo(cpf, vinculo) {
+    const { work_registration, employer_cnpj, margem, tabelas } = vinculo;
+
+    // Extrai o gênero (primeira letra maiúscula)
+    const sexo = margem.gender.description.charAt(0).toUpperCase();
+
+    return {
+        cpf: cpf,
+        idTermo: margem.margin_key,
+        cnpjEmpregador: employer_cnpj,
+        matricula: work_registration,
+        profissao: margem.job_code.description,
+        dataAdmissao: margem.admission_date,
+        valorMargemAvaliavel: margem.utilizable_balance.toString(),
+        valorBaseMargem: margem.base_margin_value ? margem.base_margin_value.toString() : null,
+        valorTotalVencimentos: margem.total_gross_salary ? margem.total_gross_salary.toString() : null,
+        nomeMae: margem.mother_name,
+        sexo: sexo,
+        tabelasElegiveis: tabelas
+    };
+}
+    async #verificarUmEAtualizarRegistroPropostaDB(proposalId) {
+    try {
+        const STATUS_FINALIZADOS = new Set([
+            "Desembolsado",
+            "Cancelado",
+            "Cancelado Permanentemente"
+        ]);
+
+        const proposalData = await axios.get(`${process.env.NossaFintech_baseURL}/clt-loan/v1/get-operation-details/${proposalId}`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${this.accessToken}`,
+                },
+            }
+        )
+
+        // dados do DB
+        const propostaDB = await PropostasCLTRepository.findOneByProposalId(proposalId);
+
+        // novos dados
+        const verificar = !STATUS_FINALIZADOS.has(proposalData?.data?.data?.status);
+        const historicoStatus = proposalData?.data?.data?.history;
+        const link_form = proposalData?.data?.data?.link_form;
+        const status = proposalData?.data?.data?.status;
+
+        const dadosAtualizados = {
+            ...propostaDB,
+
+            link_form: link_form,
+            status_nome: status,
+            verificar: verificar,
+            status_historicos: historicoStatus
+        }
+
+        return await PropostasCLTRepository.updateByProposalId(proposalId, dadosAtualizados);
+    } catch (err) {
+        throw err;
+    }
+}
+
+getToken() {
+    return this.accessToken;
+}
 }
 
 export default new NossaFintechService();
