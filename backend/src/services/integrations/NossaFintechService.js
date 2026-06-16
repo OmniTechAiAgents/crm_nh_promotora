@@ -673,6 +673,10 @@ class NossaFintechService {
 
             const vinculos = await this.#consultarVinculos(cpf, banco);
 
+            if (!vinculos || vinculos.length == 0) {
+                throw new HttpException("Não foram encontrados vínculos para esse cliente.", 424);
+            }
+
             let vinculosMargensTabelas = [];
             for (const vinculo of vinculos) {
                 // timeout leve
@@ -680,13 +684,27 @@ class NossaFintechService {
 
                 const margem = await this.#consultarMargem(cpf, banco, vinculo.employer_cnpj);
 
+                // verifica se o vinculo tem margem disponível, se não tiver, descarta esse e passa para o próximo da lista com "continue"
+                if (!margem || !margem.margin_key) {
+                    continue;
+                }
+
                 const tabelas = await this.#recuperarTabelasElegiveis(margem.margin_key, banco);
+
+                // verifica se o vinculo tem tabelas disponíveis, se não tiver, descarta esse e passa para o próximo da lista com "continue"
+                if (!tabelas || tabelas.length === 0) {
+                    continue;
+                }
 
                 vinculosMargensTabelas.push({
                     ...vinculo,
                     margem,
                     tabelas
                 });
+            }
+
+            if (vinculosMargensTabelas.length === 0) {
+                throw new HttpException("Não foram encontrados dados de vínculos, margens ou tabelas elegíveis para este cliente.", 424);
             }
 
             // Mapeia todos os vínculos para o formato desejado
