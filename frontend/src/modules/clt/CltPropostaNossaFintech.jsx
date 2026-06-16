@@ -10,19 +10,15 @@ const formatarMoeda = (valor) => {
     }).format(valor || 0);
 };
 
-export default function CltPropostaV8({
+export default function CltPropostaNossaFintech({
     instituicao,
     cpf,
-    sexo,
-    qtdParcelas,
-    valorParcelas,
-    tabelaId,
     simulacaoId,
-    nomeTabela,
+    banco,
+    cnpjEmpregador,
+    profissao,
+    valorParcelas,
     taxaJurosMensal,
-    valorSolicitado,
-    valorLiberado,
-    
     onSuccess,
 }) {
     const [formaRecebimento, setFormaRecebimento] = useState("PIX");
@@ -36,6 +32,7 @@ export default function CltPropostaV8({
     const [branchNumber, setBranchNumber] = useState("");
     const [accountNumber, setAccountNumber] = useState("");
     const [accountDigit, setAccountDigit] = useState("");
+    const [accountType, setAccountType] = useState("")
 
     const [loading, setLoading] = useState(false);
     const [erros, setErros] = useState({});
@@ -54,20 +51,19 @@ export default function CltPropostaV8({
 
             const body = {
                 instituicao,
+                cpf,
+                simulacaoId,
+                banco,
+                cnpj_empregador: cnpjEmpregador,
+                profissao,
+                valor_parcelas: valorParcelas,
+                taxa_aplicada: taxaJurosMensal,
+
                 pixKeyType: pixKeyType == "" ? null : pixKeyType,
                 pixKey: pixKey == "" ? null : pixKey,
-                cpf,
-                sexo,
-                qtdParcelas,
-                valorParcelas,
-                tabelaId,
-                simulacaoId,
-                nomeTabela,
-                taxaJurosMensal,
-                valorSolicitado,
-                valorLiberado,
 
                 bankCode: bankCode == "" ? null : bankCode,
+                accountType: accountType == "" ? null : accountType,
                 accountNumber: accountNumber == "" ? null : accountNumber,
                 accountDigit: accountDigit == "" ? null : accountDigit,
                 branchNumber: branchNumber == "" ? null : branchNumber,
@@ -75,9 +71,7 @@ export default function CltPropostaV8({
 
             console.log(body)
 
-            await criarPropostaCLT(body);
-
-            // console.log(body)
+            const response = await criarPropostaCLT(body);
 
             onSuccess?.({
                 msg: "Proposta criada com sucesso!",
@@ -160,6 +154,18 @@ export default function CltPropostaV8({
                 <input placeholder="Agência" value={branchNumber} onChange={(e) => setBranchNumber(e.target.value)} />
                 <input placeholder="Conta" value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)} />
                 <input placeholder="Dígito" value={accountDigit} onChange={(e) => setAccountDigit(e.target.value)} />
+            
+                <select
+                    value={accountType}
+                    onChange={(e) => setAccountType(e.target.value)}
+                >
+                    <option value="">Selecione o tipo de conta</option>
+                    <option value="corrente">Corrente</option>
+                    <option value="poupanca">Poupança</option>
+                    {instituicao === "Nossa fintech" && (
+                    <option value="pagamento">Pagamento</option>
+                    )}
+                </select>
             </div>
             )}
 

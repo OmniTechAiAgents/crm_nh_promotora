@@ -10,9 +10,9 @@ class PropostasCLTController {
         try {
             const dados = ValidarBodyPropostaCLT.parse(req.body)
 
-            await PropostasCLTService.DigitarProposta(dados, dados.instituicao, req.user);
+            const response = await PropostasCLTService.DigitarProposta(dados, dados.instituicao, req.user);
 
-            return res.status(200).json({ msg: "Proposta criada com sucesso!" })
+            return res.status(200).json(response)
         } catch (err) {
             console.log(err)
 

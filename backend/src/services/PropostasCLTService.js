@@ -1,6 +1,6 @@
 import PropostasCLTRepository from "../repositories/PropostasCLTRepository.js";
 import HttpException from "../utils/HttpException.js";
-import PresencaBankService from "./integrations/PresencaBankService.js";
+import NossaFintechService from "./integrations/NossaFintechService.js";
 import V8CLTService from "./integrations/V8CLTService.js";
 
 class PropostasCLTService {
@@ -11,6 +11,9 @@ class PropostasCLTService {
             switch (instituicao) {
                 case "v8":
                     response = await V8CLTService.SimularProposta(data);
+                    break;
+                case "Nossa fintech":
+                    response = await NossaFintechService.SimularProposta(data);
                     break;
                 default:
                     throw new HttpException("Instituição não encontrada", 404);
@@ -27,11 +30,11 @@ class PropostasCLTService {
             let response;
 
             switch (instituicao) {
-                case "Presenca bank":
-                    response = await PresencaBankService.DigitarProposta(data, userData.id);
-                    break;
                 case "v8":
                     response = await V8CLTService.DigitarProposta(data, userData.id);
+                    break;
+                case "Nossa fintech":
+                    response = await NossaFintechService.CriarProposta(data, userData.id);
                     break;
                 default:
                     throw new HttpException("Instituição não encontrada", 404);
@@ -65,6 +68,9 @@ class PropostasCLTService {
             switch (instituicao) {
                 case "v8":
                     response = await V8CLTService.CancelarProposta(data.proposalId, data.motivo);
+                    break;
+                case "Nossa fintech":
+                    response = await NossaFintechService.CancelarPropostaCLT(data.proposalId);
                     break;
                 default:
                     throw new HttpException("Instituição não encontrada", 404);

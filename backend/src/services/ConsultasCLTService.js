@@ -1,18 +1,21 @@
 import axios from 'axios';
 import HttpException from "../utils/HttpException.js";
-import PresencaBankService from './integrations/PresencaBankService.js';
 import V8CLTService from './integrations/V8CLTService.js';
 import C6Service from './integrations/C6Service.js';
+import NossaFintechService from './integrations/NossaFintechService.js';
 
 class ConsultasCLTService {
-    async GerarTermoAutorizacaoDataPrev(cpf, instituicao) {
+    async ConsultarVinculoMargemTabela(cpf, banco, instituicao) {
         try {
             let response;
 
             // decide para qual API vai mandar
             switch (instituicao){
-                case "Presenca bank":
-                    response = await PresencaBankService.GerarTermoAutorizacao(cpf);
+                case "v8":
+                    response = await V8CLTService.GerarTermoSimularOperacao(cpf);
+                    break;
+                case "Nossa fintech":
+                    response = await NossaFintechService.ConsultarVinculoMargemTabela(cpf, banco);
                     break;
                 default: 
                     throw new HttpException("Instituição não encontrada", 404);
@@ -24,23 +27,40 @@ class ConsultasCLTService {
         }
     }
 
-    async ConsultarVinculoMargemTabela(cpf, instituicao) {
+    async RecuperarBancarizadoras(instituicao) {
+        try {
+            let response;
+
+            switch (instituicao) {
+                case "Nossa fintech":
+                    response = await NossaFintechService.RecuperarBancarizadoras();
+                    break;
+                default:
+                    throw new HttpException("Instituição não encontrada", 404);
+            }
+
+            return { 
+                bancarizadoras_disponiveis: response 
+            };
+        } catch(err) {
+            throw err;
+        }
+    }
+
+    async GerarTermoAutorizacaoDataPrev(cpf, instituicao, banco) {
         try {
             let response;
 
             // decide para qual API vai mandar
             switch (instituicao){
-                case "Presenca bank":
-                    response = await PresencaBankService.ConsultarVinculoMargemTabela(cpf);
-                    break;
-                case "v8":
-                    response = await V8CLTService.GerarTermoSimularOperacao(cpf);
+                case "Nossa fintech":
+                    response = await NossaFintechService.GerarTermoAutorizacao(cpf, banco);
                     break;
                 default: 
                     throw new HttpException("Instituição não encontrada", 404);
             }
 
-            return response;
+            return { link: response };
         } catch(err) {
             throw err;
         }
