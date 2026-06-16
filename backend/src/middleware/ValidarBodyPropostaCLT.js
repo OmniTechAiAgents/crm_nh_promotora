@@ -33,7 +33,7 @@ export const ValidarBodyPropostaCLT = z
         // --- ESPECÍFICOS: Nossa fintech ---
         banco: z.string().optional(),
         cnpj_empregador: z.string().optional(),
-        profissão: z.string().optional(),
+        profissao: z.string().optional(),
         valor_parcelas: z.number().optional(),
         taxa_aplicada: z.number().optional()
     })
@@ -86,7 +86,7 @@ export const ValidarBodyPropostaCLT = z
                 { field: 'simulacaoId', value: data.simulacaoId },
                 { field: 'banco', value: data.banco },
                 { field: 'cnpj_empregador', value: data.cnpj_empregador },
-                { field: 'profissão', value: data.profissão },
+                { field: 'profissao', value: data.profissao },
                 { field: 'valor_parcelas', value: data.valor_parcelas },
                 { field: 'taxa_aplicada', value: data.taxa_aplicada }
             ];

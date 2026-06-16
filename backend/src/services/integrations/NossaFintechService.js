@@ -793,7 +793,7 @@ class NossaFintechService {
                     gender: "FEMALE",
                     mother_name: "MARIA DE LOURDES DA SILVA",
                     birth_date: cliente.dataValues.data_nasc,
-                    profession: data.profissão,
+                    profession: data.profissao,
                     nationality: "Brasileiro",
                     marital_status: "Solteiro",
                     email: "example@example.com",

@@ -2,6 +2,7 @@ import { useState } from "react";
 import "./clt.css";
 import Modal from "../../components/Modal";
 import CltPropostaV8 from "./CltPropostaV8";
+import CltPropostaNossaFintech from "./CltPropostaNossaFintech";
 
 export default function CltResultadoCard({ resultado }) {
     const [openModal, setOpenModal] = useState(false);
@@ -206,19 +207,15 @@ export default function CltResultadoCard({ resultado }) {
                     open={openModal}
                     onClose={() => setOpenModal(false)}
                 >
-                    <CltPropostaV8
+                    <CltPropostaNossaFintech
                         instituicao={instituicaoEscolhida}
                         cpf={cpf}
-                        sexo={sexo}
-                        qtdParcelas={qtdParcelas}
-                        valorParcelas={valorMargemAvaliavel}
-                        tabelaId={tabelaId}
                         simulacaoId={simulacaoId}
-                        nomeTabela={nomeTabela}
+                        banco={banco}
+                        cnpjEmpregador={cnpjEmpregador}
+                        profissao={profissao}
+                        valorParcelas={valorMargemAvaliavel}
                         taxaJurosMensal={taxaJurosMensal}
-                        valorSolicitado={valorSolicitado}
-                        valorLiberado={valorLiberado}
-
                         onSuccess={() => {
                             setOpenModal(false);
                             setPropostaDigitada(true);
