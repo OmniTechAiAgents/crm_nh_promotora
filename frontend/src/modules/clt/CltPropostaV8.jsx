@@ -79,8 +79,10 @@ export default function CltPropostaV8({
 
             // console.log(body)
 
-            alert("Proposta criada com sucesso!");
-            onSuccess?.();
+            onSuccess?.({
+                msg: "Proposta criada com sucesso!",
+                link_form: response.link_form
+            });
         } catch (err) {
             const status = err.response?.status;
 

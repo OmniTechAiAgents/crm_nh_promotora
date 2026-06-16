@@ -7,6 +7,8 @@ import CltPropostaNossaFintech from "./CltPropostaNossaFintech";
 export default function CltResultadoCard({ resultado }) {
     const [openModal, setOpenModal] = useState(false);
     const [propostaDigitada, setPropostaDigitada] = useState(false);
+    const [msgRetorno, setMsgRetorno] = useState("");
+    const [linkForm, setLinkForm] = useState("");
 
     console.log("Resultado recebido no card:", resultado);
 
@@ -140,7 +142,9 @@ export default function CltResultadoCard({ resultado }) {
                         valorSolicitado={valorSolicitado}
                         valorLiberado={valorLiberado}
 
-                        onSuccess={() => {
+                        onSuccess={(bodyCallback) => {
+                            setMsgRetorno(bodyCallback.msg);
+                            setLinkForm(bodyCallback.link_form);
                             setOpenModal(false);
                             setPropostaDigitada(true);
                         }}
@@ -216,7 +220,9 @@ export default function CltResultadoCard({ resultado }) {
                         profissao={profissao}
                         valorParcelas={valorMargemAvaliavel}
                         taxaJurosMensal={taxaJurosMensal}
-                        onSuccess={() => {
+                        onSuccess={(bodyCallback) => {
+                            setMsgRetorno(bodyCallback.msg);
+                            setLinkForm(bodyCallback.link_form);
                             setOpenModal(false);
                             setPropostaDigitada(true);
                         }}
@@ -235,7 +241,13 @@ export default function CltResultadoCard({ resultado }) {
                 </div>
                 <div className="card-body">
                     <p>
-                        Esta oferta foi utilizada para geração de proposta.
+                        <strong>Mensagem:</strong> <br />
+                        {msgRetorno}
+                    </p>
+                    <br />
+                    <p>
+                        <strong>Link para formalização da proposta:</strong> <br />
+                        {linkForm}
                     </p>
 
                     <button

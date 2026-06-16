@@ -71,10 +71,12 @@ export default function CltPropostaNossaFintech({
 
             console.log(body)
 
-            await criarPropostaCLT(body);
+            const response = await criarPropostaCLT(body);
 
-            alert("Proposta criada com sucesso!");
-            onSuccess?.();
+            onSuccess?.({
+                msg: "Proposta criada com sucesso!",
+                link_form: response.link_form
+            });
         } catch (err) {
             const status = err.response?.status;
 
