@@ -39,6 +39,7 @@ export default function CltResultadoCard({ resultado }) {
     let valorSolicitado = 0;
     let banco = "";
     let profissao = resultado?.profissao || "";
+    let margemDisponivel = 0;
 
     if (instituicaoEscolhida === "v8" && resultado) {
         tabelasElegiveis = resultado.tabelasElegiveis || [];
@@ -46,6 +47,7 @@ export default function CltResultadoCard({ resultado }) {
         valorSolicitado = resultado.valorSolicitado;
     } else if (instituicaoEscolhida === "Nossa fintech" && resultado) {
         banco = resultado.banco;
+        margemDisponivel = resultado.valorMargemDisponivel;
     }
 
 
@@ -269,11 +271,12 @@ export default function CltResultadoCard({ resultado }) {
                     {/* Exibe o CNPJ e Profissão para identificar qual vínculo falhou */}
                     {cnpjEmpregador && (
                         <p style={{ fontSize: "14px", marginBottom: "10px", color: "#555" }}>
-                            <strong>Empresa (CNPJ):</strong> {cnpjEmpregador} <br/>
-                            {profissao && <><strong>Profissão:</strong> {profissao}</>}
+                            <strong>Empresa (CNPJ):</strong> {cnpjEmpregador} <br />
+                            {profissao && <><strong>Profissão:</strong> {profissao} <br /></>}
+                            {margemDisponivel && <><strong>Margem disponível para cliente:</strong> {formatarMoeda(margemDisponivel)}</>}
                         </p>
                     )}
-                    
+
                     <p>Motivo do bloqueio:</p>
                     <strong>
                         {motivoErro || "Saldo insuficiente ou restrição."}
