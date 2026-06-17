@@ -11,7 +11,7 @@ import VCTexServices from './services/integrations/VCTexServices.js';
 import NovaVidaService from './services/integrations/NovaVidaService.js';
 import C6Service from './services/integrations/C6Service.js';
 import NossaFintechService from './services/integrations/NossaFintechService.js';
-import PresencaBankService from './services/integrations/PresencaBankService.js';
+
 import cors from "cors";
 import { seedISPBs } from './utils/seedISPBs.js';
 import { connectRabbit } from './config/rabbitMQ.js';
@@ -72,8 +72,7 @@ async function bootstrap() {
         await NossaFintechService.Autenticar();
         console.log("✅ Token NossaFintech carregado e agendamento ativo")
 
-        await PresencaBankService.Autenticar();
-        console.log("✅ Token PresençaBank carregado e agendamento ativo")
+
 
         await V8CLTService.Autenticar();
         console.log("✅ Token V8-CLT carregado e agendamento ativo")
@@ -94,7 +93,7 @@ async function bootstrap() {
         }
         if(NossaFintechService.getToken() != null) {
             await NossaFintechService.VerificarTodasAsPropostas();
-            console.log("✅ Todas as propostas pendentes da Nossa fintech foram verificadas");
+            console.log("✅ Todas as propostas pendentes da Nossa fintech FGTS foram verificadas");
         }
 
         if(V8CLTService.getToken() != null) {
@@ -102,9 +101,9 @@ async function bootstrap() {
             console.log("✅ Todas as propostas pendentes do V8CLT foram verificadas");
         }
 
-        if(PresencaBankService.getToken() != null) {
-            await PresencaBankService.VerificarTodasAsPropostas();
-            console.log("✅ Todas as propostas pendentes do Presenca bank foram verificadas");
+        if(NossaFintechService.getToken() != null) {
+            await NossaFintechService.VerificarTodasAsPropostasCLT();
+            console.log("✅ Todas as propostas pendentes da Nossa fintech CLT foram verificadas")
         }
         
     } catch (err) {

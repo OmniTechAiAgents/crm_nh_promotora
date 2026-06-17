@@ -1,39 +1,54 @@
 import { useState } from "react";
 import "./clt.css";
-import CltPropostaPresencaBank from "./CltPropostaPresencaBank";
 import Modal from "../../components/Modal";
 import CltPropostaV8 from "./CltPropostaV8";
+import CltPropostaNossaFintech from "./CltPropostaNossaFintech";
 
 export default function CltResultadoCard({ resultado }) {
     const [openModal, setOpenModal] = useState(false);
     const [propostaDigitada, setPropostaDigitada] = useState(false);
+    const [msgRetorno, setMsgRetorno] = useState("");
+    const [linkForm, setLinkForm] = useState("");
 
     console.log("Resultado recebido no card:", resultado);
 
     if (!resultado) return null;
 
     // aqui ficaria o const que captura os dados da props "resultado"
+    const { instituicaoEscolhida } = resultado;
+
     const {
         status,
-        valorMargemAvaliavel,
-        instituicaoEscolhida,
-        cnpjEmpregador,
-        tabelasElegiveis = [],
         cpf,
         sexo,
         nomeMae,
-        registroEmpregaticio,
-        motivoErro,
-
-        // parte do v8
         tabelaId,
         simulacaoId,
         nomeTabela,
         taxaJurosMensal,
-        valorSolicitado,
         valorLiberado,
-        qtdParcelas
-    } = resultado;
+        qtdParcelas,
+        motivoErro,
+        valorMargemAvaliavel
+    } = resultado || {};
+
+    // gambiarra para n quebrar o código com o novo esquema de variáveis para v8 e nossa fintech q fiz
+    let cnpjEmpregador = resultado?.cnpjEmpregador || resultado?.cnpj_empregador || "";
+    let tabelasElegiveis = [];
+    let registroEmpregaticio = "";
+    let valorSolicitado = 0;
+    let banco = "";
+    let profissao = resultado?.profissao || "";
+    let margemDisponivel = 0;
+
+    if (instituicaoEscolhida === "v8" && resultado) {
+        tabelasElegiveis = resultado.tabelasElegiveis || [];
+        registroEmpregaticio = resultado.registroEmpregaticio;
+        valorSolicitado = resultado.valorSolicitado;
+    } else if (instituicaoEscolhida === "Nossa fintech" && resultado) {
+        banco = resultado.banco;
+        margemDisponivel = resultado.valorMargemDisponivel;
+    }
 
 
     const formatarData = (data) => {
@@ -51,105 +66,13 @@ export default function CltResultadoCard({ resultado }) {
 
     let tabelaDestaque = null;
 
-    if (tabelasElegiveis && tabelasElegiveis.length > 0) {
+    if (instituicaoEscolhida == "v8" && tabelasElegiveis && tabelasElegiveis.length > 0) {
         const tabela36 = tabelasElegiveis.find(tabela => tabela.prazo === 36);
         tabelaDestaque = tabela36 ? tabela36 : tabelasElegiveis[0];
     }
 
     // Pega o valor liberado da tabela escolhida, ou 0 se der ruim
     const valorParaReceber = tabelaDestaque ? tabelaDestaque.valorLiberado : 0;
-
-    // ---------- CARD OFERTA DISPONÍVEL PRESENÇA ----------
-    if (status === "ELEGIVEL" && !propostaDigitada && instituicaoEscolhida == "Presenca bank") {
-        return (
-            <>
-                <div className="card oferta">
-                    <div className="card-header verde">
-                        ✔ Vínculo Elegível
-                    </div>
-    
-                    <div className="card-body">
-                        <p>Cliente vai receber:</p>
-    
-                        <h1 style={{ color: '#2e7d32' }}>
-                            {formatarMoeda(valorParaReceber)}
-                        </h1>
-    
-                        <p>
-                            Instituição:{" "}
-                            <strong>{instituicaoEscolhida}</strong>
-                        </p>
-
-                        <p>
-                            CNPJ empregador:{" "}
-                            <strong>{cnpjEmpregador}</strong>
-                        </p>
-    
-                        <details className="tabelas-disponiveis-card">
-                            <summary style={{ cursor: "pointer" }}>Ver tabelas disponíveis</summary>
-
-                            {tabelasElegiveis && tabelasElegiveis.length > 0 ? (
-                                tabelasElegiveis.map((tabela) => (
-                                <div 
-                                    key={tabela.id_tabela} 
-                                    className="linha-parcela" 
-                                    style={{ display: 'flex', flexDirection: 'column', gap: '4px', paddingBottom: '12px', borderBottom: '1px solid #eee' }}
-                                >
-                                    {/* Linha 1: Nome da Tabela em destaque */}
-                                    <span style={{ fontWeight: '600', color: '#333' }}>
-                                        {tabela.nome}
-                                    </span>
-                                    
-                                    {/* Linha 2: Valores organizados lado a lado */}
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', color: '#555' }}>
-                                        <span>
-                                            <strong>Liberado:</strong> <span style={{ color: '#2e7d32' }}>{formatarMoeda(tabela.valorLiberado)}</span>
-                                        </span>
-                                        
-                                        <span>
-                                            <strong>Parcela:</strong> {tabela.prazo}x de {formatarMoeda(tabela.valorParcela)}
-                                        </span>
-                                    </div>
-                                </div>
-                                ))
-                            ) : (
-                                <div>Nenhuma tabela disponível</div>
-                            )}
-                        </details>
-    
-                    <button
-                        className="btn-principal"
-                        onClick={() => setOpenModal(true)}
-                    >
-                    Digitar Proposta
-                    </button>
-                </div>
-            </div>
-    
-            {/* ---------- MODAL ---------- */}
-            <Modal
-                open={openModal}
-                onClose={() => setOpenModal(false)}
-            >
-                <CltPropostaPresencaBank
-                    instituicao={instituicaoEscolhida}
-                    cpf={cpf}
-                    sexo={sexo}
-                    nomeMae={nomeMae}
-                    cnpjEmpregador={cnpjEmpregador}
-                    registroEmpregaticio={registroEmpregaticio}
-                    tabelasDisponíveis={tabelasElegiveis}
-                    valorMargemAvaliavel={valorMargemAvaliavel}
-
-                    onSuccess={() => {
-                        setOpenModal(false);
-                        setPropostaDigitada(true);
-                    }}
-                />
-            </Modal>
-          </>
-        );
-    }
 
     // ---------- CARD OFERTA DISPONÍVEL V8 -----------
     if (status === "ELEGIVEL" && !propostaDigitada && instituicaoEscolhida == "v8") {
@@ -159,72 +82,152 @@ export default function CltResultadoCard({ resultado }) {
                     <div className="card-header verde">
                         ✔ Oferta Disponível
                     </div>
-    
+
                     <div className="card-body">
                         <p>Cliente vai receber:</p>
-    
+
                         <h1 style={{ color: '#2e7d32' }}>
                             {formatarMoeda(valorLiberado)}
                         </h1>
-    
+
                         <p>
                             Instituição:{" "}
                             <strong>{instituicaoEscolhida}</strong>
                         </p>
-    
+
                         <p style={{ marginTop: "15px" }}>
                             Tabela selecionada: <br />
 
                             <span style={{ fontWeight: '600', color: '#333', fontSize: "14px" }}>
-                                        {nomeTabela}
-                                    </span>
-                                    
-                                    {/* Linha 2: Valores organizados lado a lado */}
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', color: '#555' }}>
-                                        <span>
-                                            <strong>Liberado:</strong> <span style={{ color: '#2e7d32' }}>{formatarMoeda(valorLiberado)}</span>
-                                        </span>
-                                        
-                                        <span>
-                                            <strong>Parcela:</strong> {qtdParcelas}x de {formatarMoeda(valorMargemAvaliavel)}
-                                        </span>
-                                    </div>
-                        </p>
-    
-                    <button
-                        className="btn-principal"
-                        onClick={() => setOpenModal(true)}
-                    >
-                    Digitar Proposta
-                    </button>
-                </div>
-            </div>
-    
-            {/* ---------- MODAL ---------- */}
-            <Modal
-                open={openModal}
-                onClose={() => setOpenModal(false)}
-            >
-                <CltPropostaV8 
-                    instituicao={instituicaoEscolhida}
-                    cpf={cpf}
-                    sexo={sexo}
-                    qtdParcelas={qtdParcelas}
-                    valorParcelas={valorMargemAvaliavel}
-                    tabelaId={tabelaId}
-                    simulacaoId={simulacaoId}
-                    nomeTabela={nomeTabela}
-                    taxaJurosMensal={taxaJurosMensal}
-                    valorSolicitado={valorSolicitado}
-                    valorLiberado={valorLiberado}
+                                {nomeTabela}
+                            </span>
 
-                    onSuccess={() => {
-                        setOpenModal(false);
-                        setPropostaDigitada(true);
-                    }}
-                />
-            </Modal>
-          </>
+                            {/* Linha 2: Valores organizados lado a lado */}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', color: '#555' }}>
+                                <span>
+                                    <strong>Liberado:</strong> <span style={{ color: '#2e7d32' }}>{formatarMoeda(valorLiberado)}</span>
+                                </span>
+
+                                <span>
+                                    <strong>Parcela:</strong> {qtdParcelas}x de {formatarMoeda(valorMargemAvaliavel)}
+                                </span>
+                            </div>
+                        </p>
+
+                        <button
+                            className="btn-principal"
+                            onClick={() => setOpenModal(true)}
+                        >
+                            Digitar Proposta
+                        </button>
+                    </div>
+                </div>
+
+                {/* ---------- MODAL ---------- */}
+                <Modal
+                    open={openModal}
+                    onClose={() => setOpenModal(false)}
+                >
+                    <CltPropostaV8
+                        instituicao={instituicaoEscolhida}
+                        cpf={cpf}
+                        sexo={sexo}
+                        qtdParcelas={qtdParcelas}
+                        valorParcelas={valorMargemAvaliavel}
+                        tabelaId={tabelaId}
+                        simulacaoId={simulacaoId}
+                        nomeTabela={nomeTabela}
+                        taxaJurosMensal={taxaJurosMensal}
+                        valorSolicitado={valorSolicitado}
+                        valorLiberado={valorLiberado}
+
+                        onSuccess={(bodyCallback) => {
+                            setMsgRetorno(bodyCallback.msg);
+                            setLinkForm(bodyCallback.link_form);
+                            setOpenModal(false);
+                            setPropostaDigitada(true);
+                        }}
+                    />
+                </Modal>
+            </>
+        );
+    }
+
+    if (status === "ELEGIVEL" && !propostaDigitada && instituicaoEscolhida == "Nossa fintech") {
+        return (
+            <>
+                <div className="card oferta">
+                    <div className="card-header verde">
+                        ✔ Oferta Disponível
+                    </div>
+
+                    <div className="card-body">
+                        <p>Cliente vai receber:</p>
+
+                        <h1 style={{ color: '#2e7d32' }}>
+                            {formatarMoeda(valorLiberado)}
+                        </h1>
+
+                        <p>
+                            Instituição:{" "}
+                            <strong>{instituicaoEscolhida}</strong>
+                        </p>
+
+                        <p style={{ marginTop: "15px" }}>
+                            Tabela selecionada: <br />
+
+                            <span style={{ fontWeight: '600', color: '#333', fontSize: "14px" }}>
+                                {nomeTabela}
+                            </span>
+
+                            {/* Linha 2: Valores organizados lado a lado */}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', color: '#555' }}>
+                                <span>
+                                    <strong>Liberado:</strong> <span style={{ color: '#2e7d32' }}>{formatarMoeda(valorLiberado)}</span>
+                                </span>
+
+                                <span>
+                                    <strong>Parcela:</strong> {qtdParcelas}x de {formatarMoeda(valorMargemAvaliavel)}
+                                </span>
+
+                                <span>
+                                    <strong>Taxa:</strong> {taxaJurosMensal}%/mês
+                                </span>
+                            </div>
+                        </p>
+
+                        <button
+                            className="btn-principal"
+                            onClick={() => setOpenModal(true)}
+                        >
+                            Digitar Proposta
+                        </button>
+                    </div>
+                </div>
+
+                {/* ---------- MODAL ---------- */}
+                <Modal
+                    open={openModal}
+                    onClose={() => setOpenModal(false)}
+                >
+                    <CltPropostaNossaFintech
+                        instituicao={instituicaoEscolhida}
+                        cpf={cpf}
+                        simulacaoId={simulacaoId}
+                        banco={banco}
+                        cnpjEmpregador={cnpjEmpregador}
+                        profissao={profissao}
+                        valorParcelas={valorMargemAvaliavel}
+                        taxaJurosMensal={taxaJurosMensal}
+                        onSuccess={(bodyCallback) => {
+                            setMsgRetorno(bodyCallback.msg);
+                            setLinkForm(bodyCallback.link_form);
+                            setOpenModal(false);
+                            setPropostaDigitada(true);
+                        }}
+                    />
+                </Modal>
+            </>
         );
     }
 
@@ -237,7 +240,13 @@ export default function CltResultadoCard({ resultado }) {
                 </div>
                 <div className="card-body">
                     <p>
-                        Esta oferta foi utilizada para geração de proposta.
+                        <strong>Mensagem:</strong> <br />
+                        {msgRetorno}
+                    </p>
+                    <br />
+                    <p>
+                        <strong>Link para formalização da proposta:</strong> <br />
+                        {linkForm}
                     </p>
 
                     <button
@@ -259,7 +268,16 @@ export default function CltResultadoCard({ resultado }) {
                     ⚠ Não Elegível
                 </div>
                 <div className="card-body">
-                    <p>Motivo:</p>
+                    {/* Exibe o CNPJ e Profissão para identificar qual vínculo falhou */}
+                    {cnpjEmpregador && (
+                        <p style={{ fontSize: "14px", marginBottom: "10px", color: "#555" }}>
+                            <strong>Empresa (CNPJ):</strong> {cnpjEmpregador} <br />
+                            {profissao && <><strong>Profissão:</strong> {profissao} <br /></>}
+                            {margemDisponivel && <><strong>Margem disponível para cliente:</strong> {formatarMoeda(margemDisponivel)}</>}
+                        </p>
+                    )}
+
+                    <p>Motivo do bloqueio:</p>
                     <strong>
                         {motivoErro || "Saldo insuficiente ou restrição."}
                     </strong>
