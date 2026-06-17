@@ -1070,6 +1070,7 @@ class NossaFintechService {
             nomeMae: margem.mother_name,
             sexo: sexo,
             elegivel: margem.can_continue,
+            valorMargemDisponivel: margem.available_balance.toString(),
             restricoes: margem.restrictions,
         }
     }
