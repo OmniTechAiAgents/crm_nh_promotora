@@ -684,17 +684,18 @@ class NossaFintechService {
 
                 const margem = await this.#consultarMargem(cpf, banco, vinculo.employer_cnpj);
 
-                // verifica se o vinculo tem margem disponível, se não tiver, descarta esse e passa para o próximo da lista com "continue"
-                if (!margem || !margem.margin_key) {
-                    continue;
+                // faz com que o se dê erro na margem, retorne antes de fazer a consulta tabelas
+                if (!margem.can_continue) {
+                    vinculosMargensTabelas.push({
+                        ...vinculo,
+                        margem,
+                        tabelas: []
+                    });
+                    
+                    continue; 
                 }
 
                 const tabelas = await this.#recuperarTabelasElegiveis(margem.margin_key, banco);
-
-                // verifica se o vinculo tem tabelas disponíveis, se não tiver, descarta esse e passa para o próximo da lista com "continue"
-                if (!tabelas || tabelas.length === 0) {
-                    continue;
-                }
 
                 vinculosMargensTabelas.push({
                     ...vinculo,
@@ -728,6 +729,9 @@ class NossaFintechService {
     }
     async SimularProposta(data) {
         try {
+            console.log("Body recebido pelo end-point:")
+            console.log(data);
+
             const response = await axios.post(`${process.env.NossaFintech_baseURL}/clt-loan/v1/simulate-loan`,
                 {
                     margin_key: data.idTermo,
@@ -743,6 +747,9 @@ class NossaFintechService {
                     }
                 }
             );
+
+            console.log("Body retornado end-point de simulação:")
+            console.log(response?.data);
 
             return {
                 id_simulacao: response?.data?.data?.simulation_key,
@@ -1053,6 +1060,19 @@ class NossaFintechService {
     // Extrai o gênero (primeira letra maiúscula)
     const sexo = margem.gender.description.charAt(0).toUpperCase();
 
+    if (!margem.can_continue) {
+        return {
+            cpf: cpf,
+            cnpjEmpregador: employer_cnpj,
+            matricula: work_registration,
+            profissao: margem.job_code.description,
+            dataAdmissao: margem.admission_date,
+            nomeMae: margem.mother_name,
+            sexo: sexo,
+            elegivel: margem.can_continue,
+            restricoes: margem.restrictions,
+        }
+    }
     return {
         cpf: cpf,
         idTermo: margem.margin_key,
@@ -1065,7 +1085,8 @@ class NossaFintechService {
         valorTotalVencimentos: margem.total_gross_salary ? margem.total_gross_salary.toString() : null,
         nomeMae: margem.mother_name,
         sexo: sexo,
-        tabelasElegiveis: tabelas
+        elegivel: margem.can_continue,
+        tabelasElegiveis: tabelas,
     };
 }
     async #verificarUmEAtualizarRegistroPropostaDB(proposalId) {
