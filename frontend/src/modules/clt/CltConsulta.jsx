@@ -182,15 +182,36 @@ export default function CltConsulta() {
                 bodyRequisicao
             );
 
-            const ofertasTratadas = data.map(vinculo => ({
-                status: "ELEGIVEL",
-                instituicaoEscolhida: instituicao,
+            let ofertasTratadas;
+            if (instituicao == "Nossa fintech") {
+                ofertasTratadas = data.map(vinculo => {
+                    // Verifica se explicitamente veio elegivel: false
+                    const isElegivel = vinculo.elegivel !== false; 
+                    
+                    // Extrai as mensagens de erro do array de restrições
+                    let motivoErro = null;
+                    if (!isElegivel && vinculo.restricoes && vinculo.restricoes.length > 0) {
+                        motivoErro = vinculo.restricoes.map(r => r.message).join(" | ");
+                    }
 
-                // mandando o body de retorno direto já que são filtrados no back-end
-                ...vinculo
-            }));
+                    return {
+                        status: isElegivel ? "ELEGIVEL" : "NAO_ELEGIVEL",
+                        instituicaoEscolhida: instituicao,
+                        motivoErro: motivoErro,
+                        ...vinculo
+                    };
+                });
+            } else if (instituicao == "v8") {
+                ofertasTratadas = data.map(vinculo => ({
+                    status: "ELEGIVEL",
+                    instituicaoEscolhida: instituicao,
 
-            // mandando o resultado para o card ainda sem tratar
+                    // mandando o body de retorno direto já que são filtrados no back-end
+                    ...vinculo
+                }));
+            }
+
+            // mandando o resultado para o card
             setResultado(ofertasTratadas);
 
             // setando os dados que o v8 precisa para funcionar
@@ -200,8 +221,6 @@ export default function CltConsulta() {
 
                 // console.log("Tabelas encontradas:", tabelas);
             }
-
-
         } catch (err) {
             if (instituicao == "v8") {
                 if (err.status === 424) {
@@ -586,16 +605,25 @@ export default function CltConsulta() {
                                 {/* 1° Select: Vínculos Disponíveis */}
                                 <div className="select-container">
                                     <select
-                                        value={termoSelecionado} // Controlado pelo idTermo
+                                        value={termoSelecionado}
                                         onChange={handleVinculoChange}
                                         className="input-group"
+                                        disabled={resultado.filter(v => v.status === "ELEGIVEL").length === 0}
                                     >
-                                        <option value="">Selecione o vínculo</option>
-                                        {resultado.map((vinculo) => (
-                                            <option key={vinculo.idTermo} value={vinculo.idTermo}>
-                                                CNPJ: {vinculo.cnpjEmpregador} - {vinculo.profissao || "Não informada"}
-                                            </option>
-                                        ))}
+                                        <option value="">
+                                            {resultado.filter(v => v.status === "ELEGIVEL").length === 0 
+                                                ? "Nenhum vínculo elegível encontrado" 
+                                                : "Selecione o vínculo"}
+                                        </option>
+                                        
+                                        {/* Filtramos para mostrar APENAS os elegíveis no select */}
+                                        {resultado
+                                            .filter((v) => v.status === "ELEGIVEL")
+                                            .map((vinculo) => (
+                                                <option key={vinculo.idTermo} value={vinculo.idTermo}>
+                                                    CNPJ: {vinculo.cnpjEmpregador} - {vinculo.profissao || "Não informada"}
+                                                </option>
+                                            ))}
                                     </select>
                                 </div>
 
@@ -668,9 +696,17 @@ export default function CltConsulta() {
                 <h2>Ofertas disponíveis</h2>
 
                 <div className="div-cards-result">
+                    
+                    {resultado && resultado
+                        .filter((item) => item.status === "NAO_ELEGIVEL")
+                        .map((item, index) => (
+                            <CltResultadoCard key={`inelegivel-${index}`} resultado={item} />
+                        ))
+                    }
+
                     {resultadoSimulacao && Array.isArray(resultadoSimulacao) ? (
                         resultadoSimulacao.map((item) => (
-                            <CltResultadoCard key={item.matricula} resultado={item} />
+                            <CltResultadoCard key={item.matricula || item.simulacaoId} resultado={item} />
                         ))
                     ) : (
                         resultadoSimulacao && <CltResultadoCard resultado={resultadoSimulacao} />

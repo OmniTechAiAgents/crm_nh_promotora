@@ -33,22 +33,19 @@ export default function CltResultadoCard({ resultado }) {
     } = resultado || {};
 
     // gambiarra para n quebrar o código com o novo esquema de variáveis para v8 e nossa fintech q fiz
-    let cnpjEmpregador = "";
+    let cnpjEmpregador = resultado?.cnpjEmpregador || resultado?.cnpj_empregador || "";
     let tabelasElegiveis = [];
     let registroEmpregaticio = "";
     let valorSolicitado = 0;
     let banco = "";
-    let profissao = "";
+    let profissao = resultado?.profissao || "";
 
     if (instituicaoEscolhida === "v8" && resultado) {
-        cnpjEmpregador = resultado.cnpjEmpregador;
         tabelasElegiveis = resultado.tabelasElegiveis || [];
         registroEmpregaticio = resultado.registroEmpregaticio;
         valorSolicitado = resultado.valorSolicitado;
     } else if (instituicaoEscolhida === "Nossa fintech" && resultado) {
         banco = resultado.banco;
-        cnpjEmpregador = resultado.cnpj_empregador;
-        profissao = resultado.profissao;
     }
 
 
@@ -269,7 +266,15 @@ export default function CltResultadoCard({ resultado }) {
                     ⚠ Não Elegível
                 </div>
                 <div className="card-body">
-                    <p>Motivo:</p>
+                    {/* Exibe o CNPJ e Profissão para identificar qual vínculo falhou */}
+                    {cnpjEmpregador && (
+                        <p style={{ fontSize: "14px", marginBottom: "10px", color: "#555" }}>
+                            <strong>Empresa (CNPJ):</strong> {cnpjEmpregador} <br/>
+                            {profissao && <><strong>Profissão:</strong> {profissao}</>}
+                        </p>
+                    )}
+                    
+                    <p>Motivo do bloqueio:</p>
                     <strong>
                         {motivoErro || "Saldo insuficiente ou restrição."}
                     </strong>
