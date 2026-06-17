@@ -74,13 +74,15 @@ export default function CltConsulta() {
         setBancarizadoraSelecionada(event.target.value);
     };
     const handleGerarTermoAutorizacao = async (cpf, bancarizadora) => {
+        const cpfNormalizado = normalizarCPF(cpf);
+
         try {
             if (!bancarizadoraSelecionada) {
                 throw new Error("Selecione uma bancarizadora antes de autorização.");
             }
 
             const response = await api.post("/consultas/CLT/gerarAutorizacaoDataPrev", {
-                cpf,
+                cpf: cpfNormalizado,
                 instituicao: "Nossa fintech",
                 banco: bancarizadoraSelecionada
             });
