@@ -1,0 +1,3059 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: crm_nh_promotora
+meta:
+  id: wrk_a08fb5a52bbd47fcb180bdef71afba58
+  created: 1782826874319
+  modified: 1782826874319
+  description: ""
+collection:
+  - name: crm_nh_promotora
+    meta:
+      id: fld_7ff506171f4f4254b89e1b228039def2
+      created: 1782742681219
+      modified: 1782742681219
+      sortKey: -1782742669809
+      description: ""
+    children:
+      - name: Auth
+        meta:
+          id: fld_3166017194c34b398af7a18ff47660f3
+          created: 1782742681220
+          modified: 1782742681220
+          sortKey: -1782742669808
+          description: ""
+        children:
+          - url: "{{baseURL}}/auth/registro"
+            name: Registro
+            meta:
+              id: req_cf20a68ca3ec45f8b8e148322f965472
+              created: 1782742681221
+              modified: 1782826955963
+              isPrivate: false
+              description: >-
+                ## Sobre o end-point
+
+
+                Esse end-point serve para criar novas contas de acesso a essa
+                API, portanto só poderá ser consumido por um usuário que esteja
+                enviando um token de uma conta com role `admin` no header da
+                requisição.
+
+
+                ## Body
+
+
+                Esse end-point recebe obrigatoriamente o seguinte body:
+
+
+                ``` json
+
+                {
+                    "username": "NOME_DO_USUARIO",
+                    "password": "SENHA_DO_USUARIO",
+                    // "role": "admin"
+                }
+
+                 ```
+
+                ### Atenção:
+
+
+                - O campo `username` é um valor `unique` no banco de dados,
+                portanto deverá ser obrigatoriamente único, caso contrário
+                retornará `erro 409 (conflict).`
+                    
+                - O campo `role` é opcional, e caso não for fornecido terá o
+                valor padrão `"promotor"`. O campo role pode conter apenas 2
+                valores até agora, são eles:
+                    
+
+                | **Role** | **Permissões** |
+
+                | --- | --- |
+
+                | admin | Usuário com todas as permissões da API, inclusive de
+                criar e deletar contas. |
+
+                | promotor | Usuário padrão, com permissão de acesso a todas as
+                funções de FGTS e CLT da API. |
+              sortKey: -1782742669807
+            method: POST
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                    "username": "{% faker 'randomUserName' %}",
+                    "password": "{% faker 'randomPassword' %}",
+                    "role": "admin || promotor"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{baseURL}}/auth/login"
+            name: Login
+            meta:
+              id: req_9e5fc466e9ca46e580114736e21c766b
+              created: 1782742681223
+              modified: 1782826984153
+              isPrivate: false
+              description: >-
+                ## Sobre o end-point
+
+
+                Esse é um end-point de acesso a API, então não é necessário um
+                token no header da requisição.
+
+
+                ## Body
+
+
+                Esse end-point recebe obrigatoriamente o seguinte body:
+
+
+                ``` json
+
+                {
+                    "username": "SEU_NOME_DE_USUARIO",
+                    "password": "SUA_SENHA"
+                }
+
+                 ```
+
+                ## Retorno
+
+
+                Após um login bem sucedido, será retornado o seguinte body:
+
+
+                ``` json
+
+                {
+                    "token": "SEU_TOKEN_DE_ACESSO",
+                    "user": {
+                        "id": 999,
+                        "name": "SEU_NOME_DE_USUARIO",
+                        "roles": [
+                            "SUA_ROLE"
+                        ],
+                        "permissions": [
+                            "ROLE_1",
+                            "ROLE_2",
+                            "ROLE_3"
+                        ]
+                    }
+                }
+
+                 ```
+
+                - O campo `token` deverá ser incluído como Bearer Token em todas
+                as próximas requisições, sendo utilizado como uma "chave de
+                acesso".
+                    
+                - O campo `role` e `permissions` são utilizados apenas como
+                "mapas" para o front-end saber o que pode acessar ou não na API,
+                não possui lógica interna em server-side.
+              sortKey: -1782742669806
+            method: POST
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                    "username": "{% faker 'randomUserName' %}",
+                    "password": "{% faker 'randomPassword' %}"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+      - name: Consultas
+        meta:
+          id: fld_e690a192ea3841a2ad51b1a09913250e
+          created: 1782742681228
+          modified: 1782742681228
+          sortKey: -1782742669805
+          description: ""
+        children:
+          - name: FGTS
+            meta:
+              id: fld_7ebf87bfc1574947ad1f2e26f820c0d4
+              created: 1782742681229
+              modified: 1782742681229
+              sortKey: -1782742669804
+              description: ""
+            children:
+              - url: "{{baseURL}}/consultas/FGTS/manual"
+                name: Consulta FGTS manual
+                meta:
+                  id: req_d88c598dffe64f3195e04bea63486d65
+                  created: 1782742681230
+                  modified: 1782828645398
+                  isPrivate: false
+                  description: >-
+                    ## Body
+
+
+                    O body dessa requisição deverá ser montado obrigatoriamente
+                    dessa seguinte forma:
+
+
+                    ``` json
+
+                    {
+                      "instituicao": "VCTex",
+                      "cpf": "99999999999"
+                    }
+
+                     ```
+
+                    ### Atenção
+
+
+                    - O campo `cpf` deverá ser enviado obrigatoriamente sem
+                    máscara, caso contrário retornará `erro 400`.
+                        
+                    - O campo `insituicao` tem alguns valores predefinidos por
+                    um enum, e ainda está em desenvolvimento e expansão, porém
+                    os valores que temos até agora são:
+                        
+
+                    | **Instituição** | **Funcionando?** |
+
+                    | --- | --- |
+
+                    | VCTex | Funcional para simulação e propostas |
+
+                    | Nossa fintech | Funcional para simulação e propostas
+                    (ainda em teste de implementação) |
+
+                    | Parana | Não funcional |
+
+
+                    ## Retorno
+
+
+                    Caso a request seja feita da forma correta, deverá retornar
+                    o seguinte body:
+
+
+                    ``` json
+
+                    {
+                        "id": 16,
+                        "cpf": "99999999999",
+                        "anuidades": [
+                            {
+                                "dueDate": "2026-09-01",
+                                "amount": 221.6
+                            },
+                            {
+                                "dueDate": "2027-09-01",
+                                "amount": 202.76
+                            },
+                            {
+                                "dueDate": "2028-09-01",
+                                "amount": 210.6
+                            },
+                            {
+                                "dueDate": "2029-09-01",
+                                "amount": 168.48
+                            },
+                            {
+                                "dueDate": "2030-09-01",
+                                "amount": 202.17
+                            }
+                        ],
+                        "valor_bruto": 619,
+                        "valor_liquido": 499.77,
+                        "valor_tac": 100.27,
+                        "valor_seguro": 0,
+                        "tabela": "Tabela Exponencial",
+                        "usuario": {
+                            "id": 2,
+                            "username": "TESTE",
+                            "role": "promotor"
+                        },
+                        "chave": "UUID4",
+                        "banco": "QITECH",
+                        "mensagem": "Consulta realizada com sucesso!",
+                        "elegivelProposta": true,
+                        "updatedAt": "2026-02-11T18:15:04.008Z",
+                        "createdAt": "2026-02-11T18:15:04.008Z"
+                    }
+
+                     ```
+
+                    **Atenção:** O valor em "chave" deverá ser utilizado para
+                    fazer a proposta, colocando-o como "financialId" no body de
+                    proposta
+                  sortKey: -1782742669803
+                method: POST
+                body:
+                  mimeType: application/json
+                  text: |-
+                    {
+                      "instituicao": "Nossa fintech",
+                      "cpf": "99999999999"
+                    }
+                headers:
+                  - name: Content-Type
+                    value: application/json
+                authentication:
+                  type: bearer
+                  disabled: true
+                  token: FDS
+                  prefix: ""
+                settings:
+                  renderRequestBody: true
+                  encodeUrl: true
+                  followRedirects: global
+                  cookies:
+                    send: true
+                    store: true
+                  rebuildPath: true
+              - url: "{{baseURL}}/consultas/FGTS/lote"
+                name: Consulta FGTS em lote
+                meta:
+                  id: req_b2d0f193e2df4d01bc3267c567c95ebb
+                  created: 1782742681231
+                  modified: 1782829732284
+                  isPrivate: false
+                  description: |-
+                    ## Body
+
+                    O body dessa requisição deve ser obrigatóriamente ser um form data e deve ser enviado dessa forma:
+
+                    <img src="https://content.pstmn.io/bc9762c9-e841-4588-a3a9-1141e8430e9d/aW1hZ2UucG5n" width="570" height="179">
+
+                    Segue o curl de exemplo (mandar para a IA se for preciso):
+
+                    ``` bash
+                    curl --location 'localhost:3000/consultas/FGTS/lote' \
+                    --header 'Authorization: Bearer [SEU TOKEN DE USUARIO]' \
+                    --form 'file=@"caminho/para/o/arquivo.csv"' \
+                    --form 'id_promotor="2"' \
+                    --form 'instituicao="VCTex"'
+
+                     ```
+
+                    ## Observação
+
+                    No campo `--form 'id_promotor'` é onde fica o id do promotor que irá receber aquelas consultas, e essa consulta em lote que está sendo enviada ficará ligada com o id do usuário logado com o token em `Authorization: Bearer [SEU TOKEN DE USUARIO]`.
+
+                    ## Retorno
+
+                    Caso a consulta em lote for enviada corretamente, irá retornar `código 200` sem body, caso contrário, irá retornar o erro com o código indicando o problema.
+
+                    ## Visualizar a consulta em lote
+
+                    Para visualizar essa consulta em lote que foi enviada, deverá utilizar a rota [GET -&gt; Recuperar consultas em lote].
+                  sortKey: -1782742669802
+                method: POST
+                body:
+                  mimeType: multipart/form-data
+                  params:
+                    - name: file
+                      value: caminho/para/o/arquivo.csv
+                      disabled: false
+                      multiline: false
+                      type: text
+                    - name: id_promotor
+                      value: "2"
+                      disabled: false
+                      type: text
+                    - name: instituicao
+                      value: Nossa fintech
+                      disabled: false
+                      type: text
+                headers:
+                  - name: Content-Type
+                    value: multipart/form-data
+                settings:
+                  renderRequestBody: true
+                  encodeUrl: true
+                  followRedirects: global
+                  cookies:
+                    send: true
+                    store: true
+                  rebuildPath: true
+              - url: "{{baseURL}}/consultas/FGTS/manual"
+                name: Recuperar consultasFGTS manuais
+                meta:
+                  id: req_14ea44c27ff94609997b3668b2fd7f8b
+                  created: 1782742681232
+                  modified: 1782828622883
+                  isPrivate: false
+                  description: >-
+                    ## Regras de negócio
+
+
+                    Essa URL de paginação tem uma regra de negócio específica,
+                    caso o usuário tiver a role `promotor` no sistema, os
+                    resultados obtidos pela request nessa rota serão referentes
+                    apenas às consultas do mesmo, caso a role do usuário for
+                    `admin`, irá retornar todas as consultas sem excessão.
+
+
+                    ## URL query params
+
+
+                    Essa e outras rotas de consultas não recebem body, apenas
+                    `query params`, são eles:
+
+
+                    | **Query param** | **Valor** |
+
+                    | --- | --- |
+
+                    | pesquisa | Busca\\ por CPF |
+
+                    | limite | Limite de propostas retornadas |
+
+                    | pagina | Página em que a requisição se encontra (utilizada
+                    no front principalmente) |
+
+                    | elegivelOferta | True ou False, filtra os usuários com
+                    ofertas disponíveis ou não |
+
+
+                    Se a request for feita corretamente, será retornado algo
+                    parecido com isso:
+
+
+                    ``` json
+
+                    {
+                        "data": [
+                            {
+                                "id": 9,
+                                "cpf": "99999999999",
+                                "anuidades": [
+                                    {
+                                        "due_date": "2027-10-01",
+                                        "total_amount": 125.39
+                                    },
+                                    {
+                                        "due_date": "2028-10-01",
+                                        "total_amount": 150.45
+                                    },
+                                    {
+                                        "due_date": "2029-10-01",
+                                        "total_amount": 105.32
+                                    }
+                                ],
+                                "saldo": null,
+                                "valor_bruto": "220.65",
+                                "valor_liquido": "147.01",
+                                "valor_tac": "66.20",
+                                "valor_seguro": null,
+                                "tabela": "Tabela Nossa Melhor",
+                                "usuario_id": 2,
+                                "usuario": "florindo2",
+                                "chave": "UUID4",
+                                "banco": "Singulare",
+                                "mensagem": "Consulta realizada com sucesso!",
+                                "elegivelProposta": true,
+                                "createdAt": "2026-01-30T18:37:33.000Z",
+                                "updatedAt": "2026-01-30T18:37:33.000Z",
+                                "usuario": {
+                                    "id": 2,
+                                    "username": "TESTE",
+                                    "role": "promotor",
+                                    "createdAt": "2026-02-11T17:34:28.000Z",
+                                    "updatedAt": "2026-02-11T17:34:28.000Z"
+                                }
+                            }
+                        ],
+                        "totalPages": 8
+                    }
+
+                     ```
+
+                    ### Obs:
+
+
+                    A chave "data" é uma `array`, o que significa que pode
+                    retornar vários objetos, nesse json acima foi apenas um
+                    exemplo onde retornava só um.
+                  sortKey: -1782742669801
+                method: GET
+                parameters:
+                  - name: pesquisa
+                    value: ""
+                    disabled: false
+                  - name: pagina
+                    value: "1"
+                    disabled: false
+                  - name: limite
+                    value: "25"
+                    disabled: false
+                  - name: elegivelOferta
+                    value: ""
+                    disabled: false
+                authentication:
+                  type: bearer
+                  disabled: false
+                  token: tokendahora
+                  prefix: ""
+                settings:
+                  renderRequestBody: true
+                  encodeUrl: true
+                  followRedirects: global
+                  cookies:
+                    send: true
+                    store: true
+                  rebuildPath: true
+              - url: "{{baseURL}}/consultas/FGTS/lote"
+                name: Recuperar consultas em lote
+                meta:
+                  id: req_77f231d950854f51a3429718d8f8a24b
+                  created: 1782742681233
+                  modified: 1782827390114
+                  isPrivate: false
+                  description: >-
+                    ## Regras de negócio
+
+
+                    Essa URL de paginação **só pode ser utilizada por usuários**
+                    **`admin`****.**
+
+
+                    ## URL query params
+
+
+                    Essa e outras rotas de consultas não recebem body, apenas
+                    `query params`, são eles:
+
+
+                    | **Query param** | **Valor** |
+
+                    | --- | --- |
+
+                    | pesquisa | Busca por createdAt (data) |
+
+                    | limite | Limite de propostas retornadas |
+
+                    | pagina | Página em que a requisição se encontra (utilizada
+                    no front principalmente) |
+
+
+                    Se a request for feita corretamente, será retornado algo
+                    parecido com isso:
+
+
+                    ``` json
+
+                    {
+                        "data": [
+                            {
+                                "id": 12,
+                                "instituicao": "Nossa fintech",
+                                "status": "concluido",
+                                "local_path": "CSV_consulta_em_lote - 2026-02-19T15-21-20-526Z.csv",
+                                "mensagem": "Consulta em lote concluída com sucesso!",
+                                "createdAt": "2026-02-19T15:21:20.000Z",
+                                "updatedAt": "2026-02-19T15:23:56.000Z",
+                                "admin": {
+                                    "id": 1,
+                                    "username": "florindo2",
+                                    "role": "admin",
+                                    "createdAt": "2026-01-08T18:28:01.000Z",
+                                    "updatedAt": "2026-01-08T18:28:01.000Z"
+                                },
+                                "promotor": {
+                                    "id": 2,
+                                    "username": "TESTE",
+                                    "role": "promotor",
+                                    "createdAt": "2026-02-11T17:34:28.000Z",
+                                    "updatedAt": "2026-02-11T17:34:28.000Z"
+                                }
+                            }
+                        ],
+                        "totalPages": 1
+                    }
+
+                     ```
+
+                    ### Obs:
+
+
+                    A chave "data" é uma `array`, o que significa que pode
+                    retornar vários objetos, nesse json acima foi apenas um
+                    exemplo onde retornava só um.
+                  sortKey: -1782742669800
+                method: GET
+                parameters:
+                  - name: pesquisa
+                    value: ""
+                    disabled: false
+                  - name: limite
+                    value: "15"
+                    disabled: false
+                  - name: pagina
+                    value: "1"
+                    disabled: false
+                authentication:
+                  type: bearer
+                  disabled: true
+                  token: tokendahora
+                  prefix: ""
+                settings:
+                  renderRequestBody: true
+                  encodeUrl: true
+                  followRedirects: global
+                  cookies:
+                    send: true
+                    store: true
+                  rebuildPath: true
+              - url: "{{baseURL}}/consultas/FGTS/lote/reatribuir"
+                name: Reatribuir consulta em lote
+                meta:
+                  id: req_dc93861ec4634beea3710c58057ed4d1
+                  created: 1782742681234
+                  modified: 1782827277097
+                  isPrivate: false
+                  description: >-
+                    ## Uso do end-point
+
+
+                    Esse end point serve para reatribuir um lote de consultas
+                    para um promotor em específico.
+
+
+                    ## Body
+
+
+                    O body dessa requisição deve conter:
+
+
+                    ``` json
+
+                    {
+                        "id_consulta_lote": 1,
+                        "id_novo_promotor": 1
+                    }
+
+                     ```
+
+                    ## Retorno
+
+
+                    Se a operação for concluída com sucesso e todos os dados
+                    alterados corretamente, retornará `código 200` e o seguinte
+                    body:
+
+
+                    ``` json
+
+                    {
+                        "msg": "Todas as consultas em lote foram reatribuídas com sucesso."
+                    }
+
+                     ```
+
+                    Se no body conter um id de consulta em lote inexistente,
+                    retornará `erro 404` e a seguinte mensagem no body:
+
+
+                    ``` json
+
+                    {
+                        "erro": "Não existe nenhuma consulta em lote com esse id"
+                    }
+
+                     ```
+
+                    Se no body conter o id de um promotor inexistente, retornará
+                    `erro 404` e a seguinte mensagem no body:
+
+
+                    ``` json
+
+                    {
+                        "erro": "Não existe nenhum promotor com esse id."
+                    }
+
+                     ```
+                  sortKey: -1782742669799
+                method: PATCH
+                body:
+                  mimeType: application/json
+                  text: |-
+                    {
+                        "id_consulta_lote": 48,
+                        "id_novo_promotor": 12
+                    }
+                headers:
+                  - name: Content-Type
+                    value: application/json
+                authentication:
+                  type: bearer
+                  disabled: true
+                  token: tokendahora
+                  prefix: ""
+                settings:
+                  renderRequestBody: true
+                  encodeUrl: true
+                  followRedirects: global
+                  cookies:
+                    send: true
+                    store: true
+                  rebuildPath: true
+              - url: "{{baseURL}}/consultas/FGTS/marcarInelegivel"
+                name: Marcar consulta como inelegivel
+                meta:
+                  id: req_10d1c9d48f5441b4825a6626e16a52ee
+                  created: 1782742681235
+                  modified: 1782827304937
+                  isPrivate: false
+                  description: ""
+                  sortKey: -1782742669798
+                method: PATCH
+                body:
+                  mimeType: application/json
+                  text: |-
+                    {
+                        "id_consulta": 1,
+                        "motivo": "TESTANDO"
+                    }
+                headers:
+                  - name: Content-Type
+                    value: application/json
+                settings:
+                  renderRequestBody: true
+                  encodeUrl: true
+                  followRedirects: global
+                  cookies:
+                    send: true
+                    store: true
+                  rebuildPath: true
+          - name: CLT
+            meta:
+              id: fld_9de6bf477f674f12aa7128c6c76ba08c
+              created: 1782742681236
+              modified: 1782742681236
+              sortKey: -1782742669797
+              description: ""
+            children:
+              - url: "{{baseURL}}/consultas/CLT/bancarizadoras"
+                name: Recuperar bancarizadoras disponíveis
+                meta:
+                  id: req_02092c67a7f440dfbb155c85e2dabede
+                  created: 1782742681238
+                  modified: 1782827398144
+                  isPrivate: false
+                  description: ""
+                  sortKey: -1782742669796
+                method: GET
+                parameters:
+                  - name: instituicao
+                    value: Nossa fintech
+                    disabled: false
+                authentication:
+                  type: bearer
+                  disabled: true
+                  token: TOKENDAHORA
+                  prefix: ""
+                settings:
+                  renderRequestBody: true
+                  encodeUrl: true
+                  followRedirects: global
+                  cookies:
+                    send: true
+                    store: true
+                  rebuildPath: true
+              - url: "{{baseURL}}/consultas/CLT/gerarAutorizacaoDataPrev"
+                name: Gerar autorização data prev
+                meta:
+                  id: req_42455c714f924288978d3dac803eb833
+                  created: 1782742681239
+                  modified: 1782829489288
+                  isPrivate: false
+                  description: >-
+                    ## Body
+
+
+                    O body dessa requisição deverá ser montado obrigatoriamente
+                    dessa seguinte forma:
+
+
+                    ``` json
+
+                    {
+                      "cpf": "CPF_CLIENTE",
+                      "instituicao": "Instituição desejada"
+                    }
+
+                     ```
+
+                    No valor `"instituicao"`, aceitamos os seguintes valores:
+
+
+                    | **valor** | **situação** |
+
+                    | --- | --- |
+
+                    | Presenca bank | Funcional |
+
+
+                    ## Resposta
+
+
+                    Se a request for concluída da forma correta, o end-point
+                    response com o `código 200` seguido do seguinte body de
+                    resposta:
+
+
+                    ``` json
+
+                    {
+                        "autorizacaoId": "UUID4",
+                        "shortUrl": "https://sign.presen.ca/ID"
+                    }
+
+                     ```
+
+                    O valor em "shortUrl" deverá ser retornado para o promotor e
+                    encaminhado para o cliente em questão, então ele deverá
+                    entrar e autorizar para que prosseguirmos com os outros
+                    end-points.
+
+
+                    Caso contrário, o end-point ["Consultar vinculo, margem e
+                    tabelas"], retornará erro com `código 424` e mensagem
+                    informando que a `autorização é inválida`.
+                  sortKey: -1782742669795
+                method: POST
+                body:
+                  mimeType: application/json
+                  text: |-
+                    {
+                      "cpf": "99999999999",
+                      "instituicao": "Nossa fintech",
+                      "banco": "QITECHH"
+                    }
+                headers:
+                  - name: Content-Type
+                    value: application/json
+                authentication:
+                  type: bearer
+                  disabled: false
+                  token: TOKENDAHORA
+                  prefix: ""
+                settings:
+                  renderRequestBody: true
+                  encodeUrl: true
+                  followRedirects: global
+                  cookies:
+                    send: true
+                    store: true
+                  rebuildPath: true
+              - url: "{{baseURL}}/consultas/CLT/consultarVinculosMargemTabela"
+                name: Consultar vinculo margem e tabelas
+                meta:
+                  id: req_604278570e464af89236f07443611f84
+                  created: 1782742681240
+                  modified: 1782828578630
+                  isPrivate: false
+                  description: >-
+                    ## Sobre o end-point
+
+
+                    Esse end-point automatiza a request para outros 3 end-points
+                    das APIs parceiras de operações CLT, portanto o tempo normal
+                    de demora dele é de 15s - 30s.
+
+
+                    ## Body
+
+
+                    O body dessa requisição deverá ser montado obrigatoriamente
+                    dessa seguinte forma:
+
+
+                    ``` json
+
+                    {
+                      "cpf": "CPF_CLIENTE",
+                      "instituicao": "Instituição desejada"
+                    }
+
+                     ```
+
+                    No valor `"instituicao"`, aceitamos os seguintes valores:
+
+
+                    | **valor** | **situação** |
+
+                    | --- | --- |
+
+                    | Presenca bank | Funcional |
+
+                    | v8 | Funcional |
+
+
+                    ## Resposta
+
+
+                    O body de resposta muda um pouco a deepender da API que está
+                    sendo utlizada para fazera operação, caso for a API do
+                    `presenca bank`, retornará o seguinte body com código 200:
+
+
+                    ``` json
+
+                    [
+                        {
+                            "cpf": "CPF_CLIENTE",
+                            "cnpjEmpregador": "CNPJ_EMPREGADOR",
+                            "matricula": "NUMERO_MATRICUL_CLIENTE",
+                            "dataAdmissao": "DATA_ADMISSAO_CLIENTE",
+                            "valorMargemAvaliavel": 424.52,
+                            "valorBaseMargem": 6162.83,
+                            "valorTotalVencimentos": 66026.19,
+                            "nomeMae": "NOME_MAE_CLIENTE",
+                            "sexo": "F",
+                            "tabelasElegiveis": [
+                                {
+                                    "id_tabela": 8414,
+                                    "nome": "Privado CLT - C/seg 24x 6,99% R",
+                                    "prazo": 24,
+                                    "taxaJuros": 6.99,
+                                    "valorLiberado": 3397.1,
+                                    "tipoCredito": {
+                                        "nome": "Novo",
+                                        "id": 1
+                                    },
+                                    "type": "credito-privado-bpn",
+                                    "valorParcela": 424.52
+                                },
+                                {
+                                    "id_tabela": 8416,
+                                    "nome": "Privado CLT - C/seg 36x 6,99% R",
+                                    "prazo": 36,
+                                    "taxaJuros": 6.99,
+                                    "valorLiberado": 3847.92,
+                                    "tipoCredito": {
+                                        "nome": "Novo",
+                                        "id": 1
+                                    },
+                                    "type": "credito-privado-bpn",
+                                    "valorParcela": 424.52
+                                },
+                                {
+                                    "id_tabela": 8415,
+                                    "nome": "Privado CLT - C/seg 12x 6,99% R",
+                                    "prazo": 12,
+                                    "taxaJuros": 6.99,
+                                    "valorLiberado": 2375.47,
+                                    "tipoCredito": {
+                                        "nome": "Novo",
+                                        "id": 1
+                                    },
+                                    "type": "credito-privado-bpn",
+                                    "valorParcela": 424.52
+                                },
+                                {
+                                    "id_tabela": 8417,
+                                    "nome": "Privado CLT - C/seg 6x 6,99% R",
+                                    "prazo": 6,
+                                    "taxaJuros": 6.99,
+                                    "valorLiberado": 1442.85,
+                                    "tipoCredito": {
+                                        "nome": "Novo",
+                                        "id": 1
+                                    },
+                                    "type": "credito-privado-bpn",
+                                    "valorParcela": 424.52
+                                }
+                            ]
+                        }
+                    ]
+
+                     ```
+
+                    Agora se for a API do `v8` que está sendo utilizada,
+                    retornará o seguinte body com código 200:
+
+
+                    ``` json
+
+                    {
+                        "cpf": "CPF CLIENTE",
+                        "idTermo": "UUID4",
+                        "cnpjEmpregador": null,
+                        "matricula": null,
+                        "dataAdmissao": null,
+                        "valorMargemAvaliavel": "267.42",
+                        "valorBaseMargem": null,
+                        "valorTotalVencimentos": null,
+                        "nomeMae": "NOME CLIENTE",
+                        "sexo": "M",
+                        "tabelasElegiveis": [
+                            {
+                                "id": "UUID4",
+                                "slug": "CLT Acelera - Seguro",
+                                "monthly_interest_rate": "0.069900",
+                                "number_of_installments": [
+                                    "6",
+                                    "8",
+                                    "10",
+                                    "12",
+                                    "18",
+                                    "24",
+                                    "36",
+                                    "48"
+                                ],
+                                "is_insured": true
+                            },
+                            {
+                                "id": "UUID4",
+                                "slug": "CLT Acelera",
+                                "monthly_interest_rate": "0.069900",
+                                "number_of_installments": [
+                                    "6",
+                                    "8",
+                                    "10",
+                                    "12",
+                                    "18",
+                                    "24",
+                                    "36",
+                                    "48"
+                                ],
+                                "is_insured": false
+                            }
+                        ]
+                    }
+
+                     ```
+
+                    Obs: As Tabelas que retornam no valor "tabelasElegiveis"
+                    variam de cliente para cliente tanto na quantidade de
+                    tabelas quanto nos valores, assim como.
+
+
+                    Além disso, pode ser que o cliente tenha mais de um vínculo
+                    empregativo, então pode retornar mais de um objeto
+                    principal, ficando:
+
+
+                    ``` json
+
+                    [
+                        {
+                            "cpf": "CPF_CLIENTE",
+                            "cnpjEmpregador": "CNPJ_EMPREGADOR_1",
+                            .....
+                        }
+                        {
+                            "cpf": "CPF_CLIENTE",
+                            "cnpjEmpregador": "CNPJ_EMPREGADOR_2",
+                            .....
+                        }
+                    ]
+
+                     ```
+
+                    Se o cliente não possuir margem disponível para proposta, a
+                    APi irá ternar o `código 424` com o seginte body:
+
+
+                    ``` json
+
+                    {
+                        "erro": "O cliente não possui margem disponível para proposta"
+                    }
+
+                     ```
+
+                    Além disso, caso alguma das 3 requests para a API parceira
+                    falhe, ele retornará erro com `código 424`, e uma mensagem
+                    apontando em qual etapa exatamente falhou:
+
+
+                    ``` json
+
+                    {
+                        "erro": "O end-point de consulta de vinculos não retornou as informações necessárias"
+                    }
+
+                     ```
+
+                    ou
+
+
+                    ``` json
+
+                    {
+                        "erro": "O end-point de consulta de margem não retornou as informações necessárias"
+                    }
+
+                     ```
+
+                    ou
+
+
+                    ``` json
+
+                    {
+                        "erro": "O end-point de consulta de tabelas elegíveis não retornou as informações necessárias"
+                    }
+
+                     ```
+                  sortKey: -1782742669794
+                method: POST
+                body:
+                  mimeType: application/json
+                  text: |-
+                    {
+                        "cpf": "99999999999",
+                        "instituicao": "Nossa fintech",
+                        "banco": "QITECH"
+                    }
+                headers:
+                  - name: Content-Type
+                    value: application/json
+                authentication:
+                  type: bearer
+                  disabled: true
+                  token: TOKENDAHORA
+                  prefix: ""
+                settings:
+                  renderRequestBody: true
+                  encodeUrl: true
+                  followRedirects: global
+                  cookies:
+                    send: true
+                    store: true
+                  rebuildPath: true
+              - url: "{{baseURL}}/consultas/CLT/gerarLinkFormalizacao"
+                name: Obter link formalizacao
+                meta:
+                  id: req_c5520b8e1123444f92e35c9710660198
+                  created: 1782742681241
+                  modified: 1782828551394
+                  isPrivate: false
+                  description: ""
+                  sortKey: -1782742669793
+                method: POST
+                body:
+                  mimeType: application/json
+                  text: |-
+                    {
+                        "instituicao": "c6",
+                        "cpf": "99999999999"
+                    }
+                headers:
+                  - name: Content-Type
+                    value: application/json
+                authentication:
+                  type: bearer
+                  disabled: true
+                  token: fds
+                  prefix: ""
+                settings:
+                  renderRequestBody: true
+                  encodeUrl: true
+                  followRedirects: global
+                  cookies:
+                    send: true
+                    store: true
+                  rebuildPath: true
+      - name: Propostas
+        meta:
+          id: fld_33bc308f7996415c8c1d5aa0787c2d2a
+          created: 1782742681242
+          modified: 1782742681242
+          sortKey: -1782742669792
+          description: ""
+        children:
+          - name: FGTS
+            meta:
+              id: fld_8c9acce4db904948a8ca13cde989e62f
+              created: 1782742681243
+              modified: 1782742681243
+              sortKey: -1782742669791
+              description: ""
+            children:
+              - url: "{{baseURL}}/propostas/FGTS/cancelar"
+                name: Cancelar proposta
+                meta:
+                  id: req_09f07d118d5c448c9ea364653e1d2707
+                  created: 1782742681244
+                  modified: 1782828540790
+                  isPrivate: false
+                  description: >-
+                    ## Body
+
+
+                    O body dessa requisição deverá ser montado obrigatoriamente
+                    dessa seguinte forma:
+
+
+                    ``` json
+
+                    {
+                        "proposalId": "ID_DA_PROPOSTA"
+                    }
+
+                     ```
+
+                    Obs: O `proposalId` é o id retornado no momento que a
+                    proposta for criada no end point POST de criar proposta.
+
+
+                    ## Retorno
+
+
+                    Caso a request for feita da forma correta, irá retornar o
+                    seguinte corpo:
+
+
+                    ``` json
+
+                    {
+                        "id": 9,
+                        "nome": "NOME_DO_CLIENTE",
+                        "cpf": "CPF_DO_CLIENTE",
+                        "cel": "CELULAR_DO_CLIENTE",
+                        "data_nascimento": "DATA_NASCIMENTO_DO_CLIENTE",
+                        "proposal_id": "ID_DA_PROPOSTA",
+                        "link_form": "LINK_FORMALIZACAO",
+                        "valor_liquido": "VALOR_LIQUIDO",
+                        "valor_seguro": "VALOR_SEGURO",
+                        "valor_emissao": "VALOR_EMISSAO",
+                        "contrato": "LINK_DO_CONTRATO",
+                        "numero_contrato": "NUMERO_DO_CONTRATO",
+                        "usuario_id": 2,
+                        "banco": "BANCO_UTILIZADO",
+                        "status_proposta": "TITULO_STATUS_PROPOSTA",
+                        "msg_status": "MSG_DETALHADA_STATUS_PROPOSTA",
+                        "verificar": true,
+                        "data_status": "DATA_ULTIMA_VERIFICACAO_STATUS",
+                        "API": "API_UTILIZADA",
+                        "createdAt": "DATA_CRIACAO",
+                        "updatedAt": "DATA_ATUALIZACAO",
+                        "usuario": {
+                            "id": 1,
+                            "username": "NOME_DO_PROMOTOR",
+                            "role": "admin"
+                        }
+                    }
+
+                     ```
+
+                    ## OBS:
+
+
+                    Esse body retornado por esse end-point é destinado
+                    principalmente ao desenvolvimento do futuro chatbot, para a
+                    integração do front-end é recomendado que primeiro utilize
+                    essa rota para cancelar a proposta e atualizar as
+                    informações no banco de dados interno e posteriormente
+                    utilize a rota GET para recuperar as propostas já
+                    atualizadas.
+                  sortKey: -1782742669790
+                method: PATCH
+                body:
+                  mimeType: application/json
+                  text: |-
+                    {
+                        "proposalId": "UUID4"
+                    }
+                headers:
+                  - name: Content-Type
+                    value: application/json
+                authentication:
+                  type: bearer
+                  disabled: false
+                  token: fds
+                  prefix: ""
+                settings:
+                  renderRequestBody: true
+                  encodeUrl: true
+                  followRedirects: global
+                  cookies:
+                    send: true
+                    store: true
+                  rebuildPath: true
+              - url: "{{baseURL}}/propostas/FGTS/verificar"
+                name: Verificar proposta
+                meta:
+                  id: req_dc0ea8fb3ae74e2ea7d4e9a336268efb
+                  created: 1782742681245
+                  modified: 1782828533777
+                  isPrivate: false
+                  description: >-
+                    ## Body
+
+
+                    O body dessa requisição deverá ser montado obrigatoriamente
+                    dessa seguinte forma:
+
+
+                    ``` json
+
+                    {
+                        "proposalId": "ID_DA_PROPOSTA"
+                    }
+
+                     ```
+
+                    Obs: O `proposalId` é o id retornado no momento que a
+                    proposta for criada no end point POST de criar proposta.
+
+
+                    ## Retorno
+
+
+                    Caso a request for feita da forma correta, irá retornar o
+                    seguinte corpo:
+
+
+                    ``` json
+
+                    {
+                        "id": 9,
+                        "nome": "NOME_DO_CLIENTE",
+                        "cpf": "CPF_DO_CLIENTE",
+                        "cel": "CELULAR_DO_CLIENTE",
+                        "data_nascimento": "DATA_NASCIMENTO_DO_CLIENTE",
+                        "proposal_id": "ID_DA_PROPOSTA",
+                        "link_form": "LINK_FORMALIZACAO",
+                        "valor_liquido": "VALOR_LIQUIDO",
+                        "valor_seguro": "VALOR_SEGURO",
+                        "valor_emissao": "VALOR_EMISSAO",
+                        "contrato": "LINK_DO_CONTRATO",
+                        "numero_contrato": "NUMERO_DO_CONTRATO",
+                        "usuario_id": 2,
+                        "banco": "BANCO_UTILIZADO",
+                        "status_proposta": "TITULO_STATUS_PROPOSTA",
+                        "msg_status": "MSG_DETALHADA_STATUS_PROPOSTA",
+                        "verificar": true,
+                        "data_status": "DATA_ULTIMA_VERIFICACAO_STATUS",
+                        "API": "API_UTILIZADA",
+                        "createdAt": "DATA_CRIACAO",
+                        "updatedAt": "DATA_ATUALIZACAO",
+                        "usuario": {
+                            "id": 1,
+                            "username": "NOME_DO_PROMOTOR",
+                            "role": "admin"
+                        }
+                    }
+
+                     ```
+
+                    ## OBS:
+
+
+                    Esse body retornado por esse end-point é destinado
+                    principalmente ao desenvolvimento do futuro chatbot, para a
+                    integração do front-end é recomendado que primeiro utilize
+                    essa rota para verificar e atualizar as informações no banco
+                    de dados interno e posteriormente utilize a rota GET para
+                    recuperar as propostas já atualizadas.
+                  sortKey: -1782742669789
+                method: PATCH
+                body:
+                  mimeType: application/json
+                  text: |-
+                    {
+                        "proposalId": "UUID4"
+                    }
+                headers:
+                  - name: Content-Type
+                    value: application/json
+                authentication:
+                  type: bearer
+                  disabled: true
+                  token: FDS
+                  prefix: ""
+                settings:
+                  renderRequestBody: true
+                  encodeUrl: true
+                  followRedirects: global
+                  cookies:
+                    send: true
+                    store: true
+                  rebuildPath: true
+              - url: "{{baseURL}}/propostas/FGTS"
+                name: Recuperar propostas com paginador
+                meta:
+                  id: req_8805553e1d304442885e00e59c563d61
+                  created: 1782742681246
+                  modified: 1782829082496
+                  isPrivate: false
+                  description: >-
+                    ## Regras de negócio
+
+
+                    Essa URL ded paginação tem uma regra de negócio específica,
+                    caso o usuário tiver a role `promotor` no sistema, os
+                    resultados obtidos pela request nessa rota serão referentes
+                    apenas às consultas do mesmo, caso a role do usuário for
+                    `admin`, irá retornar todas as consultas sem excessão.
+
+
+                    ## URL query params
+
+
+                    Essa e outras rotas de consultas não recebem body, apenas
+                    `query params`, são eles:
+
+
+                    | **Query param** | **Valor** |
+
+                    | --- | --- |
+
+                    | pesquisa | Busca por CPF |
+
+                    | limite | Limite de propostas retornadas |
+
+                    | pagina | Página em que a requisição se encontra (utilizada
+                    no front principalmente) |
+
+
+                    Se a request for feita corretamente, será retornado algo
+                    parecido com isso:
+
+
+                    ``` json
+
+                    {
+                        "data": [
+                            {
+                                "id": 1,
+                                "nome": "TESTE DA SILVA",
+                                "cpf": "99999999999",
+                                "cel": "99999999999",
+                                "data_nascimento": "1982-09-08T00:00:00.000Z",
+                                "proposal_id": "UUID4",
+                                "link_form": "https://id.unico.io/process/UUID4",
+                                "valor_liquido": "507.19",
+                                "valor_seguro": "0.00",
+                                "valor_emissao": "619.00",
+                                "contrato": "https://storage.googleapis.com/live-doc-api/documents/UUID4.pdf",
+                                "numero_contrato": "0320343213/CCD",
+                                "usuario_id": 2,
+                                "usuario": "florindo2",
+                                "banco": "qi",
+                                "status_proposta": "Criado",
+                                "msg_status": "waiting_signature",
+                                "verificar": true,
+                                "data_status": null,
+                                "API": "Nossa fintech",
+                                "createdAt": "2026-02-11T13:09:27.000Z",
+                                "updatedAt": "2026-02-11T13:09:27.000Z",
+                                "usuario": {
+                                    "id": 2,
+                                    "username": "TESTE",
+                                    "role": "promotor",
+                                    "createdAt": "2026-02-11T17:34:28.000Z",
+                                    "updatedAt": "2026-02-11T17:34:28.000Z"
+                                }
+                            }
+                        ],
+                        "totalPages": 1
+                    }
+
+                     ```
+
+                    ### Obs:
+
+
+                    - O campo `API` é onde fica a API bancária que foi feita a
+                    proposta, exemplo: `VCTex`, `Nossa fintech`, `Parana`...
+                    Esse valor por ser usado para o front-end selecionar as
+                    propostas com mais precisão.
+                        
+                    - A chave "data" é uma `array`, o que significa que pode
+                    retornar vários objetos, nesse json acima foi apenas um
+                    exemplo onde retornava só um.
+                  sortKey: -1782742669788
+                method: GET
+                parameters:
+                  - name: pesquisa
+                    value: ""
+                    disabled: false
+                  - name: pagina
+                    value: "1"
+                    disabled: false
+                  - name: limite
+                    value: "10"
+                    disabled: false
+                authentication:
+                  type: bearer
+                  disabled: true
+                  token: fds
+                  prefix: ""
+                settings:
+                  renderRequestBody: true
+                  encodeUrl: true
+                  followRedirects: global
+                  cookies:
+                    send: true
+                    store: true
+                  rebuildPath: true
+              - url: "{{baseURL}}/propostas/pesquisarBanco"
+                name: Pesquisar banco
+                meta:
+                  id: req_2e37503336dd4ffab188e8426f3b575b
+                  created: 1782742681248
+                  modified: 1782828497584
+                  isPrivate: false
+                  description: >-
+                    ## Objetivo do end-point
+
+
+                    Esse end-point tem como principal objetivo funcionar em
+                    conjunto com a tela de gerar proposta do front-end, onde o
+                    end-point teria como função pesquisar os bancos que temos
+                    cadastrados no banco de dados para facilitar na criação da
+                    proposta.
+
+
+                    ## Query params
+
+
+                    Esse end point recebe dois query params opcionais:
+
+
+                    | **Param** | **Função** |
+
+                    | --- | --- |
+
+                    | pesquisa | Busca o banco usando o nome como referência |
+
+                    | limite | Define o limite de bancos retornados no body |
+
+
+                    ## Retorno
+
+
+                    Caso a request seja feita corretamente, irá ser retornado
+                    `código 200 (OK)` e o seguinte body:
+
+
+                    Exemplo, se o query param `pesquisa` for = `itau`:
+
+
+                    ``` json
+
+                    [
+                        {
+                            "id": 243,
+                            "ISPB": "33885724",
+                            "banco": "BANCO ITAÚ CONSIGNADO S.A.",
+                            "num_cod": "029"
+                        },
+                        {
+                            "id": 378,
+                            "ISPB": "60394079",
+                            "banco": "BCO ITAUBANK S.A.",
+                            "num_cod": "479"
+                        },
+                        {
+                            "id": 381,
+                            "ISPB": "60701190",
+                            "banco": "ITAÚ UNIBANCO S.A.",
+                            "num_cod": "341"
+                        }
+                    ]
+
+                     ```
+
+                    Se não for encontrado nenhum banco com esse nome no banco de
+                    dados, a API irá retornar `código 204 (no content)`.
+                  sortKey: -1782742669787
+                method: GET
+                parameters:
+                  - name: pesquisa
+                    value: itau
+                    disabled: false
+                  - name: limite
+                    value: ""
+                    disabled: false
+                settings:
+                  renderRequestBody: true
+                  encodeUrl: true
+                  followRedirects: global
+                  cookies:
+                    send: true
+                    store: true
+                  rebuildPath: true
+              - url: "{{baseURL}}/propostas/FGTS"
+                name: Envio de propostas FGTS
+                meta:
+                  id: req_c312f514cf714d08b7c89468db2da68a
+                  created: 1782742681249
+                  modified: 1782828491991
+                  isPrivate: false
+                  description: >-
+                    ## URL Query Params
+
+
+                    Obrigatoriamente é necessário enviar o query param
+                    "financialId" na URL da requisição, nesse query param deverá
+                    conter o financialId que foi gerado anteriormente pela
+                    request de simulação;
+
+
+                    ## Body
+
+
+                    O body dessa requisição é formado pelos seguintes valores:
+
+
+                    ``` json
+
+                    {
+                      "cpf": "99999999999",
+                      "instituicao": "Nossa fintech",
+                      "bankCode": "033",
+                      "accountType": "corrente",
+                      "accountNumber": "123456",
+                      "accountDigit": "7",
+                      "branchNumber": "0001"
+                      //"pixKeyType": "phone",
+                      //"pixKey": "+5511999999999"
+                    }
+
+                     ```
+
+                    ### Atenção:
+
+
+                    - `cpf` e `instituicao` são obrigatórios, e o campo
+                    `instituicao` deverá conter o mesmo valor utilizado na rota
+                    de simulação na qual foi gerado o `financialId`.
+                        
+                    - Nesse body, o usuário pode enviar as informações bancárias
+                    ou as informações do pix do cliente, mas atenção, só poderá
+                    enviar **um ou outro!** Ou seja, se tiver os valores
+                    `pixKeyType` e `pixKey`, não poderá conter `bankCode`,
+                    `accountType`... Caso contrário, retornará `erro 400`.
+                        
+
+                    ## Valores possíveis para cada atributo do body
+
+
+                    Alguns elementos do body só aceitam alguns valores
+                    específicos, são eles:
+
+
+                    | Tipo do valor | Valores permitidos |
+
+                    | --- | --- |
+
+                    | accountType | corrente, poupanca, pagamento |
+
+                    | pixKeyType | chave_aleatoria, email, telefone, cpf |
+
+
+                    **Atenção:** O valor `pagamento` em `accountType` somente
+                    está disponível para requests onde a `instituicao` é `Nossa
+                    fintech`, se tentar usar esse valor em uma request onde a
+                    `instituicao` for `VCTex` retornará `erro 400`.
+
+
+                    ## Retorno
+
+
+                    Caso a request seja feita da forma correta, deverá retornar
+                    o seguinte body:
+
+
+                    ``` json
+
+                    {
+                       "msg": "Proposta criada com sucesso e já armazenada no banco de dados."
+                    }
+
+                     ```
+                  sortKey: -1782742669786
+                method: POST
+                body:
+                  mimeType: application/json
+                  text: |+
+                    {
+                    	"cpf": "99999999999",
+                    	"instituicao": "Nossa fintech",
+                    	
+                    	 "bankCode": "999",
+                       "accountType": "corrente",
+                       "accountNumber": "99999999",
+                       "accountDigit": "9",
+                       "branchNumber": "9999",
+                    	
+                    	"pixKeyType": "cpf",
+                    	"pixKey": "99999999999"
+                    }
+
+                parameters:
+                  - name: financialId
+                    value: UUID4
+                    disabled: false
+                headers:
+                  - name: Content-Type
+                    value: application/json
+                authentication:
+                  type: bearer
+                  disabled: true
+                  token: fds
+                  prefix: ""
+                settings:
+                  renderRequestBody: true
+                  encodeUrl: true
+                  followRedirects: global
+                  cookies:
+                    send: true
+                    store: true
+                  rebuildPath: true
+          - name: CLT
+            meta:
+              id: fld_6727cb42d06f4229974c1a44d8ec3230
+              created: 1782742681250
+              modified: 1782742681250
+              sortKey: -1782742669785
+              description: ""
+            children:
+              - url: "{{baseURL}}/propostas/CLT"
+                name: Envio de proposta CLT
+                meta:
+                  id: req_7f9254ce314647379926ae5e4ea4bd31
+                  created: 1782742681251
+                  modified: 1782829465272
+                  isPrivate: false
+                  description: |-
+                    ## Sobre esse end-point
+
+                    Esse end-point é usado em sequencia do "[Consultar Vinculo, margem e tabelas](https://gabbflor-7245779.postman.co/workspace/Gabb.Flor's-Workspace~4854f2ee-bb73-4c68-82d5-a1a16bf3e365/request/49809412-f17c1569-13bc-4cdf-af2f-5eef98d3f2c4?action=share&creator=49809412)", ele irá utilizar algumas informações do mesmo para gerar a proposta, enquanto o promotor deverá digitar outras.
+
+                    ## Body
+
+                    O body dessa requisição depende de qual instituição será usada para a operação, caso for o `"Nossa fintech"`:
+
+                    ``` json
+                    {
+                        "instituicao": "Nossa fintech",
+                        "cpf": "00000000000",
+                        "simulacaoId": "",
+                        "banco": "",
+                        "cnpj_empregador": "",
+                        "profissão": "",
+                        "valor_parcelas": 0.0,
+                        "taxa_aplicada": 0.0,
+                        "pixKeyType": "cpf",
+                        "pixKey": "00000000000"
+                    }
+
+                     ```
+
+                    Mas caso for "v8", o body deverá ser da seguinte forma:
+
+                    ``` json
+                    {
+                        "instituicao": "v8",
+                        "pix_key_type": "cpf || chave_aleatoria || email || telefone",
+                        "pix_key": "CPF_CLIENTE",
+                        "cpf": "CPF_CLIENTE",
+                        "sexo": "F",
+                        "qtdParcelas": 36,
+                        "valorParcelas": 999.99,
+                        "tabelaId": "UUID TABELA",
+                        "idTermo": "UUID TERMO DE AUTORIZACAO"
+                    }
+
+                     ```
+
+                    Dessas informações, segue a tabela de quais deverão ser digitadas e quais deverão vir dos end-points passados:
+
+                    | **Informação** | **Digitada?** |
+                    | --- | --- |
+                    | bankCode | sim |
+                    | accountType | sim |
+                    | accountNumber | sim |
+                    | accountDigit | sim |
+                    | branchNumber | sim |
+
+                    Já às outras informações como instituicao, cpf, sexo, nomeMae, cnpjEmpregador, registroEmpregaticio, retornam no end-point [Consultar Vinculo, margem e tabelas], já as informações, qtdParcelas, valorParcelas, tabelaId retornam nesse mesmo end-point, porém deverá ser **escolhida pelo promotor** com base no que foi negociado com o cliente.
+
+                    ## Retorno
+                  sortKey: -1782742669784
+                method: POST
+                body:
+                  mimeType: application/json
+                  text: |-
+                    {
+                        "instituicao": "Nossa fintech",
+                        "cpf": "99999999999",
+                        "simulacaoId": "UUID4",
+                        "banco": "QITECH",
+                        "cnpj_empregador": "99999999999999",
+                        "profissao": "SLA",
+                        "valor_parcelas": 99.99,
+                        "taxa_aplicada": 9.99,
+
+                        "pixKeyType": "cpf",
+                        "pixKey": "99999999999",
+
+                        "bankCode": "999",
+                        "accountType": "corrente",
+                        "accountNumber": "99999999",
+                        "accountDigit": "9",
+                        "branchNumber": "9999"
+                    }
+                headers:
+                  - name: Content-Type
+                    value: application/json
+                authentication:
+                  type: bearer
+                  disabled: true
+                  token: fds
+                  prefix: ""
+                settings:
+                  renderRequestBody: true
+                  encodeUrl: true
+                  followRedirects: global
+                  cookies:
+                    send: true
+                    store: true
+                  rebuildPath: true
+              - url: "{{baseURL}}/propostas/CLT"
+                name: Recuperar propostas paginadas
+                meta:
+                  id: req_10dbfbbd548645ddab87b178dc6714b0
+                  created: 1782742681252
+                  modified: 1782829022506
+                  isPrivate: false
+                  description: ""
+                  sortKey: -1782742669783
+                method: GET
+                parameters:
+                  - name: pesquisa
+                    value: ""
+                    disabled: false
+                  - name: pagina
+                    value: "1"
+                    disabled: false
+                  - name: limite
+                    value: "10"
+                    disabled: false
+                authentication:
+                  type: bearer
+                  disabled: true
+                  token: fds
+                  prefix: ""
+                settings:
+                  renderRequestBody: true
+                  encodeUrl: true
+                  followRedirects: global
+                  cookies:
+                    send: true
+                    store: true
+                  rebuildPath: true
+              - url: "{{baseURL}}/propostas/CLT/simular"
+                name: Simular proposta
+                meta:
+                  id: req_26432a0e15a8488e85784d3bc7012c52
+                  created: 1782742681253
+                  modified: 1782828481914
+                  isPrivate: false
+                  description: |-
+                    body de sucesso retornado pelo v8:
+
+                    ``` json
+                    {
+                        "id_simulacao": "UUID4",
+                        "valor_total": 9999.99,
+                        "id_tabela": "UUID4",
+                        "nome_tabela": "CLT Acelera - Seguro",
+                        "qtd_parcelas": 36,
+                        "valor_parcelas": 999.99,
+                        "taxa_juros_mensal": 0.0699,
+                        "valor_solicitado": 9999.99,
+                        "valor_liberado": 9999.99
+                    }
+
+                     ```
+                  sortKey: -1782742669782
+                method: POST
+                body:
+                  mimeType: application/json
+                  text: >-
+                    // BODY PARA O V8
+
+                    // {
+
+                    //     "instituicao": "v8",
+
+                    //     "idTermo": "UUID4",
+
+                    //     "tabelaId": "UUID4",
+
+                    //     "valorParcelas": 999.99,
+
+                    //     "qtdParcelas": 36
+
+                    // }
+
+
+
+                    // BODY PARA A NOSSA FINTECH
+
+                    // OBS: end-point anterior = "consultar vinculo margem e
+                    tabela"
+
+                    {
+                        "instituicao": "Nossa fintech",
+                        "idTermo": "UUID4",  // "idTermo" end-point anterior
+                        "cnpj_empregador": "99999999999999", // "cnpjEmpregador" end-point anterior
+                        "banco": "QITECH",
+                        "tabelaId": "999999", // campo "cod_tabela" da tabela escolhida no end-point anterior
+                        "valorParcelas": 99.99 // "valorMargemAvaliavel" end-point anterior
+                    }
+                headers:
+                  - name: Content-Type
+                    value: application/json
+                authentication:
+                  type: bearer
+                  disabled: true
+                  token: fds
+                  prefix: ""
+                settings:
+                  renderRequestBody: true
+                  encodeUrl: true
+                  followRedirects: global
+                  cookies:
+                    send: true
+                    store: true
+                  rebuildPath: true
+              - url: "{{baseURL}}/propostas/CLT/cancelar"
+                name: Cancelar proposta
+                meta:
+                  id: req_d9a10daec78040abb1dce664eb9cf203
+                  created: 1782742681254
+                  modified: 1782829033380
+                  isPrivate: false
+                  description: >-
+                    ## Body
+
+
+                    O body dessa requisição deverá ser montado obrigatoriamente
+                    dessa seguinte forma:
+
+
+                    ``` json
+
+                    {
+                        "proposalId": "ID_DA_PROPOSTA",
+                        "instituicao": "v8 || Presenca bank",
+                        "motivo": "MOTIVO_CANCELAMENTO"
+                    }
+
+                     ```
+
+                    Obs: O `proposalId` é o id retornado no momento que a
+                    proposta for criada no end point POST de criar proposta.
+
+
+                    ## Retorno
+
+
+                    Caso a request seja bem concluída, retornará o seguinte body
+                    (focando na automatização com chatbot):
+
+
+                    ``` json
+
+                    {
+                        "id": 5,
+                        "nome": "NOME",
+                        "cpf": "99999999999",
+                        "cel": "99999999999",
+                        "data_nascimento": "1999-01-01T00:00:00.000Z",
+                        "nome_tabela": "CLT Acelera - Seguro",
+                        "id_proposta": "UUID4",
+                        "link_form": "https://ca-consignado-privado-module....",
+                        "contrato": "https://ca-consignado-privado-module....",
+                        "numero_contrato": "99999999",
+                        "usuario_id": 1,
+                        "qtd_parcelas": 36,
+                        "valor_parcelas": "999.99",
+                        "taxa_juros_mensal": "9.99",
+                        "valor_solicitado": "9999.99",
+                        "valor_liberado": "9999.99",
+                        "status_nome": "canceled",
+                        "status_id": "",
+                        "produto_nome": "",
+                        "produto_id": null,
+                        "status_historicos": null,
+                        "verificar": false,
+                        "API": "V8",
+                        "createdAt": "2026-04-07T14:01:43.000Z",
+                        "updatedAt": "2026-04-07T14:45:06.000Z"
+                    }
+
+                     ```
+                  sortKey: -1782742669781
+                method: PATCH
+                body:
+                  mimeType: application/json
+                  text: |
+                    {
+                        "instituicao": "Nossa fintech",
+                        "proposalId": "UUID4",
+                        "motivo": "teste"
+                    }
+                headers:
+                  - name: Content-Type
+                    value: application/json
+                authentication:
+                  type: bearer
+                  disabled: true
+                  token: fds
+                  prefix: ""
+                settings:
+                  renderRequestBody: true
+                  encodeUrl: true
+                  followRedirects: global
+                  cookies:
+                    send: true
+                    store: true
+                  rebuildPath: true
+      - name: Usuarios
+        meta:
+          id: fld_4bc6d85463f64f4abd9375b2c08a6318
+          created: 1782742681256
+          modified: 1782742681256
+          sortKey: -1782742669780
+          description: ""
+        children:
+          - url: "{{baseURL}}/usuarios"
+            name: Pegar usuarios
+            meta:
+              id: req_5400129b381f47e6a9b3409141bdd2d1
+              created: 1782742681257
+              modified: 1782828021944
+              isPrivate: false
+              description: >-
+                ## URL query params
+
+
+                Essa e outras rotas de consultas não recebem body, apenas `query
+                params`, são eles:
+
+
+                | **Query param** | **Valor** |
+
+                | --- | --- |
+
+                | pesquisa | Busca por username |
+
+                | limite | Limite de propostas retornadas |
+
+                | pagina | Página em que a requisição se encontra (utilizada no
+                front principalmente) |
+
+
+                Se a request for feita corretamente, será retornado algo
+                parecido com isso:
+
+
+                ``` json
+
+                {
+                    "data": [
+                        {
+                            "id": 15,
+                            "username": "sla2",
+                            "role": "admin",
+                            "createdAt": "2026-02-09T18:19:09.000Z",
+                            "updatedAt": "2026-02-09T18:23:50.000Z"
+                        },
+                        {
+                            "id": 14,
+                            "username": "teste",
+                            "role": "promotor",
+                            "createdAt": "2026-02-09T17:21:58.000Z",
+                            "updatedAt": "2026-02-09T17:21:58.000Z"
+                        },
+                        {
+                            "id": 5,
+                            "username": "teste2",
+                            "role": "admin",
+                            "createdAt": "2026-01-08T18:28:01.000Z",
+                            "updatedAt": "2026-01-08T18:28:01.000Z"
+                        }
+                    ],
+                    "totalPages": 1
+                }
+
+                 ```
+              sortKey: -1782742669779
+            method: GET
+            parameters:
+              - name: pesquisa
+                value: ""
+                disabled: false
+              - name: pagina
+                value: "1"
+                disabled: false
+              - name: limite
+                value: "5"
+                disabled: false
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{baseURL}}/usuarios/14"
+            name: Editar usuário
+            meta:
+              id: req_65c9e81b7332425a92d6c7ce6b027e60
+              created: 1782742681258
+              modified: 1782828027476
+              isPrivate: false
+              description: >-
+                ## Url da request
+
+
+                Obrigatóriamente na URL dessa request é preciso ter o id do
+                usuário que será deletado, ele fica da seguinte forma:
+
+
+                `URL/usuarios/{ID_USER}`
+
+
+                ## Body
+
+
+                Obrigatóriamente a request deverá conter o seguinte body:
+
+
+                ``` json
+
+                {
+                    "username": "NOVO_USERNAME",
+                    "role": "NOVA_ROLE"
+                }
+
+                 ```
+
+                ## Retorno
+
+
+                Caso a requisição seja feita corretamente, retornará o seguinte
+                body:
+
+
+                ``` json
+
+                {
+                    "msg": "Dados do usuário atualizado com sucesso."
+                }
+
+                 ```
+
+                Caso o usuário não for encontrado, retornará código 404 e o
+                seguinte body:
+
+
+                ``` json
+
+                {
+                    "erro": "Usuário não encontrado"
+                }
+
+                 ```
+              sortKey: -1782742669778
+            method: PUT
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                    "username": "teste4",
+                    "role": "promotor"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{baseURL}}/usuarios/15"
+            name: Deletar Usuario
+            meta:
+              id: req_d6976840895045c8aced8b38055fddd1
+              created: 1782742681259
+              modified: 1782828038879
+              isPrivate: false
+              description: >-
+                ## Url da request
+
+
+                Obrigatóriamente na URL dessa request é preciso ter o id do
+                usuário que será deletado, ele fica da seguinte forma:
+
+
+                `URL/usuarios/{ID_USER}`
+
+
+                ## Retorno
+
+
+                Caso a request seja concluída com sucesso, retornará o seguinte
+                body:
+
+
+                ``` json
+
+                {
+                    "msg": "Usuário deletado com sucesso."
+                }
+
+                 ```
+
+                Caso o usuário não for encontrado, retornará código 404 e o
+                seguinte body:
+
+
+                ``` json
+
+                {
+                    "erro": "Usuário não encontrado"
+                }
+
+                 ```
+              sortKey: -1782742669777
+            method: DELETE
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{baseURL}}/usuarios/14/mudarSenha"
+            name: Mudar senha do usuário
+            meta:
+              id: req_4ebd5f86a51b439593a1df2ac7d61706
+              created: 1782742681260
+              modified: 1782828057553
+              isPrivate: false
+              description: >-
+                ## Url da request
+
+
+                Obrigatóriamente na URL dessa request é preciso ter o id do
+                usuário que será deletado, ele fica da seguinte forma:
+
+
+                `URL/usuarios/{ID_USER}/mudarSenha`
+
+
+                ## Body
+
+
+                Obrigatóriamente a request deverá conter o seguinte body:
+
+
+                ``` json
+
+                {
+                    "password": "NOVA_SENHA"
+                }
+
+                 ```
+
+                ## Retorno
+
+
+                Caso a requisição seja feita corretamente, retornará o seguinte
+                body:
+
+
+                ``` json
+
+                {
+                    "msg": "A senha do usuário foi alterada com sucesso."
+                }
+
+                 ```
+
+                Caso o usuário não for encontrado, retornará código 404 e o
+                seguinte body:
+
+
+                ``` json
+
+                {
+                    "erro": "Usuário não encontrado"
+                }
+
+                 ```
+              sortKey: -1782742669776
+            method: PATCH
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                    "password": "{% faker 'randomPassword' %}"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+      - name: Clientes
+        meta:
+          id: fld_0b366a2c914d4a21a4f08978eb70071f
+          created: 1782742681261
+          modified: 1782742681261
+          sortKey: -1782742669775
+          description: ""
+        children:
+          - url: "{{baseURL}}/clientes"
+            name: MS - Registrar novo cliente manualmente
+            meta:
+              id: req_b1118240b6c04251b9ab7d695c060d9e
+              created: 1782742681262
+              modified: 1782828066400
+              isPrivate: false
+              description: ""
+              sortKey: -1782742669774
+            method: POST
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                    "nome": "TESTE DA SILVA",
+                    "cpf": "12312312312",
+                    "data_nasc": "1232-12-12",
+                    "celular": "111111111"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{baseURL}}/clientes"
+            name: MS - Procurar cliente por cpf
+            meta:
+              id: req_1a610bba787c479199e0aef0dd3c8e62
+              created: 1782742681263
+              modified: 1782828094679
+              isPrivate: false
+              description: ""
+              sortKey: -1782742669773
+            method: GET
+            parameters:
+              - name: cpf
+                value: "99999999999"
+                disabled: false
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{baseURL}}/clientes/novavida"
+            name: Buscar cliente no DB e nova vida
+            meta:
+              id: req_82a3e0a0b8674579a90a74c0beec7abb
+              created: 1782742681264
+              modified: 1782828102984
+              isPrivate: false
+              description: ""
+              sortKey: -1782742669772
+            method: POST
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                    "cpf": "99999999999"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{_['baseURL']}}/clientes/99999999999/sincronizar-novavida"
+            name: Sincronizar dados do cliente do DB com o nova vida
+            meta:
+              id: req_7664c83419e8439b804ec1c7651cf16f
+              created: 1782742681265
+              modified: 1782828125202
+              isPrivate: false
+              description: ""
+              sortKey: -1782742669771
+            method: PATCH
+            authentication:
+              type: bearer
+              disabled: true
+              token: fds
+              prefix: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+      - name: Microserviços
+        meta:
+          id: fld_4485afa617a843cbb042de828db1a930
+          created: 1782742681266
+          modified: 1782742681266
+          sortKey: -1782742669770
+          description: ""
+        children:
+          - url: "{{baseURL}}/microservicos/clientes"
+            name: Procurar cliente por CPF
+            meta:
+              id: req_6881d61ec79f410f90eeceb51b384be3
+              created: 1782742681266
+              modified: 1782828142830
+              isPrivate: false
+              description: >-
+                ## Sobre a rota
+
+
+                Essa rota é principalmente usada para o micro-serviço em python,
+                e tem como objetivo principal verificar se o cliente em questão
+                está ou não cadastrado no banco de dados da API.
+
+
+                ## Headers
+
+
+                Para a requisição funcionar, deverá ser enviado o seguinte
+                header:
+
+
+                | **Header** | **Valor** |
+
+                | --- | --- |
+
+                | apikey | apikey configurada no .env do nodeJS e do python |
+
+
+                ## Query param
+
+
+                Essa rota recebe apenas `cpf` como query param.
+
+
+                ## Retorno
+
+
+                Caso encontrar o cliente em questão, retorna o seguinte body:
+
+
+                ``` json
+
+                {
+                    "id": 4,
+                    "cpf": "99999999999",
+                    "nome": "ZEZINHO DA SILVA",
+                    "data_nasc": "1900-01-01",
+                    "celular": "11999999999"
+                }
+
+                 ```
+
+                Caso o cliente não for encontrado, não retorna nada e da `código
+                204 (no content)`.
+              sortKey: -1782742669769
+            method: GET
+            parameters:
+              - name: cpf
+                value: "99999999999"
+                disabled: false
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{baseURL}}/microservicos/clientes"
+            name: Registrar novo cliente
+            meta:
+              id: req_4d2b4f7e26014b82a47e7edda830d7ab
+              created: 1782742681267
+              modified: 1782828154248
+              isPrivate: false
+              description: >-
+                ## Sobre a rota
+
+
+                Essa rota é principalmente usada para o micro-serviço em python,
+                e tem como objetivo principal de registrar o cliente após ser
+                verificado que ele não existe no banco de dados.
+
+
+                ## Headers
+
+
+                Para a requisição funcionar, deverá ser enviado o seguinte
+                header:
+
+
+                | **Header** | **Valor** |
+
+                | --- | --- |
+
+                | apikey | apikey configurada no .env do nodeJS e do python |
+
+
+                ## Body
+
+
+                Deverá ser enviado o seguinte body:
+
+
+                ``` json
+
+                {
+                    "cpf": "11111111111",
+                    "nome": "teste da silva",
+                    "data_nasc": "2000-01-01",
+                    "celular": "99999999999"
+                }
+
+                 ```
+
+                ## Retorno
+
+
+                Se tudo estiver correto, ele retornará `código 201 (created)` e
+                o seguinte body:
+
+
+                ``` json
+
+                {
+                    "id": 4,
+                    "cpf": "12312312312",
+                    "nome": "ZEZINHO DA SILVA",
+                    "data_nasc": "1900-01-01",
+                    "celular": "11999999999"
+                }
+
+                 ```
+
+                Caso já exista elgum outro registro de cliente com o mesmo cpf,
+                ele retornará `código 409 (conflict)` e o seguinte body:
+
+
+                ``` json
+
+                {
+                    "erro": "Esse cliente já está registrado no banco de dados."
+                }
+
+                 ```
+
+                E se algum valor do body de request estiver incorreto, ele
+                retornará `código 400 (bad request)` e o erro no body indicando
+                onde está errado.
+              sortKey: -1782742669768
+            method: POST
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                    "cpf": "11111111111",
+                    "nome": "teste da silva",
+                    "data_nasc": "2000-01-01",
+                    "celular": "99999999999"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{baseURL}}/microservicos/consulta/FGTS"
+            name: Consulta FGTS
+            meta:
+              id: req_0de3794977a14a72a517a587718ccbd1
+              created: 1782742681268
+              modified: 1782828161950
+              isPrivate: false
+              description: >-
+                ## Sobre o end-point
+
+
+                Esse end-point é usado **exclusivamente** para a comunicação do
+                micro-serviço em python e a api principal em NodeJS.
+
+
+                ## Headers
+
+
+                Para a requisição funcionar, deverá ser enviado o seguinte
+                header:
+
+
+                | **Header** | **Valor** |
+
+                | --- | --- |
+
+                | apikey | apikey configurada no .env do nodeJS e do python |
+
+
+                ## Retorno
+
+
+                O retorno desse end-point segue exatamente igual ao retorno da
+                rota de `consulta FGTS manual`.
+              sortKey: -1782742669767
+            method: POST
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                    "id_promotor": 2,
+                    "cpf": "99999999999",
+                    "instituicao": "VCTex",
+                    "id_consulta_lote": 24
+                }
+            headers:
+              - name: apikey
+                value: ""
+              - name: Content-Type
+                value: application/json
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{baseURL}}/microservicos/consultas_lote"
+            name: Editar status da consulta em lote
+            meta:
+              id: req_bd8884038ed3448fb80e8b218a57b9dc
+              created: 1782742681269
+              modified: 1782742681269
+              isPrivate: false
+              description: ""
+              sortKey: -1782742669766
+            method: PATCH
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                    "id": 1,
+                    "status": "cancelado",
+                    "mensagem": "Estrutura do arquivo .csv inválida"
+                }
+            headers:
+              - name: apikey
+                value: ""
+              - name: Content-Type
+                value: application/json
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{baseURL}}/microservicos/clientes/novavida"
+            name: Procurar e armazenar cliente com Nova Vida
+            meta:
+              id: req_f964348bfa674e1194de7ab61a3b81f7
+              created: 1782742681270
+              modified: 1782828207628
+              isPrivate: false
+              description: >-
+                ## Objetivo do end-point
+
+
+                Esse end point é usado pelo microserviço em python, e tem como
+                objetivo recuperar os dados dos clientes que vieram incompletos
+                no csv da consulta em lote.
+
+
+                ## Body
+
+
+                O body dessa request deverá ser enviado da seguinte forma:
+
+
+                ``` json
+
+                {
+                    "cpf": "11111111111"
+                }
+
+                 ```
+
+                ## Retorno
+
+
+                Se for enviado corretamente, retorna o seguinte body:
+
+
+                ``` json
+
+                {
+                    "id": 14,
+                    "cpf": "...",
+                    "nome": "...",
+                    "data_nasc": "YYYY-MM-DD",
+                    "celular": "..."
+                }
+
+                 ```
+              sortKey: -1782742669765
+            method: POST
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                    "cpf": "11111111111"
+                }
+            headers:
+              - name: Apikey
+                value: ""
+              - name: Content-Type
+                value: application/json
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+      - name: ConsultasCLTPython
+        meta:
+          id: fld_10e813c64362453aabf376736349e45e
+          created: 1782742681272
+          modified: 1782742681272
+          sortKey: -1782742669764
+          description: ""
+        children:
+          - url: "{{baseURL}}/consultasCLTPython"
+            name: Enviar lista de consultas CLT
+            meta:
+              id: req_50eb979514414b84b5ff441dce54aac1
+              created: 1782742681273
+              modified: 1782828393033
+              isPrivate: false
+              description: >-
+                ## Sobre o end-point
+
+
+                Esse end-point recebe todas as consultas CLT que vem da
+                automação em python, e deve ser utilziada apenas por ela.
+
+
+                ## Headers
+
+
+                Para a requisição funcionar, deverá ser enviado o seguinte
+                header:
+
+
+                | **Header** | **Valor** |
+
+                | --- | --- |
+
+                | apikey | apikey configurada no .env do nodeJS e do python |
+
+
+                ## Body
+
+
+                Essa requisição precisa receber o seguinte body para funcionar
+                corretamente:
+
+
+                ``` json
+
+                {
+                    "instituicao": "zili",
+                    "consultas": [
+                        {
+                            "cpf": "99999999999",
+                            "nome": "NOEM CLIENTE",
+                            "data_nasc": "2000-01-01",
+                            "celular": "11999999999",
+                            "valor_parcela": 440.39,
+                            "valor_solicitado": 4856.24,
+                            "qtd_parcelas": 36,
+                            "cnpj": "99.999.999/9999-99",
+                            "empresa": "NOME EMPRESA"
+                        },
+                        {
+                            "cpf": "99999999999",
+                            "nome": "NOEM CLIENTE",
+                            "data_nasc": "2000-01-01",
+                            "celular": "11999999999",
+                            "valor_parcela": 440.39,
+                            "valor_solicitado": 4856.24,
+                            "qtd_parcelas": 36,
+                            "cnpj": "99.999.999/9999-99",
+                            "empresa": "NOME EMPRESA"
+                        },
+                    ......
+                    ]
+                }
+
+                 ```
+
+                Essa array `"consultas"` deverá receber todas as consultas que
+                retornaram saldo na operação.
+              sortKey: -1782742669763
+            method: POST
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                    "instituicao": "zili",
+                    "consultas": [
+                        {
+                            "cpf": "99999999999",
+                            "nome": "CLIENTE1",
+                            "data_nasc": "1999-01-01",
+                            "celular": "1199999999",
+                            "valor_parcela": 999.99,
+                            "valor_solicitado": 9999.99,
+                            "qtd_parcelas": 36,
+                            "cnpj": "99.999.999/9999-99",
+                            "empresa": "EMPRESA1"
+                        },
+                        {
+                            "cpf": "88888888888",
+                            "nome": "CLIENTE2",
+                            "data_nasc": "1999-01-01",
+                            "celular": "11999999999",
+                            "valor_parcela": 999.99,
+                            "valor_solicitado": 9999.99,
+                            "qtd_parcelas": 48,
+                            "cnpj": "99.999.999/9999-99",
+                            "empresa": "EMPRESA2"
+                        },
+                        {
+                            "cpf": "77777777777",
+                            "nome": "CLIENTE3",
+                            "data_nasc": "1999-01-01",
+                            "celular": "11999999999",
+                            "valor_parcela": 999.99,
+                            "valor_solicitado": 9999.99,
+                            "qtd_parcelas": 48,
+                            "cnpj": "99.999.999/9999-99",
+                            "empresa": "EMPRESA3"
+                        },
+                        {
+                            "cpf": "66666666666",
+                            "nome": "CLIENTE4",
+                            "data_nasc": "1999-01-01",
+                            "celular": "11999999999",
+                            "valor_parcela": 999.99,
+                            "valor_solicitado": 9999.99,
+                            "qtd_parcelas": 48,
+                            "cnpj": "99.999.999/9999-99",
+                            "empresa": "EMPRESA4"
+                        },
+                        {
+                            "cpf": "55555555555",
+                            "nome": "CLIENTE5",
+                            "data_nasc": "1999-01-01",
+                            "celular": "11999999999",
+                            "valor_parcela": 999.99,
+                            "valor_solicitado": 9999.99,
+                            "qtd_parcelas": 48,
+                            "cnpj": "99.999.999/9999-99",
+                            "empresa": "EMPRESA5"
+                        }
+                    ]
+                }
+            headers:
+              - name: apikey
+                value: ""
+              - name: Content-Type
+                value: application/json
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{baseURL}}/consultasCLTPython"
+            name: Recuperar consultas CLT python
+            meta:
+              id: req_f30edde1f4ba414daa4ee027a737143b
+              created: 1782742681274
+              modified: 1782828450445
+              isPrivate: false
+              description: >-
+                ## Sobre o end-point
+
+
+                Esse end-point serve como uma busca paginada para a página que
+                vai exibir as consultasCLT retornados pela automação em Python.
+
+
+                ## Parâmetros
+
+
+                | **Param** | **Sobre** |
+
+                | --- | --- |
+
+                | pesquisa | Busca por CPF |
+
+                | pagina | Informa a página da pesquisa |
+
+                | limite | Informa o limite por página |
+
+                | atribuido | Filtra por consultas já atribuídas ou não para os
+                usuários, IMPORTANTE: O valor padrão desse aqui para admin é
+                "false", já que o objetivo é criar uma página só para atribuição
+                |
+              sortKey: -1782742669762
+            method: GET
+            parameters:
+              - name: pesquisa
+                value: ""
+                disabled: false
+              - name: pagina
+                value: "1"
+                disabled: false
+              - name: limite
+                value: "10"
+                disabled: false
+              - name: atribuido
+                value: "true"
+                disabled: false
+            headers:
+              - name: apikey
+                value: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{baseURL}}/consultasCLTPython/atribuir"
+            name: Atribuir consultas para usuários
+            meta:
+              id: req_5faf898b0f134e6590092828fe9a68b6
+              created: 1782742681275
+              modified: 1782828456914
+              isPrivate: false
+              description: ""
+              sortKey: -1782742669761
+            method: PATCH
+            body:
+              mimeType: application/json
+              text: |-
+                [
+                    {
+                        "id": 16,
+                        "usuario_id": 1
+                    },
+                    {
+                        "id": 17,
+                        "usuario_id": 1
+                    },
+                    {
+                        "id": 18,
+                        "usuario_id": 2
+                    },
+                    {
+                        "id": 19,
+                        "usuario_id": 2
+                    }
+                ]
+            headers:
+              - name: apikey
+                value: ""
+              - name: Content-Type
+                value: application/json
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_80bc3ae48a234900ae25f152d668434b
+    created: 1782742681772
+    modified: 1782742681772
+environments:
+  name: Variables
+  meta:
+    id: env_c645c2a8f5f44ceba5d9877d45a4834e
+    created: 1782742681349
+    modified: 1782742681349
+    isPrivate: false
+  data:
+    baseURL: ""
