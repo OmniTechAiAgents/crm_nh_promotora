@@ -10,7 +10,7 @@ import CltConsulta from "../modules/clt/CltConsulta";
 import CltEsteira from "../modules/clt/CltEsteira";
 import BuscarCliente from "../modules/clientes/BuscarCliente";
 import GerarLinkForm from "../modules/link-form/GerarLinkForm";
-
+import EditarSenha from "../modules/users/EditarSenha";
 
 export const routesConfig = [
   {
@@ -70,11 +70,18 @@ export const routesConfig = [
   element: <AdminFgtsLotePage />
 },
 {
-  path: "/usuarios/editar/:id",
+  path: "/usuarios/:id/editar",
   label: "Editar Usuário",
   permission: "USER_MANAGE",
-  showInMenu: false, // importante para não aparecer no menu
+  showInMenu: false,
   element: <EditarUsuario />
+},
+{
+  path: "/usuarios/:id/editarSenha",
+  label: "Editar Senha",
+  permission: "USER_MANAGE",
+  showInMenu: false,
+  element: <EditarSenha />
 },
 {
   path: "/fgts/ofertas",

@@ -24,7 +24,12 @@ export default function EditarUsuario() {
       setUsername(response.data.username);
       setRole(response.data.role);
     } catch (error) {
-      setMensagem("Erro ao carregar usuário.");
+      if (error.response && error.response.status === 404) {
+        navigate("/erro");
+        return;
+      }
+
+      setMensagem(`Erro ao carregar dados do usuário: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -45,11 +50,11 @@ export default function EditarUsuario() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      setMensagem(response.data.msg);
+      alert("Usuário atualizado com sucesso!");
 
       setTimeout(() => {
         navigate("/usuarios");
-      }, 1500);
+      }, 500);
 
     } catch (error) {
       setMensagem("Erro ao atualizar usuário.");
@@ -78,7 +83,7 @@ export default function EditarUsuario() {
         </div>
 
         <div className="form-group">
-          <label>Perfil</label>
+          <label>Nível permissão</label>
           <select
             value={role}
             onChange={(e) => setRole(e.target.value)}

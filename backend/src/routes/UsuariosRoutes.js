@@ -6,6 +6,7 @@ import UsuariosController from "../controllers/UsuariosController.js";
 const UsuariosRoutes = express.Router();
 
 UsuariosRoutes.get("/", AuthenticationToken, AuthorizeRoles("admin"), UsuariosController.Buscar);
+UsuariosRoutes.get("/:usuarioId", AuthenticationToken, AuthorizeRoles("admin"), UsuariosController.BuscarPorId);
 UsuariosRoutes.put("/:usuarioId", AuthenticationToken, AuthorizeRoles("admin"), UsuariosController.Atualizar);
 UsuariosRoutes.delete("/:usuarioId", AuthenticationToken, AuthorizeRoles("admin"), UsuariosController.Deletar);
 UsuariosRoutes.patch("/:usuarioId/mudarSenha", AuthenticationToken, AuthorizeRoles("admin"), UsuariosController.MudarSenha);
