@@ -89,7 +89,7 @@ export default function CltConsulta() {
 
             return response?.data?.link;
         } catch (err) {
-            alert(err.message || "Erro ao gerar termo de autorização.");
+            alert(err.response.data.erro || "Erro ao gerar termo de autorização.");
         }
     }
     async function copiarTexto(conteudo) {
