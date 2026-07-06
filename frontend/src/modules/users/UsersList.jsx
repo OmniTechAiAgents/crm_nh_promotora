@@ -53,6 +53,10 @@ export default function UsersList() {
     navigate(`/usuarios/${user.id}/editar`);
   }
 
+  function handleMudarSenha(user) {
+    navigate(`/usuarios/${user.id}/editarSenha`);
+  }
+
   function renderPagination() {
     const pages = [];
     for (let i = 1; i <= totalPages; i++) {
@@ -109,12 +113,18 @@ export default function UsersList() {
                   <td>
                     {new Date(user.createdAt).toLocaleDateString("pt-BR")}
                   </td>
-                  <td>
+                  <td className="actions-column-users">
                     <button
                         className="editar-btn"
                         onClick={() => handleEditar(user)}
                         >
                             Editar Usuário
+                    </button>
+                    <button
+                        className="editar-btn"
+                        onClick={() => handleMudarSenha(user)}
+                        >
+                            Mudar senha
                     </button>
                 </td>
                 </tr>

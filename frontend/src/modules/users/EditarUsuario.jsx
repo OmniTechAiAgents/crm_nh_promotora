@@ -51,7 +51,6 @@ export default function EditarUsuario() {
       );
 
       alert("Usuário atualizado com sucesso!");
-      // setMensagem(response.data.msg);
 
       setTimeout(() => {
         navigate("/usuarios");

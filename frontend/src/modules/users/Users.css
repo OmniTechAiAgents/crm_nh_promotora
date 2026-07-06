@@ -130,6 +130,12 @@
 /* 🔧 ESTILIZAÇÃO DA EDIÇÃO */
 /* ========================= */
 
+.actions-column-users {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
 .editar-container {
   width: 100%;
   max-width: 520px;
@@ -168,6 +174,34 @@
   border: 1px solid #d1d5db;
   font-size: 14px;
   transition: 0.2s ease;
+}
+
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrapper input {
+  width: 100%;
+  padding-right: 48px;
+}
+
+.toggle-password-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 16px;
+  color: #4b5563;
+  padding: 6px;
+}
+
+.toggle-password-btn:hover {
+  color: #1f2937;
 }
 
 .form-group input:focus,
