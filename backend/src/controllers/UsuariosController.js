@@ -46,6 +46,29 @@ class UsuariosController {
         }
     }
 
+    async BuscarPorId (req, res) {
+        try {
+            const { usuarioId } = req.params;
+
+            const user = await AuthService.BuscarUsuarioPorId(usuarioId);
+
+            if (!user) {
+                return res.status(404).json({ erro: "Usuário não encontrado." });
+            }
+
+            const { password, ...userWithoutPassword } = user.dataValues;
+
+            return res.status(200).json(userWithoutPassword);
+        } catch (err) {
+            if (err instanceof HttpException) {
+                return res.status(err.status).json({ erro: err.message });
+            }
+
+            console.error(`Erro ao buscar o usuário: ${err}`);
+            return res.status(500).json({ erro: err.message });
+        }
+    }
+    
     async Atualizar (req, res) {
         try {
             const dados = ValidarBodyAtualizarUser.parse(req.body);

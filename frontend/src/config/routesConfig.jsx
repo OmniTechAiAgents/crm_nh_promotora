@@ -70,7 +70,7 @@ export const routesConfig = [
   element: <AdminFgtsLotePage />
 },
 {
-  path: "/usuarios/editar/:id",
+  path: "/usuarios/:id/editar",
   label: "Editar Usuário",
   permission: "USER_MANAGE",
   showInMenu: false, // importante para não aparecer no menu
