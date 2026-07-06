@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-APP_DIR="/home/florindo/crm_nh_promotora"
+APP_DIR="/home/nh_server/crm_nh_promotora"
 
 echo "➡ Indo para o projeto"
 cd $APP_DIR
