@@ -8,7 +8,7 @@ services:
     restart: always
     ports:
       # http
-      - "80:80"
+      - "82:80"
     volumes:
       - ./nginx/nginx.dev.conf:/etc/nginx/nginx.conf:ro
     depends_on:
