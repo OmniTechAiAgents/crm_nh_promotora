@@ -8,9 +8,9 @@ services:
     restart: always
     ports:
       # http
-      - "80:80"
+      - "127.0.0.1:82:80"
       # https
-      - "443:443"
+      - "127.0.0.1:442:443"
     volumes:
       - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
       - /etc/letsencrypt:/etc/letsencrypt:ro
