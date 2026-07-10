@@ -861,10 +861,12 @@ class NossaFintechService {
                 }
             );
 
+            console.log(response?.data?.data);
+
             const bodyDB = {
                 cliente_id: cliente.dataValues.id,
                 nome_tabela: "Consignado CLT C/ Seguro",
-                id_proposta: response?.data?.data?.num_proposta,
+                id_proposta: response?.data?.data?.debt_key,
                 link_form: response?.data?.data?.link_form,
                 contrato: response?.data?.data?.ccb_pdf,
                 numero_contrato: response?.data?.data?.num_contrato,
