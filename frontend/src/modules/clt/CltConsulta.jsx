@@ -272,8 +272,8 @@ export default function CltConsulta() {
                 return;
             }
 
-            // colocando validaçao rápida
-            if (instituicao == "v8" && (!resultado[0].idTermo || !tabelaSelecionada || !resultado[0].valorMargemAvaliavel || !prazoSelecionado)) {
+            // colocando validaçao rápida (com checagem segura para evitar leitura de propriedade de null)
+            if (instituicao == "v8" && (!resultado || !resultado[0] || !resultado[0].idTermo || !tabelaSelecionada || !resultado[0].valorMargemAvaliavel || !prazoSelecionado)) {
                 throw new Error("O v8 não retornou alguma informação necessária para prosseguir.")
             }
 
@@ -284,14 +284,15 @@ export default function CltConsulta() {
                 valorParcelas: resultado[0].valorMargemAvaliavel,
                 qtdParcelas: parseInt(prazoSelecionado)
             })
-
+            console.log("BODY ENVIADO PARA O V8 DE SIMULAR:")
+            console.log(bodyV8);
             const bodyNossaFintech = ({
                 instituicao,
-                idTermo: vinculoSelecionado.idTermo,
-                cnpj_empregador: vinculoSelecionado.cnpjEmpregador,
+                idTermo: vinculoSelecionado?.idTermo,
+                cnpj_empregador: vinculoSelecionado?.cnpjEmpregador,
                 banco: bancarizadoraSelecionada,
-                tabelaId: tabelaNossaFintechSelecionada.cod_tabela,
-                valorParcelas: parseFloat(vinculoSelecionado.valorMargemAvaliavel)
+                tabelaId: tabelaNossaFintechSelecionada?.cod_tabela,
+                valorParcelas: parseFloat(vinculoSelecionado?.valorMargemAvaliavel || 0)
             })
 
             console.log("BODY ENVIADO PARA O BGL DE SIMULAR:")

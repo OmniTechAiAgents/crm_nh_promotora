@@ -159,7 +159,7 @@ class V8CLTService {
 
             return bodyRetorno;
         } catch (err) {
-            // console.log(err)
+            console.log(err)
             let status = !err.status ? 500 : err.status;
             let message = `Erro inesperado ao realizar a simulação: ${err}`;
             
@@ -432,11 +432,19 @@ class V8CLTService {
 
     async #aprovaAutorizacaoTermo(idTermo) {
         try {
-            await axios.post(`${process.env.v8_baseURL}/private-consignment/consult/${idTermo}/authorize`, {
-                headers: {
-                    'Authorization': `Bearer ${this.accessToken}`,
+            await axios.post(`${process.env.v8_baseURL}/private-consignment/consult/${idTermo}/authorize`, 
+                {
+                    operationalSystem: "Linux",
+                    deviceModel: "Server",
+                    deviceName: "nh_server",
+                    deviceType: "desktop",
+                },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                    },
                 }
-            })
+            )
         } catch (err) {
             // console.log(err)
             const errorResponse = err.response;
@@ -508,6 +516,9 @@ class V8CLTService {
                 number_of_installments: qtdParcelas,
                 provider: "QI"
             })
+
+            console.log("Body da simulação:");
+            console.log(body);
 
             const response = await axios.post(`${process.env.v8_baseURL}/private-consignment/simulation`, 
                 body,
