@@ -30,6 +30,8 @@ class ConsultasFGTSController {
             }
 
             if (err instanceof HttpException) {
+                console.log("Log exception ConsultasFGTSController:");
+                console.log(err.message);
                 return res.status(err.status).json({ erro: err.message });
             }
 
