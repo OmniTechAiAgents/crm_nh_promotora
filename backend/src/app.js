@@ -8,7 +8,6 @@ import UsuariosRoutes from './routes/UsuariosRoutes.js';
 import ClientesRoutes from './routes/ClientesRoutes.js';
 import db from "./config/db.js";
 import VCTexServices from './services/integrations/VCTexServices.js';
-import NovaVidaService from './services/integrations/NovaVidaService.js';
 import C6Service from './services/integrations/C6Service.js';
 import NossaFintechService from './services/integrations/NossaFintechService.js';
 
@@ -65,9 +64,6 @@ async function bootstrap() {
 
         await VCTexServices.Autenticar();
         console.log("✅ Token VCTex carregado e agendamento ativo");
-
-        await NovaVidaService.Autenticar();
-        console.log("✅ Token NovaVida carregado e agendamento ativo");
 
         await NossaFintechService.Autenticar();
         console.log("✅ Token NossaFintech carregado e agendamento ativo")

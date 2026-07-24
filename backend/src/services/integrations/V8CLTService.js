@@ -3,7 +3,8 @@ import TokenAPIsRepository from "../../repositories/TokenAPIsRepository.js";
 import IsTokenExpired from "../../utils/IsTokenExpired.js";
 import TaskScheduler from "../../utils/TaskScheduler.js";
 import ClientesService from '../ClientesService.js';
-import NovaVidaService from './NovaVidaService.js';
+import LemitService from './LemitService.js';
+import extractBestPhoneNumber from '../../utils/ExtractPhoneNumber.js';
 import HttpException from '../../utils/HttpException.js';
 import PropostasCLTRepository from '../../repositories/PropostasCLTRepository.js';
 
@@ -159,7 +160,7 @@ class V8CLTService {
 
             return bodyRetorno;
         } catch (err) {
-            // console.log(err)
+            console.log(err)
             let status = !err.status ? 500 : err.status;
             let message = `Erro inesperado ao realizar a simulação: ${err}`;
             
@@ -186,17 +187,11 @@ class V8CLTService {
             // recuperando dados do cliente
             const resultBuscaCliente = await ClientesService.procurarCpf(dados.cpf); 
             if (!resultBuscaCliente || resultBuscaCliente?.length === 0) {
-                const dadosCliente = await NovaVidaService.BuscarDados(dados.cpf);
-            
-                if(dadosCliente.CONSULTA == "Não Autorizado") {
-                    throw new HttpException("Não foi possível recuperar os dados do cliente na API do Nova Vida, será necessário fazer o cadastro do cliente manualmente.", 424);
-                }
-
-                await ClientesService.criarClienteNovaVida(dadosCliente, dados.cpf);
+                const dadosCliente = await LemitService.BuscarDados(dados.cpf);
+                await ClientesService.criarClienteLemit(dadosCliente, dados.cpf);
             }
             const cliente = await ClientesService.procurarCpf(dados.cpf);
-            const cliente_ddd = cliente.dataValues.celular.slice(0, 2);
-            const cliente_celular = cliente.dataValues.celular.slice(2);
+            const { ddd: cliente_ddd, numero: cliente_celular } = extractBestPhoneNumber(cliente.dataValues.celular);
             let bancoEscolhido = null;
 
             if (dados.bankCode) {
@@ -389,17 +384,11 @@ class V8CLTService {
             // se não existir, recupera pelo end-point 1
             const resultBuscaCliente = await ClientesService.procurarCpf(cpf); 
             if (!resultBuscaCliente || resultBuscaCliente?.length === 0) {
-                const dadosCliente = await NovaVidaService.BuscarDados(cpf);
-            
-                if(dadosCliente.CONSULTA == "Não Autorizado") {
-                    throw new HttpException("Não foi possível recuperar os dados do cliente na API do Nova Vida, será necessário fazer o cadastro do cliente manualmente.", 424);
-                }
-
-                await ClientesService.criarClienteNovaVida(dadosCliente, cpf);
+                const dadosCliente = await LemitService.BuscarDados(cpf);
+                await ClientesService.criarClienteLemit(dadosCliente, cpf);
             }
             const cliente = await ClientesService.procurarCpf(cpf);
-            const cliente_ddd = cliente.dataValues.celular.slice(0, 2);
-            const cliente_celular = cliente.dataValues.celular.slice(2);
+            const { ddd: cliente_ddd, numero: cliente_celular } = extractBestPhoneNumber(cliente.dataValues.celular);
 
             // montando body para o end-point 1
             const body = ({
@@ -432,11 +421,19 @@ class V8CLTService {
 
     async #aprovaAutorizacaoTermo(idTermo) {
         try {
-            await axios.post(`${process.env.v8_baseURL}/private-consignment/consult/${idTermo}/authorize`, {
-                headers: {
-                    'Authorization': `Bearer ${this.accessToken}`,
+            await axios.post(`${process.env.v8_baseURL}/private-consignment/consult/${idTermo}/authorize`, 
+                {
+                    operationalSystem: "Linux",
+                    deviceModel: "Server",
+                    deviceName: "nh_server",
+                    deviceType: "desktop",
+                },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                    },
                 }
-            })
+            )
         } catch (err) {
             // console.log(err)
             const errorResponse = err.response;
@@ -508,6 +505,9 @@ class V8CLTService {
                 number_of_installments: qtdParcelas,
                 provider: "QI"
             })
+
+            console.log("Body da simulação:");
+            console.log(body);
 
             const response = await axios.post(`${process.env.v8_baseURL}/private-consignment/simulation`, 
                 body,

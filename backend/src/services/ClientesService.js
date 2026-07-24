@@ -13,16 +13,27 @@ class ClientesService {
         }
     }
 
-    async criarClienteNovaVida(data, cpf) {
+    async criarClienteLemit(data, cpf) {
         try {
-            // tratamento do campo DATA_NASC
-            const DataFormatada = ParseNascNV(data.CONSULTA.CADASTRO.NASC);
+            const DataFormatada = data.pessoa.data_nascimento.substring(0, 10);
 
             const clienteObj = ({
+                provider: "Lemit",
                 cpf: cpf,
-                nome: data.CONSULTA.CADASTRO.NOME,
+                nome: data.pessoa.nome,
                 data_nasc: DataFormatada,
-                celular: (`${data.CONSULTA.CELULARES.CELULAR[0].DDDCEL}${data.CONSULTA.CELULARES.CELULAR[0].CEL}`),
+                celular: data.pessoa.celulares,
+                sexo: data.pessoa.sexo,
+                nome_mae: data.pessoa.nome_mae,
+                falecido: data.pessoa.falecido,
+                situacao_cpf: data.pessoa.situacao_cpf,
+                renda: data.pessoa.renda,
+                ocupacao: data.pessoa.ocupacao,
+                emails: data.pessoa.emails,
+                enderecos: data.pessoa.enderecos,
+                carros: data.pessoa.carros,
+                vinculos: data.pessoa.vinculos,
+                risco_credito: data.pessoa.risco_credito
             });
 
             const retorno = await ClientesRepository.create(clienteObj);
@@ -46,16 +57,27 @@ class ClientesService {
         }
     }
 
-    async editarClienteDBUsandoDadosNovaVida(data, cpf) {
+    async editarClienteDBUsandoDadosLemit(data, cpf) {
         try {
-            // tratamento do campo DATA_NASC
-            const DataFormatada = ParseNascNV(data.CONSULTA.CADASTRO.NASC);
+            const DataFormatada = data.pessoa.data_nascimento.substring(0, 10);
 
             const clienteObj = ({
+                provider: "Lemit",
                 cpf: cpf,
-                nome: data.CONSULTA.CADASTRO.NOME,
+                nome: data.pessoa.nome,
                 data_nasc: DataFormatada,
-                celular: (`${data.CONSULTA.CELULARES.CELULAR[0].DDDCEL}${data.CONSULTA.CELULARES.CELULAR[0].CEL}`),
+                celular: data.pessoa.celulares,
+                sexo: data.pessoa.sexo,
+                nome_mae: data.pessoa.nome_mae,
+                falecido: data.pessoa.falecido,
+                situacao_cpf: data.pessoa.situacao_cpf,
+                renda: data.pessoa.renda,
+                ocupacao: data.pessoa.ocupacao,
+                emails: data.pessoa.emails,
+                enderecos: data.pessoa.enderecos,
+                carros: data.pessoa.carros,
+                vinculos: data.pessoa.vinculos,
+                risco_credito: data.pessoa.risco_credito
             });
 
             await ClientesRepository.updateByCpf(cpf, clienteObj);
