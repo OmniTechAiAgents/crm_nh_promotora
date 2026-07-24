@@ -62,6 +62,7 @@ class ClientesService {
             const DataFormatada = data.pessoa.data_nascimento.substring(0, 10);
 
             const clienteObj = ({
+                provider: "Lemit",
                 cpf: cpf,
                 nome: data.pessoa.nome,
                 data_nasc: DataFormatada,
