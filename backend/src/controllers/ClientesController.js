@@ -67,7 +67,7 @@ class ClientesController {
         }
     }
 
-    async BuscarClienteDBeConsultarNovaVida(req, res) {
+    async BuscarClienteDBeConsultarLemit(req, res) {
         try {
             const { cpf } = req.body;
 
@@ -95,7 +95,7 @@ class ClientesController {
         }
     }
 
-    async AtualizarClienteDBViaNovaVida(req, res) {
+    async AtualizarClienteDBViaLemit(req, res) {
         try {
             const { cpf } = req.params;
 
@@ -108,7 +108,7 @@ class ClientesController {
             const dadosCliente = await LemitService.BuscarDados(cpf);
             await ClientesService.editarClienteDBUsandoDadosLemit(dadosCliente, cpf);
 
-            return res.status(200).json({ msg: "As informações do cliente foram atualizadas com sucesso com base na API do nova vida." })
+            return res.status(200).json({ msg: "As informações do cliente foram atualizadas com sucesso com base na API do Lemit." })
         } catch (err) {
             if (err instanceof ZodError) {
                 return res.status(400).json({
