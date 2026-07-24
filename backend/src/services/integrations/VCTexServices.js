@@ -7,7 +7,6 @@ import ConsultasFGTSRepository from '../../repositories/ConsultasFGTSRepository.
 import SimulateFGTS from '../../utils/SimulateFGTS.js';
 import ClientesService from '../ClientesService.js';
 import PropostasRepository from '../../repositories/PropostasRepository.js';
-import NovaVidaService from './NovaVidaService.js';
 import LemitService from './LemitService.js';
 
 class VCTexServices {
@@ -299,13 +298,8 @@ class VCTexServices {
 
             const resultBuscaCliente = await ClientesService.procurarCpf(data.cpf);
             if (!resultBuscaCliente || resultBuscaCliente?.length === 0) {
-                const dadosCliente = await NovaVidaService.BuscarDados(data.cpf);
-
-                if (dadosCliente.CONSULTA == "Não Autorizado") {
-                    throw new HttpException("Não foi possível recuperar os dados do cliente na API do Nova Vida, será necessário fazer o cadastro do cliente manualmente.", 424);
-                }
-
-                await ClientesService.criarClienteNovaVida(dadosCliente, data.cpf);
+                const dadosCliente = await LemitService.BuscarDados(data.cpf);
+                await ClientesService.criarClienteLemit(dadosCliente, data.cpf);
             }
 
             const cliente = await ClientesService.procurarCpf(data.cpf);
@@ -536,13 +530,8 @@ class VCTexServices {
 
             const resultBuscaCliente = await ClientesService.procurarCpf(propostaAPI.borrower.cpf);
             if (!resultBuscaCliente || resultBuscaCliente?.length === 0) {
-                const dadosCliente = await NovaVidaService.BuscarDados(propostaAPI.borrower.cpf);
-
-                if (dadosCliente.CONSULTA == "Não Autorizado") {
-                    throw new HttpException("Não foi possível recuperar os dados do cliente na API do Nova Vida, será necessário fazer o cadastro do cliente manualmente.", 424);
-                }
-
-                await ClientesService.criarClienteNovaVida(dadosCliente, propostaAPI.borrower.cpf);
+                const dadosCliente = await LemitService.BuscarDados(propostaAPI.borrower.cpf);
+                await ClientesService.criarClienteLemit(dadosCliente, propostaAPI.borrower.cpf);
             }
 
             const cliente = await ClientesService.procurarCpf(propostaAPI.borrower.cpf);

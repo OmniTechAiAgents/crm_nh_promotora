@@ -3,7 +3,7 @@ import TokenAPIsRepository from '../../repositories/TokenAPIsRepository.js';
 import IsTokenExpired from '../../utils/IsTokenExpired.js';
 import TaskScheduler from '../../utils/TaskScheduler.js';
 import ClientesService from '../ClientesService.js';
-import NovaVidaService from './NovaVidaService.js';
+import LemitService from './LemitService.js';
 import HttpException from '../../utils/HttpException.js';
 
 class C6Service {
@@ -74,13 +74,8 @@ class C6Service {
         try {
             const resultBuscaCliente = await ClientesService.procurarCpf(cpf); 
             if (!resultBuscaCliente || resultBuscaCliente?.length === 0) {
-                const dadosCliente = await NovaVidaService.BuscarDados(cpf);
-
-                if(dadosCliente.CONSULTA == "Não Autorizado") {
-                    throw new HttpException("Não foi possível recuperar os dados do cliente na API do Nova Vida, será necessário fazer o cadastro do cliente manualmente.", 424);
-                }
-
-                await ClientesService.criarClienteNovaVida(dadosCliente, cpf);
+                const dadosCliente = await LemitService.BuscarDados(cpf);
+                await ClientesService.criarClienteLemit(dadosCliente, cpf);
             }
             
             const clienteData = await ClientesService.procurarCpf(cpf);

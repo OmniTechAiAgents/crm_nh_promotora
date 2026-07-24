@@ -94,6 +94,34 @@ class ClientesService {
             throw err;
         }
     }
+
+    async editarClienteDBUsandoDadosLemit(data, cpf) {
+        try {
+            const DataFormatada = data.pessoa.data_nascimento.substring(0, 10);
+
+            const clienteObj = ({
+                cpf: cpf,
+                nome: data.pessoa.nome,
+                data_nasc: DataFormatada,
+                celular: data.pessoa.celulares,
+                sexo: data.pessoa.sexo,
+                nome_mae: data.pessoa.nome_mae,
+                falecido: data.pessoa.falecido,
+                situacao_cpf: data.pessoa.situacao_cpf,
+                renda: data.pessoa.renda,
+                ocupacao: data.pessoa.ocupacao,
+                emails: data.pessoa.emails,
+                enderecos: data.pessoa.enderecos,
+                carros: data.pessoa.carros,
+                vinculos: data.pessoa.vinculos,
+                risco_credito: data.pessoa.risco_credito
+            });
+
+            await ClientesRepository.updateByCpf(cpf, clienteObj);
+        } catch (err) {
+            throw err;
+        }
+    }
 }
 
 export default new ClientesService();

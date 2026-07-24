@@ -3,7 +3,7 @@ import TokenAPIsRepository from "../../repositories/TokenAPIsRepository.js";
 import IsTokenExpired from "../../utils/IsTokenExpired.js";
 import TaskScheduler from "../../utils/TaskScheduler.js";
 import ClientesService from '../ClientesService.js';
-import NovaVidaService from './NovaVidaService.js';
+import LemitService from './LemitService.js';
 import HttpException from '../../utils/HttpException.js';
 import PropostasCLTRepository from '../../repositories/PropostasCLTRepository.js';
 
@@ -186,13 +186,8 @@ class V8CLTService {
             // recuperando dados do cliente
             const resultBuscaCliente = await ClientesService.procurarCpf(dados.cpf); 
             if (!resultBuscaCliente || resultBuscaCliente?.length === 0) {
-                const dadosCliente = await NovaVidaService.BuscarDados(dados.cpf);
-            
-                if(dadosCliente.CONSULTA == "Não Autorizado") {
-                    throw new HttpException("Não foi possível recuperar os dados do cliente na API do Nova Vida, será necessário fazer o cadastro do cliente manualmente.", 424);
-                }
-
-                await ClientesService.criarClienteNovaVida(dadosCliente, dados.cpf);
+                const dadosCliente = await LemitService.BuscarDados(dados.cpf);
+                await ClientesService.criarClienteLemit(dadosCliente, dados.cpf);
             }
             const cliente = await ClientesService.procurarCpf(dados.cpf);
             const cliente_ddd = cliente.dataValues.celular.slice(0, 2);
@@ -389,13 +384,8 @@ class V8CLTService {
             // se não existir, recupera pelo end-point 1
             const resultBuscaCliente = await ClientesService.procurarCpf(cpf); 
             if (!resultBuscaCliente || resultBuscaCliente?.length === 0) {
-                const dadosCliente = await NovaVidaService.BuscarDados(cpf);
-            
-                if(dadosCliente.CONSULTA == "Não Autorizado") {
-                    throw new HttpException("Não foi possível recuperar os dados do cliente na API do Nova Vida, será necessário fazer o cadastro do cliente manualmente.", 424);
-                }
-
-                await ClientesService.criarClienteNovaVida(dadosCliente, cpf);
+                const dadosCliente = await LemitService.BuscarDados(cpf);
+                await ClientesService.criarClienteLemit(dadosCliente, cpf);
             }
             const cliente = await ClientesService.procurarCpf(cpf);
             const cliente_ddd = cliente.dataValues.celular.slice(0, 2);

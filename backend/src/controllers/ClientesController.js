@@ -2,7 +2,7 @@ import { ValidarBodyCliente } from "../middleware/ValidarBodyCliente.js";
 import ClientesService from "../services/ClientesService.js";
 import HttpException from "../utils/HttpException.js";
 import { ZodError } from "zod";
-import NovaVidaService from '../services/integrations/NovaVidaService.js';
+import LemitService from '../services/integrations/LemitService.js';
 
 class ClientesController {
     async CriarClienteDB(req, res) {
@@ -45,13 +45,8 @@ class ClientesController {
 
             const resultBuscaCliente = await ClientesService.procurarCpf(cpf); 
             if (!resultBuscaCliente || resultBuscaCliente?.length === 0) {
-                const dadosCliente = await NovaVidaService.BuscarDados(cpf);
-
-                if(dadosCliente.CONSULTA == "Não Autorizado") {
-                    throw new HttpException("Não foi possível recuperar os dados do cliente na API do Nova Vida, será necessário fazer o cadastro do cliente manualmente.", 424);
-                }
-
-                await ClientesService.criarClienteNovaVida(dadosCliente, cpf);
+                const dadosCliente = await LemitService.BuscarDados(cpf);
+                await ClientesService.criarClienteLemit(dadosCliente, cpf);
             }
 
             // to re-consultando para garantir a integridade
@@ -78,13 +73,8 @@ class ClientesController {
 
             const resultBuscaCliente = await ClientesService.procurarCpf(cpf); 
             if (!resultBuscaCliente || resultBuscaCliente?.length === 0) {
-                const dadosCliente = await NovaVidaService.BuscarDados(cpf);
-            
-                if(dadosCliente.CONSULTA == "Não Autorizado") {
-                    throw new HttpException("Não foi possível recuperar os dados do cliente na API do Nova Vida, será necessário fazer o cadastro do cliente manualmente.", 424);
-                }
-
-                await ClientesService.criarClienteNovaVida(dadosCliente, cpf);
+                const dadosCliente = await LemitService.BuscarDados(cpf);
+                await ClientesService.criarClienteLemit(dadosCliente, cpf);
             }
             
             const cliente = await ClientesService.procurarCpf(cpf);
@@ -115,14 +105,8 @@ class ClientesController {
                 throw new HttpException("Esse cliente não existe no nosso banco de dados", 409);
             }
 
-            // busca cliente no nova vida primeiro
-            const dadosCliente = await NovaVidaService.BuscarDados(cpf);
-            if(dadosCliente.CONSULTA == "Não Autorizado") {
-                throw new HttpException("Não foi possível recuperar os dados do cliente na API do Nova Vida, será necessário fazer o cadastro do cliente manualmente.", 424);
-            }
-
-            // usa o service para editar o cliente
-            await ClientesService.editarClienteDBUsandoDadosNovaVida(dadosCliente, cpf);
+            const dadosCliente = await LemitService.BuscarDados(cpf);
+            await ClientesService.editarClienteDBUsandoDadosLemit(dadosCliente, cpf);
 
             return res.status(200).json({ msg: "As informações do cliente foram atualizadas com sucesso com base na API do nova vida." })
         } catch (err) {
