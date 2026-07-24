@@ -4,6 +4,7 @@ import IsTokenExpired from '../../utils/IsTokenExpired.js';
 import TaskScheduler from '../../utils/TaskScheduler.js';
 import ClientesService from '../ClientesService.js';
 import LemitService from './LemitService.js';
+import extractBestPhoneNumber from '../../utils/ExtractPhoneNumber.js';
 import HttpException from '../../utils/HttpException.js';
 
 class C6Service {
@@ -79,8 +80,7 @@ class C6Service {
             }
             
             const clienteData = await ClientesService.procurarCpf(cpf);
-            const cliente_ddd = clienteData.dataValues.celular.slice(0, 2);
-            const cliente_celular = clienteData.dataValues.celular.slice(2);
+            const { ddd: cliente_ddd, numero: cliente_celular } = extractBestPhoneNumber(clienteData.dataValues.celular);
             
             const clienteBody = ({
                 nome: clienteData.dataValues.nome,

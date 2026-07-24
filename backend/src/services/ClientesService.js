@@ -13,26 +13,6 @@ class ClientesService {
         }
     }
 
-    async criarClienteNovaVida(data, cpf) {
-        try {
-            // tratamento do campo DATA_NASC
-            const DataFormatada = ParseNascNV(data.CONSULTA.CADASTRO.NASC);
-
-            const clienteObj = ({
-                cpf: cpf,
-                nome: data.CONSULTA.CADASTRO.NOME,
-                data_nasc: DataFormatada,
-                celular: (`${data.CONSULTA.CELULARES.CELULAR[0].DDDCEL}${data.CONSULTA.CELULARES.CELULAR[0].CEL}`),
-            });
-
-            const retorno = await ClientesRepository.create(clienteObj);
-
-            return retorno;
-        } catch(err) {
-            throw err;
-        }
-    }
-
     async criarClienteLemit(data, cpf) {
         try {
             const DataFormatada = data.pessoa.data_nascimento.substring(0, 10);
@@ -72,24 +52,6 @@ class ClientesService {
             }
 
             return await ClientesRepository.create(data);
-        } catch (err) {
-            throw err;
-        }
-    }
-
-    async editarClienteDBUsandoDadosNovaVida(data, cpf) {
-        try {
-            // tratamento do campo DATA_NASC
-            const DataFormatada = ParseNascNV(data.CONSULTA.CADASTRO.NASC);
-
-            const clienteObj = ({
-                cpf: cpf,
-                nome: data.CONSULTA.CADASTRO.NOME,
-                data_nasc: DataFormatada,
-                celular: (`${data.CONSULTA.CELULARES.CELULAR[0].DDDCEL}${data.CONSULTA.CELULARES.CELULAR[0].CEL}`),
-            });
-
-            await ClientesRepository.updateByCpf(cpf, clienteObj);
         } catch (err) {
             throw err;
         }

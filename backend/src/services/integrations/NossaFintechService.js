@@ -8,6 +8,7 @@ import ClientesService from '../ClientesService.js';
 import ISPBRepository from '../../repositories/ISPBRepository.js';
 import PropostasRepository from '../../repositories/PropostasRepository.js';
 import LemitService from './LemitService.js';
+import extractBestPhoneNumber from '../../utils/ExtractPhoneNumber.js';
 import PropostasCLTRepository from '../../repositories/PropostasCLTRepository.js';
 
 
@@ -340,8 +341,7 @@ class NossaFintechService {
             }
 
             const cliente = await ClientesService.procurarCpf(data.cpf);
-            const cliente_ddd = cliente.dataValues.celular.slice(0, 2);
-            const cliente_celular = cliente.dataValues.celular.slice(2);
+            const { ddd: cliente_ddd, numero: cliente_celular } = extractBestPhoneNumber(cliente.dataValues.celular);
             let banco = null;
 
             if (data.bankCode != null && data.bankCode != "") {
@@ -757,8 +757,7 @@ class NossaFintechService {
                 await ClientesService.criarClienteLemit(dadosCliente, data.cpf);
             }
             const cliente = await ClientesService.procurarCpf(data.cpf);
-            const cliente_ddd = cliente.dataValues.celular.slice(0, 2);
-            const cliente_celular = cliente.dataValues.celular.slice(2);
+            const { ddd: cliente_ddd, numero: cliente_celular } = extractBestPhoneNumber(cliente.dataValues.celular);
 
             const bodyRequest = {
                 simulation_key: data.simulacaoId,

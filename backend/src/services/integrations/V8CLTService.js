@@ -4,6 +4,7 @@ import IsTokenExpired from "../../utils/IsTokenExpired.js";
 import TaskScheduler from "../../utils/TaskScheduler.js";
 import ClientesService from '../ClientesService.js';
 import LemitService from './LemitService.js';
+import extractBestPhoneNumber from '../../utils/ExtractPhoneNumber.js';
 import HttpException from '../../utils/HttpException.js';
 import PropostasCLTRepository from '../../repositories/PropostasCLTRepository.js';
 
@@ -190,8 +191,7 @@ class V8CLTService {
                 await ClientesService.criarClienteLemit(dadosCliente, dados.cpf);
             }
             const cliente = await ClientesService.procurarCpf(dados.cpf);
-            const cliente_ddd = cliente.dataValues.celular.slice(0, 2);
-            const cliente_celular = cliente.dataValues.celular.slice(2);
+            const { ddd: cliente_ddd, numero: cliente_celular } = extractBestPhoneNumber(cliente.dataValues.celular);
             let bancoEscolhido = null;
 
             if (dados.bankCode) {
@@ -388,8 +388,7 @@ class V8CLTService {
                 await ClientesService.criarClienteLemit(dadosCliente, cpf);
             }
             const cliente = await ClientesService.procurarCpf(cpf);
-            const cliente_ddd = cliente.dataValues.celular.slice(0, 2);
-            const cliente_celular = cliente.dataValues.celular.slice(2);
+            const { ddd: cliente_ddd, numero: cliente_celular } = extractBestPhoneNumber(cliente.dataValues.celular);
 
             // montando body para o end-point 1
             const body = ({
