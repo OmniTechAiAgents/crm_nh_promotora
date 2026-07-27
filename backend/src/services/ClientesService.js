@@ -1,6 +1,7 @@
 import ClientesRepository from "../repositories/ClientesRepository.js";
 import ParseNascNV from "../utils/ParseNascNV.js";
 import HttpException from "../utils/HttpException.js";
+import SepararDDDTelefone from "../utils/SepararDDDTelefone.js";
 
 class ClientesService {
     async procurarCpf(cpf) {
@@ -51,7 +52,16 @@ class ClientesService {
                 throw new HttpException("Esse cliente já está registrado no banco de dados.", 409)
             }
 
-            return await ClientesRepository.create(data);
+            // usa função para separar o ddd do telefone para o novo body de cliente no db
+            const newCelularBody = SepararDDDTelefone(data.celular);
+
+            const bodyClienteV2 = ({
+                ...data,
+
+                celular: newCelularBody
+            })
+        
+            return await ClientesRepository.create(bodyClienteV2);
         } catch (err) {
             throw err;
         }
