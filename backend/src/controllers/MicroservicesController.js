@@ -5,7 +5,7 @@ import ClientesService from "../services/ClientesService.js";
 import { ZodError } from "zod";
 import { ValidarBodyCliente } from "../middleware/ValidarBodyCliente.js";
 import ConsultasLoteService from "../services/ConsultasLoteService.js";
-import NovaVidaService from "../services/integrations/NovaVidaService.js";
+import LemitService from "../services/integrations/LemitService.js";
 
 class MicroservicesController {
     async Consultar(req, res) {
@@ -92,9 +92,9 @@ class MicroservicesController {
                 throw new HttpException("Esse cliente já existe no nosso banco de dados", 409);
             }
 
-            const clienteNV = await NovaVidaService.BuscarDados(cpf);
+            const clienteNV = await LemitService.BuscarDados(cpf);
 
-            await ClientesService.criarClienteNovaVida(clienteNV, cpf);
+            await ClientesService.criarClienteLemit(clienteNV, cpf);
 
             const response = await ClientesService.procurarCpf(cpf);
 

@@ -1514,7 +1514,7 @@ collection:
                 meta:
                   id: req_2e37503336dd4ffab188e8426f3b575b
                   created: 1782742681248
-                  modified: 1782828497584
+                  modified: 1783352405966
                   isPrivate: false
                   description: >-
                     ## Objetivo do end-point
@@ -1601,7 +1601,7 @@ collection:
                 meta:
                   id: req_c312f514cf714d08b7c89468db2da68a
                   created: 1782742681249
-                  modified: 1782828491991
+                  modified: 1783958441405
                   isPrivate: false
                   description: >-
                     ## URL Query Params
@@ -1839,7 +1839,7 @@ collection:
                 meta:
                   id: req_10dbfbbd548645ddab87b178dc6714b0
                   created: 1782742681252
-                  modified: 1782829022506
+                  modified: 1783352394368
                   isPrivate: false
                   description: ""
                   sortKey: -1782742669783
@@ -2044,12 +2044,12 @@ collection:
           sortKey: -1782742669780
           description: ""
         children:
-          - url: "{{baseURL}}/usuarios"
+          - url: localhost/api/usuarios
             name: Pegar usuarios
             meta:
               id: req_5400129b381f47e6a9b3409141bdd2d1
               created: 1782742681257
-              modified: 1782828021944
+              modified: 1783358646096
               isPrivate: false
               description: >-
                 ## URL query params
@@ -2117,6 +2117,10 @@ collection:
               - name: limite
                 value: "5"
                 disabled: false
+            authentication:
+              type: bearer
+              disabled: true
+              token: ""
             settings:
               renderRequestBody: true
               encodeUrl: true
@@ -2130,7 +2134,7 @@ collection:
             meta:
               id: req_65c9e81b7332425a92d6c7ce6b027e60
               created: 1782742681258
-              modified: 1782828027476
+              modified: 1783000694835
               isPrivate: false
               description: >-
                 ## Url da request
@@ -2258,12 +2262,12 @@ collection:
                 send: true
                 store: true
               rebuildPath: true
-          - url: "{{baseURL}}/usuarios/14/mudarSenha"
+          - url: "{{baseURL}}/usuarios/2/mudarSenha"
             name: Mudar senha do usuário
             meta:
               id: req_4ebd5f86a51b439593a1df2ac7d61706
               created: 1782742681260
-              modified: 1782828057553
+              modified: 1783000993435
               isPrivate: false
               description: >-
                 ## Url da request
@@ -2335,6 +2339,28 @@ collection:
                 send: true
                 store: true
               rebuildPath: true
+          - url: localhost/api/usuarios/1
+            name: Pegar usuario por id
+            meta:
+              id: req_6896a59b5d3942138c674ee895b2a8a2
+              created: 1783352646038
+              modified: 1784916482929
+              isPrivate: false
+              description: ""
+              sortKey: -1783352646038
+            method: GET
+            authentication:
+              type: bearer
+              disabled: true
+              token: asdasdasd
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
       - name: Clientes
         meta:
           id: fld_0b366a2c914d4a21a4f08978eb70071f
@@ -2395,12 +2421,12 @@ collection:
                 send: true
                 store: true
               rebuildPath: true
-          - url: "{{baseURL}}/clientes/novavida"
+          - url: "{{baseURL}}/clientes/lemit"
             name: Buscar cliente no DB e nova vida
             meta:
               id: req_82a3e0a0b8674579a90a74c0beec7abb
               created: 1782742681264
-              modified: 1782828102984
+              modified: 1784916145490
               isPrivate: false
               description: ""
               sortKey: -1782742669772
@@ -2422,12 +2448,12 @@ collection:
                 send: true
                 store: true
               rebuildPath: true
-          - url: "{{_['baseURL']}}/clientes/99999999999/sincronizar-novavida"
+          - url: "{{_['baseURL']}}/clientes/99999999999/sincronizar-lemit"
             name: Sincronizar dados do cliente do DB com o nova vida
             meta:
               id: req_7664c83419e8439b804ec1c7651cf16f
               created: 1782742681265
-              modified: 1782828125202
+              modified: 1784916180298
               isPrivate: false
               description: ""
               sortKey: -1782742669771

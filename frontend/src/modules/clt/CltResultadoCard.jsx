@@ -10,7 +10,7 @@ export default function CltResultadoCard({ resultado }) {
     const [msgRetorno, setMsgRetorno] = useState("");
     const [linkForm, setLinkForm] = useState("");
 
-    console.log("Resultado recebido no card:", resultado);
+    
 
     if (!resultado) return null;
 

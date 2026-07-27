@@ -9,8 +9,8 @@ ClientesRoutes.post("/", AuthenticationToken, ClientesController.CriarClienteDB)
 
 ClientesRoutes.get("/", AuthenticationToken, ClientesController.BuscarClientePorCpf);
 
-ClientesRoutes.post("/novavida", AuthenticationToken, ClientesController.BuscarClienteDBeConsultarNovaVida);
+ClientesRoutes.post("/lemit", AuthenticationToken, ClientesController.BuscarClienteDBeConsultarLemit);
 
-ClientesRoutes.patch("/:cpf/sincronizar-novavida", AuthenticationToken, AuthorizeRoles('admin'), ClientesController.AtualizarClienteDBViaNovaVida);
+ClientesRoutes.patch("/:cpf/sincronizar-lemit", AuthenticationToken, AuthorizeRoles('admin'), ClientesController.AtualizarClienteDBViaLemit);
 
 export default ClientesRoutes;
