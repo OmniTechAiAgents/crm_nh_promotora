@@ -44,7 +44,7 @@ const Clientes = db.define(
             allowNull: true
         },
         situacao_cpf: {
-            type: DataTypes.STRING(20),
+            type: DataTypes.STRING(75),
             allowNull: true
         },
         renda: {
