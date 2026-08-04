@@ -8,6 +8,7 @@ import SimulateFGTS from '../../utils/SimulateFGTS.js';
 import ClientesService from '../ClientesService.js';
 import PropostasRepository from '../../repositories/PropostasRepository.js';
 import LemitService from './LemitService.js';
+import extractBestPhoneNumber from '../../utils/ExtractPhoneNumber.js';
 
 class VCTexServices {
     constructor() {
@@ -184,14 +185,14 @@ class VCTexServices {
                 throw lastError || new Error("Falha ao realizar simulação");
             }
 
-            const resultBuscaCliente = await ClientesService.procurarCpf(data.cpf);
+            const resultBuscaCliente = await ClientesService.procurarCpf(cpf);
             if (!resultBuscaCliente || resultBuscaCliente?.length === 0) {
-                const dadosCliente = await LemitService.BuscarDados(data.cpf);
+                const dadosCliente = await LemitService.BuscarDados(cpf);
 
-                await ClientesService.criarClienteLemit(dadosCliente, data.cpf);
+                await ClientesService.criarClienteLemit(dadosCliente, cpf);
             }
 
-            const cliente = await ClientesService.procurarCpf(data.cpf);
+            const cliente = await ClientesService.procurarCpf(cpf);
 
             const bodyDB = {
                 cliente_id: cliente.id,
@@ -236,7 +237,7 @@ class VCTexServices {
 
             // adicionando o obj de cliente no body de retorno
             const novoRegistro = await ConsultasFGTSRepository.Create(bodyDB)
-            
+
             bodyRetorno = ({
                 ...novoRegistro.dataValues,
                 cliente: cliente.dataValues
@@ -303,6 +304,15 @@ class VCTexServices {
             }
 
             const cliente = await ClientesService.procurarCpf(data.cpf);
+            const { ddd: cliente_ddd, numero: cliente_celular } = extractBestPhoneNumber(cliente.dataValues.celular);
+            let banco = null;
+
+            if (data.bankCode != null && data.bankCode != "") {
+                banco = await ISPBRepository.findByCod(data.bankCode);
+                if (banco == null) {
+                    throw new HttpException("Banco não encontrado", 404);
+                }
+            }
 
             const reqBody = ({
                 feeScheduleId: 0,
@@ -312,7 +322,7 @@ class VCTexServices {
                     cpf: cliente.dataValues.cpf,
                     birthdate: cliente.dataValues.data_nasc,
                     gender: "male",
-                    phoneNumber: cliente.dataValues.celular,
+                    phoneNumber: `${cliente_ddd}${cliente_celular}`,
                     email: "exemple@gmail.com",
                     maritalStatus: "single",
                     nationality: "brazilian",
