@@ -56,6 +56,8 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - app_network
   
@@ -97,10 +99,32 @@ services:
     networks:
       - app_network
 
+  redis:
+    image: redis:7-alpine
+    container_name: redis_cache
+    restart: always
+    # Exige senha e ativa appendonly para persistência consistente
+    command: >
+      redis-server 
+      --requirepass ${REDIS_PASSWORD} 
+      --appendonly yes 
+      --loglevel warning
+    volumes:
+      - redis_data:/data
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "--no-auth-warning", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
 volumes:
   mysql_data:
   rabbitmq_data:
   shared_uploads: 
+  redis_data:
 
 networks:
   app_network:

@@ -53,7 +53,11 @@ export default function BuscarCliente() {
 
             setCliente(dataCliente.data);
         } catch (err) {
-            alert(`Erro ao sincronizar dados do cliente: ${err.response.data.erro}`);
+            if(err.status === 429) {
+                alert("Você atingiu o limite de 100 requisições diárias, contate um administrador para continuar requisitando no lemit.")
+            } else {
+                alert(`Erro ao sincronizar dados do cliente: ${err.response.data.erro}`);
+            }
         } finally {
             setCarregando(false)
         }

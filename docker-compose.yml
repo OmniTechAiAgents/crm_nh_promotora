@@ -53,6 +53,8 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - app_network
   
@@ -94,10 +96,33 @@ services:
     networks:
       - app_network
 
+  redis:
+    image: redis:7-alpine
+    container_name: redis_cache
+    restart: always
+    command: >
+      redis-server 
+      --requirepass ${REDIS_PASSWORD} 
+      --appendonly yes 
+      --loglevel warning
+    # Se quiser expor no localhost para debug local no DBeaver/Redis Insight:
+    # ports:
+    #   - "127.0.0.1:6379:6379"
+    volumes:
+      - redis_data:/var/lib/redis/data
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 volumes:
   mysql_data:
   rabbitmq_data:
   shared_uploads: 
+  redis_data:
 
 networks:
   app_network:
