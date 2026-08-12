@@ -52,7 +52,7 @@ const Clientes = db.define(
             allowNull: true
         },
         ocupacao: {
-            type: DataTypes.STRING(100),
+            type: DataTypes.STRING(255),
             allowNull: true
         },
         emails: {
