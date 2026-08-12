@@ -72,7 +72,7 @@ export default function InfoClienteNovaVida({ cliente, sincronizarDadosLemit, us
             </div>
 
             {/* Botão de Ação do Admin */}
-            {userRole === "admin" && (
+            {userRole === "admin" || userRole === "promotor" && (
                 <button
                     type='button'
                     className="btn-consultar btn-sincronizar-dados-nv"
