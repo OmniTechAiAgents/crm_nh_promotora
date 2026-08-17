@@ -43,7 +43,7 @@ export default function InfoClienteLemit({ cliente, sincronizarDadosLemit, userR
 
     return (
         <div className='infos-cliente-container'>
-            
+
             {/* SEÇÃO 1: Dados Pessoais Principais */}
             <div className="info-card-section full-width">
                 <h3 className="section-title">Dados Gerais (Lemit)</h3>
@@ -220,15 +220,13 @@ export default function InfoClienteLemit({ cliente, sincronizarDadosLemit, userR
             </div>
 
             {/* Botão de Ação do Admin */}
-            {userRole === "admin" || userRole === "promotor" && (
-                <button
-                    type='button'
-                    className="btn-consultar btn-sincronizar-dados-nv"
-                    onClick={() => sincronizarDadosLemit(cpf)}
-                >
-                    Sincronizar dados com Lemit
-                </button>
-            )}
+            <button
+                type='button'
+                className="btn-consultar btn-sincronizar-dados-nv"
+                onClick={() => sincronizarDadosLemit(cpf)}
+            >
+                Sincronizar dados com Lemit
+            </button>
         </div>
     );
 }
