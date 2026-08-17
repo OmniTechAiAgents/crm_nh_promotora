@@ -29,7 +29,7 @@ export default function InfoClienteNovaVida({ cliente, sincronizarDadosLemit, us
 
     return (
         <div className='infos-cliente-container'>
-            
+
             {/* SEÇÃO 1: Dados Gerais do Nova Vida */}
             <div className="info-card-section full-width">
                 <h3 className="section-title">Dados Gerais (Nova Vida)</h3>
@@ -72,15 +72,13 @@ export default function InfoClienteNovaVida({ cliente, sincronizarDadosLemit, us
             </div>
 
             {/* Botão de Ação do Admin */}
-            {userRole === "admin" || userRole === "promotor" && (
-                <button
-                    type='button'
-                    className="btn-consultar btn-sincronizar-dados-nv"
-                    onClick={() => sincronizarDadosLemit(cpf)}
-                >
-                    Sincronizar dados com Lemit
-                </button>
-            )}
+            <button
+                type='button'
+                className="btn-consultar btn-sincronizar-dados-nv"
+                onClick={() => sincronizarDadosLemit(cpf)}
+            >
+                Sincronizar dados com Lemit
+            </button>
         </div>
     );
 }
