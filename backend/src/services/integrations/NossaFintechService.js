@@ -351,6 +351,14 @@ class NossaFintechService {
                 }
             }
 
+            if (data.pixKeyType == "phone") {
+                // remove tudo que não for dígito
+                const onlyDigits = data.pixKey.replace(/\D/g, "");
+
+                // adiciona o prefixo +55
+                data.pixKey = `+55${onlyDigits}`;
+            }
+
             const reqBody = ({
                 simulation_key: data.financialId,
                 service_type: verifica.banco,
@@ -437,6 +445,8 @@ class NossaFintechService {
 
             return;
         } catch (err) {
+            console.log(err.response?.data);
+
             if (axios.isAxiosError(err)) {
                 const status = 424;
                 const message = err.response?.data?.message || "Erro desconhecido.";
