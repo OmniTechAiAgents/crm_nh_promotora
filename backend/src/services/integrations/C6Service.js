@@ -80,8 +80,13 @@ class C6Service {
             }
             
             const clienteData = await ClientesService.procurarCpf(cpf);
-            const { ddd: cliente_ddd, numero: cliente_celular } = extractBestPhoneNumber(clienteData.dataValues.celular);
+            let { ddd: cliente_ddd, numero: cliente_celular } = extractBestPhoneNumber(clienteData.dataValues.celular);
             
+            if (!cliente_ddd || cliente_ddd == null || !cliente_celular || cliente_celular == null) {
+                cliente_celular = "999999999"
+                cliente_ddd = "55"
+            }
+
             const clienteBody = ({
                 nome: clienteData.dataValues.nome,
                 cpf: clienteData.dataValues.cpf,
